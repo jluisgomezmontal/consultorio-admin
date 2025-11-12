@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 const citaSchema = z.object({
   pacienteId: z.string().uuid({ message: 'Selecciona un paciente válido' }),
@@ -47,6 +48,20 @@ const estadoOptions: { value: CitaEstado; label: string }[] = [
 ];
 
 export default function NuevaCitaPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <LoadingSpinner delay={0} fullScreen={false} message="Cargando formulario de cita..." />
+        </div>
+      }
+    >
+      <NuevaCitaContent />
+    </Suspense>
+  );
+}
+
+function NuevaCitaContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
