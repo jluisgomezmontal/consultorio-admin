@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 const pagoSchema = z.object({
   citaId: z.string().uuid({ message: 'Selecciona una cita válida' }),
@@ -46,6 +47,20 @@ const estatusOptions: { value: EstatusPago; label: string }[] = [
 ];
 
 export default function NuevoPagoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <LoadingSpinner delay={0} fullScreen={false} message="Cargando formulario de pago..." />
+        </div>
+      }
+    >
+      <NuevoPagoContent />
+    </Suspense>
+  );
+}
+
+function NuevoPagoContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();

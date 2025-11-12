@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,20 @@ const metodoLabels: Record<string, string> = {
 type AppliedFilters = Omit<PagosFilters, 'page' | 'limit'>;
 
 export default function PagosPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <LoadingSpinner delay={0} fullScreen={false} message="Cargando pagos..." />
+        </div>
+      }
+    >
+      <PagosContent />
+    </Suspense>
+  );
+}
+
+function PagosContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
