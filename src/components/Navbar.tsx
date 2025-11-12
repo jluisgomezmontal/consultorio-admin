@@ -19,6 +19,8 @@ export function Navbar() {
     { href: '/citas', label: 'Citas' },
     { href: '/consultorios', label: 'Consultorios' },
     { href: '/pacientes', label: 'Pacientes' },
+    { href: '/pagos', label: 'Pagos' },
+    { href: '/reportes', label: 'Reportes' },
     ...(user?.role === 'admin' ? [{ href: '/users', label: 'Usuarios' }] : []),
   ];
 

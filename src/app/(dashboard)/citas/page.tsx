@@ -1,16 +1,18 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { citaService, Cita, CitaEstado } from '@/services/cita.service';
+import { citaService, Cita, CitaEstado, CitasFilters } from '@/services/cita.service';
+import { userService } from '@/services/user.service';
+import { consultorioService } from '@/services/consultorio.service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, UserRound, Building2 } from 'lucide-react';
+import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, UserRound, Building2, DollarSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
@@ -28,22 +30,58 @@ const estadoVariants: Record<CitaEstado, 'secondary' | 'default' | 'destructive'
   cancelada: 'destructive',
 };
 
-const normalizeText = (value: string | null | undefined) =>
-  value
-    ? value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-    : '';
+type AppliedFilters = Omit<CitasFilters, 'page' | 'limit'>;
 
 export default function CitasPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState<CitaEstado | 'todos'>('todos');
   const limit = 10;
+  const today = new Date().toISOString().split('T')[0];
+  const estadoParam = searchParams.get('estado');
+  const validEstados: CitaEstado[] = ['pendiente', 'confirmada', 'completada', 'cancelada'];
+  const initialEstado =
+    estadoParam && validEstados.includes(estadoParam as CitaEstado)
+      ? (estadoParam as CitaEstado)
+      : 'todos';
+  const initialDoctorId = searchParams.get('doctorId') ?? '';
+  const initialConsultorioId = searchParams.get('consultorioId') ?? '';
+  const initialDateFrom = searchParams.get('dateFrom') ?? today;
+  const initialDateTo = searchParams.get('dateTo') ?? '';
+  const initialSearch = searchParams.get('search') ?? '';
+  const initialPageValue = Number(searchParams.get('page') ?? '1');
+  const initialPage = Number.isNaN(initialPageValue) || initialPageValue < 1 ? 1 : initialPageValue;
+
+  const [page, setPage] = useState(initialPage);
+  const [searchValue, setSearchValue] = useState(initialSearch);
+  const [estadoFilter, setEstadoFilter] = useState<CitaEstado | 'todos'>(initialEstado);
+  const [doctorFilter, setDoctorFilter] = useState(initialDoctorId);
+  const [consultorioFilter, setConsultorioFilter] = useState(initialConsultorioId);
+  const [dateFrom, setDateFrom] = useState(initialDateFrom);
+  const [dateTo, setDateTo] = useState(initialDateTo);
+
+  const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>(() => {
+    const filters: AppliedFilters = {};
+    if (initialSearch) filters.search = initialSearch;
+    if (initialEstado !== 'todos') filters.estado = initialEstado as CitaEstado;
+    if (initialDoctorId) filters.doctorId = initialDoctorId;
+    if (initialConsultorioId) filters.consultorioId = initialConsultorioId;
+    if (initialDateFrom) filters.dateFrom = initialDateFrom;
+    if (initialDateTo) filters.dateTo = initialDateTo;
+    return filters;
+  });
+
+  const requestFilters = useMemo<CitasFilters>(() => {
+    const filters: CitasFilters = { page, limit };
+    if (appliedFilters.search) filters.search = appliedFilters.search;
+    if (appliedFilters.estado) filters.estado = appliedFilters.estado;
+    if (appliedFilters.doctorId) filters.doctorId = appliedFilters.doctorId;
+    if (appliedFilters.consultorioId) filters.consultorioId = appliedFilters.consultorioId;
+    if (appliedFilters.dateFrom) filters.dateFrom = appliedFilters.dateFrom;
+    if (appliedFilters.dateTo) filters.dateTo = appliedFilters.dateTo;
+    return filters;
+  }, [appliedFilters, page, limit]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -51,11 +89,57 @@ export default function CitasPage() {
     }
   }, [authLoading, user, router]);
 
-  const { data: citasData, isLoading } = useQuery({
-    queryKey: ['citas'],
-    queryFn: () => citaService.getAllCitas({ page: 1, limit: 1000 }),
+  useEffect(() => {
+    if (!user) return;
+
+    const params = new URLSearchParams();
+    if (requestFilters.page && requestFilters.page > 1) {
+      params.set('page', requestFilters.page.toString());
+    }
+    if (requestFilters.search) params.set('search', requestFilters.search);
+    if (requestFilters.estado) params.set('estado', requestFilters.estado);
+    if (requestFilters.doctorId) params.set('doctorId', requestFilters.doctorId);
+    if (requestFilters.consultorioId) params.set('consultorioId', requestFilters.consultorioId);
+    if (requestFilters.dateFrom) params.set('dateFrom', requestFilters.dateFrom);
+    if (requestFilters.dateTo) params.set('dateTo', requestFilters.dateTo);
+
+    const queryString = params.toString();
+    router.replace(queryString ? `/citas?${queryString}` : '/citas', { scroll: false });
+  }, [requestFilters, router, user]);
+
+  const { data: doctoresData } = useQuery({
+    queryKey: ['doctores'],
+    queryFn: () => userService.getDoctors(),
     enabled: !!user,
   });
+
+  const { data: consultoriosData } = useQuery({
+    queryKey: ['consultorios', 'options'],
+    queryFn: () => consultorioService.getAllConsultorios(1, 100),
+    enabled: !!user,
+  });
+
+  const { data: citasData, isLoading } = useQuery({
+    queryKey: ['citas', requestFilters],
+    queryFn: () => citaService.getAllCitas(requestFilters),
+    enabled: !!user,
+  });
+
+  const citasResult = citasData;
+  const citaLimit = citasResult?.limit ?? limit;
+  const total = citasResult?.total ?? 0;
+  const citas = citasResult?.data ?? [];
+  const totalPages = Math.max(1, Math.ceil(total / Math.max(citaLimit, 1)));
+
+  useEffect(() => {
+    if (!citasResult) return;
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [citasResult, page, totalPages]);
+
+  const doctors = doctoresData?.data ?? [];
+  const consultorios = consultoriosData?.data ?? [];
 
   const cancelMutation = useMutation({
     mutationFn: (id: string) => citaService.cancelCita(id),
@@ -93,35 +177,32 @@ export default function CitasPage() {
     }
   };
 
-  const handleSearch = (event: React.FormEvent) => {
+  const handleFiltersSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const nextFilters: AppliedFilters = {};
+    const trimmedSearch = searchValue.trim();
+    if (trimmedSearch) nextFilters.search = trimmedSearch;
+    if (estadoFilter !== 'todos') nextFilters.estado = estadoFilter;
+    if (doctorFilter) nextFilters.doctorId = doctorFilter;
+    if (consultorioFilter) nextFilters.consultorioId = consultorioFilter;
+    if (dateFrom) nextFilters.dateFrom = dateFrom;
+    if (dateTo) nextFilters.dateTo = dateTo;
+
+    setAppliedFilters(nextFilters);
     setPage(1);
   };
 
-  const allCitas = citasData?.data || [];
-  const filteredCitas = useMemo(() => {
-    const term = normalizeText(search.trim());
-
-    return allCitas.filter((cita) => {
-      const matchesEstado = estadoFilter === 'todos' || cita.estado === estadoFilter;
-      if (!matchesEstado) return false;
-
-      if (!term) return true;
-
-      const pacienteName = normalizeText(cita.paciente?.fullName);
-      const doctorName = normalizeText(cita.doctor?.name);
-      const consultorioName = normalizeText(cita.consultorio?.name);
-      const motivo = normalizeText(cita.motivo);
-
-      return [pacienteName, doctorName, consultorioName, motivo].some((value) =>
-        value.includes(term)
-      );
-    });
-  }, [allCitas, estadoFilter, search]);
-
-  const total = filteredCitas.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const citas = filteredCitas.slice((page - 1) * limit, page * limit);
+  const handleClearFilters = () => {
+    setSearchValue('');
+    setEstadoFilter('todos');
+    setDoctorFilter('');
+    setConsultorioFilter('');
+    setDateFrom('');
+    setDateTo('');
+    setAppliedFilters({});
+    setPage(1);
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -182,32 +263,82 @@ export default function CitasPage() {
 
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <form onSubmit={handleFiltersSubmit} className="flex flex-col gap-4">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar por paciente, doctor, consultorio o motivo..."
+                    value={searchValue}
+                    onChange={(event) => setSearchValue(event.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <select
+                  value={estadoFilter}
+                  onChange={(event) => setEstadoFilter(event.target.value as CitaEstado | 'todos')}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="todos">Todos los estados</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+                <select
+                  value={doctorFilter}
+                  onChange={(event) => setDoctorFilter(event.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Todos los doctores</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={consultorioFilter}
+                  onChange={(event) => setConsultorioFilter(event.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Todos los consultorios</option>
+                  {consultorios.map((consultorio) => (
+                    <option key={consultorio.id} value={consultorio.id}>
+                      {consultorio.name}
+                    </option>
+                  ))}
+                </select>
                 <Input
-                  type="text"
-                  placeholder="Buscar por paciente, doctor, consultorio o motivo..."
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  className="pl-10"
+                  type="date"
+                  value={dateFrom}
+                  onChange={(event) => setDateFrom(event.target.value)}
+                  className="h-10"
+                />
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(event) => setDateTo(event.target.value)}
+                  className="h-10"
+                  min={dateFrom || undefined}
                 />
               </div>
-              <select
-                value={estadoFilter}
-                onChange={(event) => {
-                  setEstadoFilter(event.target.value as CitaEstado | 'todos');
-                  setPage(1);
-                }}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="todos">Todos los estados</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="confirmada">Confirmada</option>
-                <option value="completada">Completada</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
-              <Button type="submit">Buscar</Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="submit">Aplicar filtros</Button>
+                <Button type="button" variant="outline" onClick={handleClearFilters}
+                  disabled={
+                    !searchValue &&
+                    estadoFilter === 'todos' &&
+                    !doctorFilter &&
+                    !consultorioFilter &&
+                    !dateFrom &&
+                    !dateTo
+                  }
+                >
+                  Limpiar
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
@@ -310,6 +441,12 @@ export default function CitasPage() {
                             </Button>
                             {(user.role === 'admin' || user.role === 'doctor') && (
                               <>
+                                <Button variant="outline" size="sm" asChild>
+                                  <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
+                                    <DollarSign className="mr-2 h-4 w-4" />
+                                    Pagar
+                                  </Link>
+                                </Button>
                                 <Button variant="outline" size="sm" asChild>
                                   <Link href={`/citas/${cita.id}/editar`}>
                                     <Pencil className="mr-2 h-4 w-4" />

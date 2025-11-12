@@ -78,6 +78,7 @@ export interface UpdateCitaRequest {
 export interface CitasFilters {
   page?: number;
   limit?: number;
+  search?: string;
   doctorId?: string;
   pacienteId?: string;
   consultorioId?: string;
