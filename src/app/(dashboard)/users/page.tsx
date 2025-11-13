@@ -129,7 +129,7 @@ export default function UsersPage() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-muted-foreground text-sm">
-                          {u.consultorioId.substring(0, 8)}...
+                          {u.consultorio?.name || 'Sin consultorio'}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex justify-end gap-2">

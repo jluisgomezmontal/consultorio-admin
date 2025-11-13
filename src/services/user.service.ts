@@ -8,6 +8,13 @@ export interface User {
   consultorioId: string;
   createdAt: string;
   updatedAt: string;
+  consultorio?: {
+    id?: string;
+    name: string;
+    address?: string;
+    phone?: string;
+    description?: string;
+  };
 }
 
 export interface CreateUserRequest {
