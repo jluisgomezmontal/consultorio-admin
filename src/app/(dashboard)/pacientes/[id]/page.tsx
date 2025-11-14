@@ -185,9 +185,11 @@ export default function PacienteDetailPage() {
                     Nueva Cita
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Ver Historial Completo
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href={`/pacientes/${id}/historial`}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Ver Historial Completo
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

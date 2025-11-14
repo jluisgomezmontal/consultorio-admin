@@ -52,7 +52,11 @@ function CitasContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const limit = 10;
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const defaultDateTo = tomorrowDate.toISOString().split('T')[0];
   const estadoParam = searchParams.get('estado');
   const validEstados: CitaEstado[] = ['pendiente', 'confirmada', 'completada', 'cancelada'];
   const initialEstado =
@@ -62,7 +66,7 @@ function CitasContent() {
   const initialDoctorId = searchParams.get('doctorId') ?? '';
   const initialConsultorioId = searchParams.get('consultorioId') ?? '';
   const initialDateFrom = searchParams.get('dateFrom') ?? today;
-  const initialDateTo = searchParams.get('dateTo') ?? '';
+  const initialDateTo = searchParams.get('dateTo') ?? defaultDateTo;
   const initialSearch = searchParams.get('search') ?? '';
   const initialPageValue = Number(searchParams.get('page') ?? '1');
   const initialPage = Number.isNaN(initialPageValue) || initialPageValue < 1 ? 1 : initialPageValue;

@@ -18,10 +18,12 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
 const citaSchema = z.object({
-  pacienteId: z.string().uuid({ message: 'Selecciona un paciente válido' }),
-  doctorId: z.string().uuid({ message: 'Selecciona un doctor válido' }),
-  consultorioId: z.string().uuid({ message: 'Selecciona un consultorio válido' }),
+  pacienteId: z.string().regex(objectIdRegex, { message: 'Selecciona un paciente válido' }),
+  doctorId: z.string().regex(objectIdRegex, { message: 'Selecciona un doctor válido' }),
+  consultorioId: z.string().regex(objectIdRegex, { message: 'Selecciona un consultorio válido' }),
   date: z.string().min(1, 'La fecha es obligatoria'),
   time: z.string().min(1, 'La hora es obligatoria'),
   motivo: z.string().optional(),

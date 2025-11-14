@@ -56,8 +56,7 @@ export interface PacienteResponse {
 
 export interface PacienteHistoryResponse {
   success: boolean;
-  data: {
-    paciente: Paciente;
+  data: Paciente & {
     citas: any[];
   };
 }

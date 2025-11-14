@@ -22,7 +22,9 @@ import {
   Coins,
   StickyNote,
   Trash2,
+  Download,
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -108,6 +110,147 @@ export default function CitaDetailPage() {
     await updateEstadoMutation.mutateAsync(selectedEstado);
   };
 
+  const handleExportPDF = () => {
+    if (!cita) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 20;
+
+    // Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumen de Cita Médica', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 15;
+
+    // Consultorio info
+    if (cita.consultorio?.name) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text(cita.consultorio.name, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 6;
+      if (cita.consultorio.address) {
+        doc.setFontSize(10);
+        doc.text(cita.consultorio.address, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 6;
+      }
+      if (cita.consultorio.phone) {
+        doc.text(`Tel: ${cita.consultorio.phone}`, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 10;
+      }
+    }
+    yPosition += 5;
+
+    // Line separator
+    doc.setLineWidth(0.5);
+    doc.line(15, yPosition, pageWidth - 15, yPosition);
+    yPosition += 10;
+
+    // Patient info
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Información del Paciente', 15, yPosition);
+    yPosition += 8;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Nombre: ${cita.paciente?.fullName || 'No especificado'}`, 15, yPosition);
+    yPosition += 6;
+    if (cita.paciente?.phone) {
+      doc.text(`Teléfono: ${cita.paciente.phone}`, 15, yPosition);
+      yPosition += 6;
+    }
+    if (cita.paciente?.age) {
+      doc.text(`Edad: ${cita.paciente.age} años`, 15, yPosition);
+      yPosition += 6;
+    }
+    yPosition += 5;
+
+    // Appointment info
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detalles de la Cita', 15, yPosition);
+    yPosition += 8;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const fechaFormateada = new Date(cita.date).toLocaleDateString('es-MX', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+    doc.text(`Fecha: ${fechaFormateada}`, 15, yPosition);
+    yPosition += 6;
+    doc.text(`Hora: ${cita.time}`, 15, yPosition);
+    yPosition += 6;
+    doc.text(`Doctor: ${cita.doctor?.name || 'No especificado'}`, 15, yPosition);
+    yPosition += 6;
+    doc.text(`Estado: ${estadoLabels[cita.estado]}`, 15, yPosition);
+    yPosition += 10;
+
+    // Medical details
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Información Médica', 15, yPosition);
+    yPosition += 8;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    if (cita.motivo) {
+      doc.text('Motivo de consulta:', 15, yPosition);
+      yPosition += 6;
+      const motivoLines = doc.splitTextToSize(cita.motivo, pageWidth - 30);
+      doc.text(motivoLines, 15, yPosition);
+      yPosition += motivoLines.length * 6 + 4;
+    }
+
+    if (cita.diagnostico) {
+      doc.text('Diagnóstico:', 15, yPosition);
+      yPosition += 6;
+      const diagnosticoLines = doc.splitTextToSize(cita.diagnostico, pageWidth - 30);
+      doc.text(diagnosticoLines, 15, yPosition);
+      yPosition += diagnosticoLines.length * 6 + 4;
+    }
+
+    if (cita.tratamiento) {
+      doc.text('Tratamiento:', 15, yPosition);
+      yPosition += 6;
+      const tratamientoLines = doc.splitTextToSize(cita.tratamiento, pageWidth - 30);
+      doc.text(tratamientoLines, 15, yPosition);
+      yPosition += tratamientoLines.length * 6 + 4;
+    }
+
+    if (cita.notas) {
+      doc.text('Notas adicionales:', 15, yPosition);
+      yPosition += 6;
+      const notasLines = doc.splitTextToSize(cita.notas, pageWidth - 30);
+      doc.text(notasLines, 15, yPosition);
+      yPosition += notasLines.length * 6 + 4;
+    }
+
+    // Cost
+    if (cita.costo !== undefined && cita.costo !== null) {
+      yPosition += 5;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Costo de consulta: $${cita.costo.toFixed(2)} MXN`, 15, yPosition);
+    }
+
+    // Footer
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text(
+      `Generado el ${new Date().toLocaleDateString('es-MX')} a las ${new Date().toLocaleTimeString('es-MX')}`,
+      pageWidth / 2,
+      pageHeight - 10,
+      { align: 'center' }
+    );
+
+    // Save PDF
+    const fileName = `Cita_${cita.paciente?.fullName.replace(/\s+/g, '_')}_${new Date(cita.date).toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  };
+
   if (authLoading || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -138,6 +281,10 @@ export default function CitaDetailPage() {
                 Regresar
               </Button>
             </Link>
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
             {(user.role === 'admin' || user.role === 'doctor') && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/pagos/nuevo?citaId=${id}`}>

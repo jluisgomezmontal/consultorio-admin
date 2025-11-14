@@ -7,6 +7,7 @@ export interface CitaPaciente {
   fullName: string;
   phone?: string;
   email?: string;
+  age?: number;
 }
 
 export interface CitaDoctor {
@@ -19,6 +20,8 @@ export interface CitaDoctor {
 export interface CitaConsultorio {
   id: string;
   name: string;
+  address?: string;
+  phone?: string;
 }
 
 export interface Cita {
