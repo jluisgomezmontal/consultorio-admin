@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
@@ -37,6 +37,8 @@ export default function CitaDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const queryClient = useQueryClient();
+  const [selectedEstado, setSelectedEstado] = useState<CitaEstado>('pendiente');
+  const [estadoError, setEstadoError] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -49,6 +51,12 @@ export default function CitaDetailPage() {
     queryFn: () => citaService.getCitaById(id),
     enabled: !!user && !!id,
   });
+
+  useEffect(() => {
+    if (data?.data?.estado) {
+      setSelectedEstado(data.data.estado);
+    }
+  }, [data?.data?.estado]);
 
   const cancelMutation = useMutation({
     mutationFn: () => citaService.cancelCita(id),
@@ -66,6 +74,19 @@ export default function CitaDetailPage() {
     },
   });
 
+  const updateEstadoMutation = useMutation({
+    mutationFn: (nuevoEstado: CitaEstado) => citaService.updateCita(id, { estado: nuevoEstado }),
+    onSuccess: (_, nuevoEstado) => {
+      queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['cita', id] });
+      setEstadoError('');
+      setSelectedEstado(nuevoEstado);
+    },
+    onError: (error: any) => {
+      setEstadoError(error?.response?.data?.message || 'No se pudo actualizar el estado de la cita');
+    },
+  });
+
   const handleCancel = async () => {
     if (!data?.data) return;
     if (data.data.estado === 'cancelada' || data.data.estado === 'completada') return;
@@ -79,6 +100,12 @@ export default function CitaDetailPage() {
     if (confirm('¿Eliminar esta cita permanentemente?')) {
       await deleteMutation.mutateAsync();
     }
+  };
+
+  const handleEstadoUpdate = async () => {
+    if (!cita) return;
+    if (selectedEstado === cita.estado) return;
+    await updateEstadoMutation.mutateAsync(selectedEstado);
   };
 
   if (authLoading || isLoading) {
@@ -112,6 +139,14 @@ export default function CitaDetailPage() {
               </Button>
             </Link>
             {(user.role === 'admin' || user.role === 'doctor') && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/pagos/nuevo?citaId=${id}`}>
+                  <Coins className="mr-2 h-4 w-4" />
+                  Registrar pago
+                </Link>
+              </Button>
+            )}
+            {(user.role === 'admin' || user.role === 'doctor') && (
               <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
@@ -142,6 +177,31 @@ export default function CitaDetailPage() {
           <div className="text-right">
             <p className="text-sm uppercase text-muted-foreground">Estado</p>
             <p className="text-lg font-semibold">{estadoLabels[cita.estado]}</p>
+            {(user.role === 'admin' || user.role === 'doctor') && (
+              <div className="mt-2 flex flex-col gap-2 items-end">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedEstado}
+                    onChange={(event) => setSelectedEstado(event.target.value as CitaEstado)}
+                    className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  >
+                    {Object.entries(estadoLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    onClick={handleEstadoUpdate}
+                    disabled={selectedEstado === cita.estado || updateEstadoMutation.isPending}
+                  >
+                    {updateEstadoMutation.isPending ? 'Actualizando...' : 'Actualizar estado'}
+                  </Button>
+                </div>
+                {estadoError && <p className="text-xs text-destructive">{estadoError}</p>}
+              </div>
+            )}
           </div>
         </div>
 

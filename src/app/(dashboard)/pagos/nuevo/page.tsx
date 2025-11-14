@@ -17,8 +17,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
 const pagoSchema = z.object({
-  citaId: z.string().uuid({ message: 'Selecciona una cita válida' }),
+  citaId: z
+    .string()
+    .regex(objectIdRegex, { message: 'Selecciona una cita válida' }),
   monto: z
     .string()
     .min(1, 'El monto es obligatorio')
@@ -29,7 +33,7 @@ const pagoSchema = z.object({
     errorMap: () => ({ message: 'Selecciona un método de pago válido' }),
   }),
   fechaPago: z.string().optional(),
-  estatus: z.enum(['pagado', 'pendiente']).default('pendiente'),
+  estatus: z.enum(['pagado', 'pendiente']).default('pagado'),
   comentarios: z.string().optional(),
 });
 
@@ -86,7 +90,7 @@ function NuevoPagoContent() {
   } = useForm<PagoFormData>({
     resolver: zodResolver(pagoSchema),
     defaultValues: {
-      estatus: 'pendiente',
+      estatus: 'pagado',
       metodo: 'efectivo',
       citaId: citaIdFromQuery || undefined,
       fechaPago: new Date().toISOString().split('T')[0],
