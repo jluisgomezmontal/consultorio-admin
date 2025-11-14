@@ -24,6 +24,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function ReportesPage() {
   const { user, loading: authLoading } = useAuth();
+  console.log(user)
   const router = useRouter();
   const today = new Date().toISOString().split('T')[0];
   const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -39,36 +40,40 @@ export default function ReportesPage() {
     if (!authLoading && !user) {
       router.push('/login');
     }
+    // Redirect receptionist to dashboard - they don't have access to reports
+    if (!authLoading && user && user.role === 'recepcionista') {
+      router.push('/dashboard');
+    }
   }, [authLoading, user, router]);
 
   const { data: consultoriosData } = useQuery({
     queryKey: ['consultorios', 'options'],
     queryFn: () => consultorioService.getAllConsultorios(1, 1000),
-    enabled: !!user,
+    enabled: !!user && user.role !== 'recepcionista',
   });
 
   const { data: doctoresData } = useQuery({
     queryKey: ['doctores', 'options'],
     queryFn: () => userService.getDoctors(),
-    enabled: !!user,
+    enabled: !!user && user.role !== 'recepcionista',
   });
 
   const { data: citasReport, isLoading: isLoadingCitas } = useQuery({
     queryKey: ['reportes-citas', filters],
     queryFn: () => reporteService.getCitasReport(filters),
-    enabled: !!user,
+    enabled: !!user && user.role !== 'recepcionista',
   });
 
   const { data: ingresosReport, isLoading: isLoadingIngresos } = useQuery({
     queryKey: ['reportes-ingresos', filters],
     queryFn: () => reporteService.getIngresosReport(filters),
-    enabled: !!user,
+    enabled: !!user && user.role !== 'recepcionista',
   });
 
   const { data: pacientesReport, isLoading: isLoadingPacientes } = useQuery({
     queryKey: ['reportes-pacientes', filters.consultorioId],
     queryFn: () => reporteService.getPacientesReport(filters.consultorioId),
-    enabled: !!user,
+    enabled: !!user && user.role !== 'recepcionista',
   });
 
   const consultorios = consultoriosData?.data || [];

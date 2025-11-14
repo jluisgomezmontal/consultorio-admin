@@ -14,15 +14,20 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/citas', label: 'Citas' },
-    { href: '/consultorios', label: 'Consultorios' },
-    { href: '/pacientes', label: 'Pacientes' },
-    { href: '/pagos', label: 'Pagos' },
-    { href: '/reportes', label: 'Reportes' },
-    ...(user?.role === 'admin' ? [{ href: '/users', label: 'Usuarios' }] : []),
-  ];
+const navLinks = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/citas', label: 'Citas' },
+  { href: '/consultorios', label: 'Consultorios' },
+  { href: '/pacientes', label: 'Pacientes' },
+  { href: '/pagos', label: 'Pagos' },
+  ...(user && user.role !== 'recepcionista'
+    ? [{ href: '/reportes', label: 'Reportes' }]
+    : []),
+  ...(user && user.role === 'admin'
+    ? [{ href: '/users', label: 'Usuarios' }]
+    : []),
+];
+
 
   const handleNavClick = () => setMobileOpen(false);
 
@@ -60,8 +65,8 @@ export function Navbar() {
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             <div className="text-sm hidden sm:block">
-              <p className="font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <p className="font-medium">{user?.name || 'Usuario'}</p>
+              <p className="text-xs text-muted-foreground capitalize">{user?.role || 'Rol'}</p>
             </div>
             <Button onClick={logout} variant="outline" size="sm" className="hidden sm:inline-flex">
               Cerrar Sesión

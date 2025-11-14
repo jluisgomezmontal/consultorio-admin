@@ -60,7 +60,7 @@ function PagosContent() {
       ? (estatusParam as EstatusPago)
       : 'todos';
   const initialDateFrom = searchParams.get('dateFrom') ?? today;
-  const initialDateTo = searchParams.get('dateTo') ?? '';
+  const initialDateTo = searchParams.get('dateTo') ?? today;
   const initialPageValue = Number(searchParams.get('page') ?? '1');
   const initialPage = Number.isNaN(initialPageValue) || initialPageValue < 1 ? 1 : initialPageValue;
 

@@ -52,11 +52,11 @@ function CitasContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const limit = 10;
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  const tomorrowDate = new Date(now);
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-  const defaultDateTo = tomorrowDate.toISOString().split('T')[0];
+  const todayDate = useMemo(() => {
+    const nowDate = new Date();
+    const localMidnight = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+    return localMidnight.toISOString().split('T')[0];
+  }, []);
   const estadoParam = searchParams.get('estado');
   const validEstados: CitaEstado[] = ['pendiente', 'confirmada', 'completada', 'cancelada'];
   const initialEstado =
@@ -65,8 +65,8 @@ function CitasContent() {
       : 'todos';
   const initialDoctorId = searchParams.get('doctorId') ?? '';
   const initialConsultorioId = searchParams.get('consultorioId') ?? '';
-  const initialDateFrom = searchParams.get('dateFrom') ?? today;
-  const initialDateTo = searchParams.get('dateTo') ?? defaultDateTo;
+  const initialDateFrom = searchParams.get('dateFrom') ?? todayDate;
+  const initialDateTo = searchParams.get('dateTo') ?? todayDate;
   const initialSearch = searchParams.get('search') ?? '';
   const initialPageValue = Number(searchParams.get('page') ?? '1');
   const initialPage = Number.isNaN(initialPageValue) || initialPageValue < 1 ? 1 : initialPageValue;
@@ -89,6 +89,17 @@ function CitasContent() {
     if (initialDateTo) filters.dateTo = initialDateTo;
     return filters;
   });
+
+  const isDefaultFilters = useMemo(() => {
+    return (
+      searchValue.trim() === '' &&
+      estadoFilter === 'todos' &&
+      !doctorFilter &&
+      !consultorioFilter &&
+      dateFrom === todayDate &&
+      dateTo === todayDate
+    );
+  }, [searchValue, estadoFilter, doctorFilter, consultorioFilter, dateFrom, dateTo, todayDate]);
 
   const requestFilters = useMemo<CitasFilters>(() => {
     const filters: CitasFilters = { page, limit };
@@ -216,9 +227,9 @@ function CitasContent() {
     setEstadoFilter('todos');
     setDoctorFilter('');
     setConsultorioFilter('');
-    setDateFrom('');
-    setDateTo('');
-    setAppliedFilters({});
+    setDateFrom(todayDate);
+    setDateTo(todayDate);
+    setAppliedFilters({ dateFrom: todayDate, dateTo: todayDate });
     setPage(1);
   };
 
@@ -235,7 +246,7 @@ function CitasContent() {
                 Visualiza y administra las citas del consultorio
               </p>
             </div>
-            {(user?.role === 'admin' || user?.role === 'doctor') && (
+            {(user?.role === 'admin' || user?.role === 'doctor' || user?.role === 'recepcionista') && (
               <Button onClick={() => router.push('/citas/nueva')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nueva Cita
@@ -271,7 +282,7 @@ function CitasContent() {
               Visualiza y administra las citas del consultorio
             </p>
           </div>
-          {(user.role === 'admin' || user.role === 'doctor') && (
+          {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
             <Button onClick={() => router.push('/citas/nueva')}>
               <Plus className="mr-2 h-4 w-4" />
               Nueva Cita
@@ -345,14 +356,7 @@ function CitasContent() {
               <div className="flex flex-wrap items-center gap-2">
                 <Button type="submit">Aplicar filtros</Button>
                 <Button type="button" variant="outline" onClick={handleClearFilters}
-                  disabled={
-                    !searchValue &&
-                    estadoFilter === 'todos' &&
-                    !doctorFilter &&
-                    !consultorioFilter &&
-                    !dateFrom &&
-                    !dateTo
-                  }
+                  disabled={isDefaultFilters}
                 >
                   Limpiar
                 </Button>
@@ -457,7 +461,7 @@ function CitasContent() {
                                 Ver
                               </Link>
                             </Button>
-                            {(user.role === 'admin' || user.role === 'doctor') && (
+                            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
                               <>
                                 <Button variant="outline" size="sm" asChild>
                                   <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
