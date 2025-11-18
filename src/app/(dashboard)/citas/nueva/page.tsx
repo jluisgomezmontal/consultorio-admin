@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, DollarSign } from 'lucide-react';
 import { citaService, CreateCitaRequest, CitaEstado } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
@@ -69,13 +69,14 @@ function NuevaCitaContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
+  const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
   const pacienteIdFromQuery = searchParams.get('pacienteId');
 
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'admin' && user.role !== 'doctor') {
+      } else if (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista') {
         router.push('/citas');
       }
     }
@@ -86,6 +87,7 @@ function NuevaCitaContent() {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<CitaFormData>({
     resolver: zodResolver(citaSchema),
     defaultValues: {
@@ -93,6 +95,17 @@ function NuevaCitaContent() {
       pacienteId: pacienteIdFromQuery || undefined,
     },
   });
+
+  const consultorioId = watch('consultorioId');
+
+  // Update selected consultorio and clear doctor when consultorio changes
+  useEffect(() => {
+    console.log(consultorioId,selectedConsultorioId)
+    if (consultorioId !== selectedConsultorioId) {
+      setSelectedConsultorioId(consultorioId);
+      setValue('doctorId', ''); // Clear doctor selection when consultorio changes
+    }
+  }, [consultorioId, selectedConsultorioId, setValue]);
 
   useEffect(() => {
     if (pacienteIdFromQuery) {
@@ -158,13 +171,23 @@ function NuevaCitaContent() {
     );
   }
 
-  if (!user || (user.role !== 'admin' && user.role !== 'doctor')) {
+  if (!user || (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista')) {
     return null;
   }
 
   const pacientes = pacientesData?.data ?? [];
-  const doctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
-  const consultorios = consultoriosData?.data ?? [];
+  const allDoctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
+  
+  // Filter consultorios based on user role
+  const allConsultorios = consultoriosData?.data ?? [];
+  const consultorios = user.role === 'admin' 
+    ? allConsultorios 
+    : allConsultorios.filter((c: Consultorio) => user.consultoriosIds?.includes(c.id ?? ''));
+
+  // Filter doctors based on selected consultorio
+  const doctores = selectedConsultorioId
+    ? allDoctores.filter((doctor: User) => doctor.consultoriosIds?.includes(selectedConsultorioId))
+    : allDoctores;
 
   return (
     <div className="min-h-screen bg-background">
@@ -214,6 +237,26 @@ function NuevaCitaContent() {
                     <p className="text-sm text-destructive">{errors.pacienteId.message}</p>
                   )}
                 </div>
+              <div className="space-y-2">
+                <Label htmlFor="consultorioId">Consultorio *</Label>
+                <select
+                  id="consultorioId"
+                  {...register('consultorioId')}
+                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.consultorioId ? 'border-destructive' : ''}`}
+                >
+                  <option value="">Selecciona un consultorio</option>
+                  {consultorios.map((consultorio: Consultorio) => (
+                    <option key={consultorio.id} value={consultorio.id}>
+                      {consultorio.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.consultorioId && (
+                  <p className="text-sm text-destructive">{errors.consultorioId.message}</p>
+                )}
+              </div>
+
+              </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="doctorId">Doctor *</Label>
@@ -233,26 +276,6 @@ function NuevaCitaContent() {
                     <p className="text-sm text-destructive">{errors.doctorId.message}</p>
                   )}
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="consultorioId">Consultorio *</Label>
-                <select
-                  id="consultorioId"
-                  {...register('consultorioId')}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.consultorioId ? 'border-destructive' : ''}`}
-                >
-                  <option value="">Selecciona un consultorio</option>
-                  {consultorios.map((consultorio: Consultorio) => (
-                    <option key={consultorio.id} value={consultorio.id}>
-                      {consultorio.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.consultorioId && (
-                  <p className="text-sm text-destructive">{errors.consultorioId.message}</p>
-                )}
-              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
@@ -363,6 +386,24 @@ function NuevaCitaContent() {
                   <Save className="mr-2 h-4 w-4" />
                   {createMutation.isPending ? 'Guardando...' : 'Guardar Cita'}
                 </Button>
+                {(user.role === 'admin' || user.role === 'recepcionista') && (
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    onClick={() => {
+                      const pacienteId = watch('pacienteId');
+                      if (pacienteId) {
+                        router.push(`/pagos/nuevo?pacienteId=${pacienteId}`);
+                      } else {
+                        setError('Selecciona un paciente antes de registrar un pago');
+                      }
+                    }}
+                    disabled={createMutation.isPending}
+                  >
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    Registrar Pago
+                  </Button>
+                )}
                 <Button type="button" variant="outline" onClick={() => router.push('/citas')}>
                   Cancelar
                 </Button>

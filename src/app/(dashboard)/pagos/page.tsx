@@ -175,7 +175,7 @@ function PagosContent() {
                 Visualiza y administra los pagos del consultorio
               </p>
             </div>
-            {(user?.role === 'admin' || user?.role === 'doctor') && (
+            {(user?.role === 'admin' || user?.role === 'doctor' || user?.role === 'recepcionista') && (
               <Button onClick={() => router.push('/pagos/nuevo')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Pago
@@ -211,7 +211,7 @@ function PagosContent() {
               Visualiza y administra los pagos del consultorio
             </p>
           </div>
-          {(user.role === 'admin' || user.role === 'doctor') && (
+          {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
             <Button onClick={() => router.push('/pagos/nuevo')}>
               <Plus className="mr-2 h-4 w-4" />
               Nuevo Pago
@@ -338,14 +338,15 @@ function PagosContent() {
                                 Ver
                               </Link>
                             </Button>
-                            {(user.role === 'admin' || user.role === 'doctor') && (
-                              <>
+                            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
                                 <Button variant="outline" size="sm" asChild>
                                   <Link href={`/pagos/${pago.id}/editar`}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Editar
                                   </Link>
                                 </Button>
+                              )}
+                            {(user.role === 'admin' || user.role === 'doctor') && (
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -355,8 +356,7 @@ function PagosContent() {
                                   <Trash2 className="mr-2 h-4 w-4 text-destructive" />
                                   Eliminar
                                 </Button>
-                              </>
-                            )}
+                              )}
                           </div>
                         </td>
                       </tr>

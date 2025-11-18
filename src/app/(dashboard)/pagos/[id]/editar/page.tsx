@@ -55,7 +55,7 @@ export default function EditarPagoPage() {
     if (!authLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'admin' && user.role !== 'doctor') {
+      } else if (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista') {
         router.push('/pagos');
       }
     }

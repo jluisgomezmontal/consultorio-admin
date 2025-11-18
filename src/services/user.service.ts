@@ -1,20 +1,22 @@
 import apiClient from '@/lib/api-client';
 
+export interface Consultorio {
+  id?: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  description?: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  consultorioId: string;
+  consultoriosIds: string[];
   createdAt: string;
   updatedAt: string;
-  consultorio?: {
-    id?: string;
-    name: string;
-    address?: string;
-    phone?: string;
-    description?: string;
-  };
+  consultorios?: Consultorio[];
 }
 
 export interface CreateUserRequest {
@@ -22,14 +24,14 @@ export interface CreateUserRequest {
   email: string;
   password: string;
   role: string;
-  consultorioId: string;
+  consultoriosIds: string[];
 }
 
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
   role?: string;
-  consultorioId?: string;
+  consultoriosIds?: string[];
 }
 
 export interface UsersResponse {

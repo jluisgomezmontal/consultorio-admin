@@ -55,12 +55,13 @@ export default function EditarCitaPage() {
   const id = params.id as string;
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
+  const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
 
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'admin' && user.role !== 'doctor') {
+      } else if (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista') {
         router.push('/citas');
       }
     }
@@ -71,9 +72,24 @@ export default function EditarCitaPage() {
     handleSubmit,
     reset,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<CitaFormData>({
     resolver: zodResolver(citaSchema),
   });
+
+  const consultorioId = watch('consultorioId');
+
+  // Update selected consultorio and clear doctor when consultorio changes
+  useEffect(() => {
+    if (consultorioId && consultorioId !== selectedConsultorioId) {
+      setSelectedConsultorioId(consultorioId);
+      // Only clear doctor if consultorio actually changed (not initial load)
+      if (selectedConsultorioId) {
+        setValue('doctorId', '');
+      }
+    }
+  }, [consultorioId, selectedConsultorioId, setValue]);
 
   const { data: citaData, isLoading: isLoadingCita } = useQuery<CitaResponse>({
     queryKey: ['cita', id],
@@ -84,6 +100,7 @@ export default function EditarCitaPage() {
   useEffect(() => {
     if (citaData?.data) {
       const cita = citaData.data;
+      setSelectedConsultorioId(cita.consultorioId);
       reset({
         pacienteId: cita.pacienteId,
         doctorId: cita.doctorId,
@@ -165,13 +182,25 @@ export default function EditarCitaPage() {
     );
   }
 
-  if (!user || (user.role !== 'admin' && user.role !== 'doctor') || !citaData?.data) {
+  if (!user || (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista') || !citaData?.data) {
     return null;
   }
 
   const pacientes = pacientesData?.data ?? [];
-  const doctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
-  const consultorios = consultoriosData?.data ?? [];
+  const allDoctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
+  
+  // Filter consultorios based on user role
+  const allConsultorios = consultoriosData?.data ?? [];
+  const consultorios = user.role === 'admin' 
+    ? allConsultorios 
+    : allConsultorios.filter((c: Consultorio) => user.consultoriosIds?.includes(c.id ?? ''));
+
+  // Filter doctors based on selected consultorio
+  const doctores = selectedConsultorioId
+    ? allDoctores.filter((doctor: User) => 
+        doctor.consultoriosIds?.includes(selectedConsultorioId)
+      )
+    : allDoctores;
 
   return (
     <div className="min-h-screen bg-background">
