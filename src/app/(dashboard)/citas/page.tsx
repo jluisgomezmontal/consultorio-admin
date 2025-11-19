@@ -159,7 +159,7 @@ function CitasContent() {
   const total = citasResult?.total ?? 0;
   const citas = citasResult?.data ?? [];
   const totalPages = Math.max(1, Math.ceil(total / Math.max(citaLimit, 1)));
-
+  console.log(citas)
   useEffect(() => {
     if (!citasResult) return;
     if (page > totalPages) {
@@ -455,33 +455,33 @@ function CitasContent() {
                         </td>
                         <td className="px-6 py-4 text-right text-sm">
                           <div className="flex justify-end gap-2">
+                            {(cita.estado === 'completada' && (cita.pagos?.length ?? 0) === 0) && (
+                              <>
+                                <Button size="sm" asChild>
+                                  <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
+                                    <DollarSign className="mr-2 h-4 w-4" />
+                                    Pagar
+                                  </Link>
+                                </Button>
+                              </>
+                            )}
+                            {user.role === 'admin' && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDelete(cita)}
+                                disabled={deleteMutation.isPending}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Eliminar
+                              </Button>
+                            )}
                             <Button variant="outline" size="sm" asChild>
                               <Link href={`/citas/${cita.id}`}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 Ver
                               </Link>
                             </Button>
-                            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-                              <>
-                                <Button variant="outline" size="sm" asChild>
-                                  <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
-                                    <DollarSign className="mr-2 h-4 w-4" />
-                                    Pagar
-                                  </Link>
-                                </Button>
-                                {user.role === 'admin' && (
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => handleDelete(cita)}
-                                    disabled={deleteMutation.isPending}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Eliminar
-                                  </Button>
-                                )}
-                              </>
-                            )}
                           </div>
                         </td>
                       </tr>
