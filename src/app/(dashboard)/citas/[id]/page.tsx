@@ -286,17 +286,17 @@ export default function CitaDetailPage() {
               Exportar PDF
             </Button>
             {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+            )}
+            {(cita.estado === 'completada') && (
+              <Button variant="link" size="sm" asChild>
                 <Link href={`/pagos/nuevo?citaId=${id}`}>
                   <Coins className="mr-2 h-4 w-4" />
                   Registrar pago
                 </Link>
-              </Button>
-            )}
-            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-              <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
               </Button>
             )}
             {user.role === 'admin' && (
