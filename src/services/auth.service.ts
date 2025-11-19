@@ -10,7 +10,15 @@ export interface RegisterRequest {
   password: string;
   name: string;
   role?: string;
-  consultorioId?: string;
+  consultoriosIds?: string[];
+}
+
+export interface Consultorio {
+  id?: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  description?: string;
 }
 
 export interface User {
@@ -18,7 +26,8 @@ export interface User {
   email: string;
   name: string;
   role: string;
-  consultorioId?: string;
+  consultoriosIds?: string[];
+  consultorios?: Consultorio[];
 }
 
 export interface LoginResponse {

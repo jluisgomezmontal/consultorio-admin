@@ -32,7 +32,6 @@ const pagoSchema = z.object({
   metodo: z.enum(['efectivo', 'tarjeta', 'transferencia'], {
     errorMap: () => ({ message: 'Selecciona un método de pago válido' }),
   }),
-  fechaPago: z.string().optional(),
   estatus: z.enum(['pagado', 'pendiente']).default('pagado'),
   comentarios: z.string().optional(),
 });
@@ -71,12 +70,13 @@ function NuevoPagoContent() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const citaIdFromQuery = searchParams.get('citaId');
+  const pacienteIdFromQuery = searchParams.get('pacienteId');
 
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'admin' && user.role !== 'doctor') {
+      } else if (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista') {
         router.push('/pagos');
       }
     }
@@ -87,13 +87,13 @@ function NuevoPagoContent() {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<PagoFormData>({
     resolver: zodResolver(pagoSchema),
     defaultValues: {
       estatus: 'pagado',
       metodo: 'efectivo',
       citaId: citaIdFromQuery || undefined,
-      fechaPago: new Date().toISOString().split('T')[0],
     },
   });
 
@@ -104,10 +104,18 @@ function NuevoPagoContent() {
   }, [citaIdFromQuery, setValue]);
 
   const { data: citasData, isLoading: isLoadingCitas } = useQuery({
-    queryKey: ['citas', 'options'],
-    queryFn: () => citaService.getAllCitas({ page: 1, limit: 1000 }),
+    queryKey: ['citas', 'options', pacienteIdFromQuery],
+    queryFn: () => {
+      const params: any = { page: 1, limit: 1000 };
+      if (pacienteIdFromQuery) {
+        params.pacienteId = pacienteIdFromQuery;
+      }
+      return citaService.getAllCitas(params);
+    },
     enabled: !!user,
   });
+
+  const citas = citasData?.data || [];
 
   const createMutation = useMutation({
     mutationFn: (data: CreatePagoRequest) => pagoService.createPago(data),
@@ -127,7 +135,6 @@ function NuevoPagoContent() {
       monto: Number(data.monto),
       metodo: data.metodo,
       estatus: data.estatus,
-      fechaPago: data.fechaPago,
       comentarios: data.comentarios,
     };
     createMutation.mutate(payload);
@@ -147,8 +154,6 @@ function NuevoPagoContent() {
   if (!user) {
     return null;
   }
-
-  const citas = citasData?.data || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -235,14 +240,6 @@ function NuevoPagoContent() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="fechaPago">Fecha de Pago</Label>
-                  <Input id="fechaPago" type="date" {...register('fechaPago')} />
-                  {errors.fechaPago && (
-                    <p className="text-sm text-destructive">{errors.fechaPago.message}</p>
-                  )}
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="estatus">Estado</Label>
                   <select

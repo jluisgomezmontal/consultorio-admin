@@ -285,7 +285,7 @@ export default function CitaDetailPage() {
               <Download className="mr-2 h-4 w-4" />
               Exportar PDF
             </Button>
-            {(user.role === 'admin' || user.role === 'doctor') && (
+            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/pagos/nuevo?citaId=${id}`}>
                   <Coins className="mr-2 h-4 w-4" />
@@ -293,20 +293,10 @@ export default function CitaDetailPage() {
                 </Link>
               </Button>
             )}
-            {(user.role === 'admin' || user.role === 'doctor') && (
+            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
               <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
-              </Button>
-            )}
-            {(user.role === 'admin' || user.role === 'doctor') && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCancel}
-                disabled={cancelMutation.isPending || cita.estado === 'cancelada'}
-              >
-                Cancelar
               </Button>
             )}
             {user.role === 'admin' && (
@@ -324,7 +314,7 @@ export default function CitaDetailPage() {
           <div className="text-right">
             <p className="text-sm uppercase text-muted-foreground">Estado</p>
             <p className="text-lg font-semibold">{estadoLabels[cita.estado]}</p>
-            {(user.role === 'admin' || user.role === 'doctor') && (
+            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
               <div className="mt-2 flex flex-col gap-2 items-end">
                 <div className="flex items-center gap-2">
                   <select

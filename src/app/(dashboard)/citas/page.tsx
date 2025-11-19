@@ -469,20 +469,6 @@ function CitasContent() {
                                     Pagar
                                   </Link>
                                 </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                  <Link href={`/citas/${cita.id}/editar`}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Editar
-                                  </Link>
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleCancel(cita)}
-                                  disabled={cancelMutation.isPending || cita.estado === 'cancelada'}
-                                >
-                                  Cancelar
-                                </Button>
                                 {user.role === 'admin' && (
                                   <Button
                                     variant="destructive"
