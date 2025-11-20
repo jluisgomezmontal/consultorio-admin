@@ -118,10 +118,10 @@ export default function ConsultoriosPage() {
   const consultorios = filteredConsultorios.slice(startIndex, startIndex + limit);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background flex-1 flex flex-col">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold">Gestionar Consultorios</h2>

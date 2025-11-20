@@ -17,7 +17,6 @@ export function Navbar() {
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/citas', label: 'Citas' },
-  { href: '/consultorios', label: 'Consultorios' },
   { href: '/pacientes', label: 'Pacientes' },
   { href: '/pagos', label: 'Pagos' },
   ...(user && user.role !== 'recepcionista'
@@ -25,6 +24,9 @@ const navLinks = [
     : []),
   ...(user && user.role === 'admin'
     ? [{ href: '/users', label: 'Usuarios' }]
+    : []),
+  ...(user && user.role === 'admin'
+    ? [  { href: '/consultorios', label: 'Consultorios' }]
     : []),
 ];
 
@@ -37,8 +39,8 @@ const navLinks = [
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex flex-shrink-0 items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase text-primary-foreground">
-                mi
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold  text-primary-foreground">
+                Mi
               </span>
               <span className="text-xl font-bold">Consultorio</span>
             </Link>
