@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Users as UsersIcon, UserPlus, Trash2, Edit, ArrowLeft } from 'lucide-react';
 import { userService, User } from '@/services/user.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ClinicsDisplay } from '@/components/ClinicsDisplay';
 
 export default function UsersPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -66,10 +67,10 @@ export default function UsersPage() {
   const users = usersData?.data || [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background flex-1 flex flex-col">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Gestión de Usuarios</h2>
@@ -107,7 +108,7 @@ export default function UsersPage() {
                     <th className="text-left py-3 px-4 font-medium">Nombre</th>
                     <th className="text-left py-3 px-4 font-medium">Email</th>
                     <th className="text-left py-3 px-4 font-medium">Rol</th>
-                    <th className="text-left py-3 px-4 font-medium">Consultorio</th>
+                    <th className="text-left py-3 px-4 font-medium">Consultorios</th>
                     <th className="text-right py-3 px-4 font-medium">Acciones</th>
                   </tr>
                 </thead>
@@ -128,8 +129,8 @@ export default function UsersPage() {
                             {u.role}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-muted-foreground text-sm">
-                          {u.consultorios?.[0]?.name || 'Sin consultorio'}
+                        <td className="py-3 px-4">
+                          <ClinicsDisplay consultorios={u.consultorios || []} />
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex justify-end gap-2">

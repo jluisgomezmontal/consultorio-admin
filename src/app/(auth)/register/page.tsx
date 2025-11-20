@@ -71,7 +71,7 @@ export default function RegisterPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex items-center justify-center bg-background">
                 <Navbar />
       
         <div className="text-center">
@@ -87,7 +87,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-sm">
           <Button
