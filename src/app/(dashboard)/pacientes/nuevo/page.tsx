@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useConsultorio } from '@/contexts/ConsultorioContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,8 @@ const pacienteSchema = z.object({
 type PacienteFormData = z.infer<typeof pacienteSchema>;
 
 export default function NuevoPacientePage() {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { selectedConsultorio, isLoading: consultorioLoading } = useConsultorio();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
@@ -62,8 +64,21 @@ export default function NuevoPacientePage() {
 
   const onSubmit = (data: PacienteFormData) => {
     setError('');
+
+    // Verificar que el consultorio esté cargado
+    if (consultorioLoading) {
+      setError('Cargando consultorios. Por favor espera un momento.');
+      return;
+    }
+
+    if (!selectedConsultorio?.id && !selectedConsultorio?._id) {
+      setError('No hay consultorio seleccionado. Por favor selecciona un consultorio en el navbar.');
+      return;
+    }
+
     const payload: CreatePacienteRequest = {
       fullName: data.fullName,
+      consultorioId: selectedConsultorio.id || selectedConsultorio._id,
       age: data.age ? Number(data.age) : undefined,
       gender: data.gender || undefined,
       phone: data.phone || undefined,
@@ -234,11 +249,18 @@ export default function NuevoPacientePage() {
               <div className="flex gap-4">
                 <Button
                   type="submit"
-                  disabled={createMutation.isPending}
+                  disabled={createMutation.isPending || consultorioLoading || (!selectedConsultorio?.id && !selectedConsultorio?._id)}
                   className="flex-1"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {createMutation.isPending ? 'Guardando...' : 'Guardar Paciente'}
+                  {createMutation.isPending 
+                    ? 'Guardando...' 
+                    : consultorioLoading 
+                    ? 'Cargando consultorios...' 
+                    : (!selectedConsultorio?.id && !selectedConsultorio?._id)
+                    ? 'Selecciona un consultorio'
+                    : 'Guardar Paciente'
+                  }
                 </Button>
                 <Button
                   type="button"

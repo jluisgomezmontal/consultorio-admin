@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useConsultorio } from '@/contexts/ConsultorioContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
@@ -11,11 +12,18 @@ import { Navbar } from '@/components/Navbar';
 import { Users, Calendar, Building2, Clock, DollarSign, FileText } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { reporteService } from '@/services/reporte.service';
+import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
+  const { selectedConsultorio, isLoading: consultorioLoading } = useConsultorio();
   const router = useRouter();
+
+  // Helper to get consultorio ID (handles both id and _id)
+  const getConsultorioId = (consultorio: typeof selectedConsultorio) => {
+    return consultorio?.id || consultorio?._id;
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -23,14 +31,26 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
+  const consultorioId = getConsultorioId(selectedConsultorio);
+
   const { data: dashboardData, isLoading: isLoadingDashboard } = useQuery({
-    queryKey: ['dashboard-summary'],
-    queryFn: () => reporteService.getDashboardSummary(),
-    enabled: !!user,
+    queryKey: ['dashboard-summary', consultorioId],
+    queryFn: () => {
+      const id = user?.role === 'admin' ? undefined : consultorioId;
+      return reporteService.getDashboardSummary(id);
+    },
+    enabled: !!user && (user.role === 'admin' || !!selectedConsultorio),
+  });
+
+  // Get pacientes count from the same endpoint that filters correctly
+  const { data: pacientesData } = useQuery({
+    queryKey: ['pacientes', 'dashboard', consultorioId],
+    queryFn: () => pacienteService.getAllPacientes(1, 1000),
+    enabled: !!user && (user.role === 'admin' || !!selectedConsultorio),
   });
 
   const summary = dashboardData?.data;
-
+  const totalPacientes = pacientesData?.data?.length || 0;
   if (loading || isLoadingDashboard) {
     return <LoadingSpinner />;
   }
@@ -108,7 +128,7 @@ export default function DashboardPage() {
               <Users className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary?.totalPacientes ?? 0}</div>
+              <div className="text-2xl font-bold">{totalPacientes}</div>
               <p className="text-xs text-muted-foreground">
                 Registrados
               </p>

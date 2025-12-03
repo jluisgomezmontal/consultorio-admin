@@ -3,6 +3,7 @@ import apiClient from '@/lib/api-client';
 export interface Paciente {
   id: string;
   fullName: string;
+  consultorioId: string;
   age?: number;
   gender?: 'masculino' | 'femenino' | 'otro';
   phone?: string;
@@ -17,6 +18,7 @@ export interface Paciente {
 
 export interface CreatePacienteRequest {
   fullName: string;
+  consultorioId: string;
   age?: number;
   gender?: 'masculino' | 'femenino' | 'otro';
   phone?: string;

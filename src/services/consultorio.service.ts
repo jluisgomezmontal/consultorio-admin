@@ -2,6 +2,7 @@ import apiClient from '@/lib/api-client';
 
 export interface Consultorio {
   id: string;
+  _id?: string; // MongoDB ID for compatibility
   name: string;
   address?: string;
   phone?: string;
