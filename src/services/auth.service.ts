@@ -15,6 +15,7 @@ export interface RegisterRequest {
 
 export interface Consultorio {
   id?: string;
+  _id?: string; // MongoDB ID for compatibility
   name: string;
   address?: string;
   phone?: string;

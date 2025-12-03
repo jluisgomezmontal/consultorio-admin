@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useConsultorio } from '@/contexts/ConsultorioContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,7 @@ export default function NuevaCitaPage() {
 
 function NuevaCitaContent() {
   const { user, loading: authLoading } = useAuth();
+  const { selectedConsultorio } = useConsultorio();
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -113,6 +115,14 @@ function NuevaCitaContent() {
     }
   }, [pacienteIdFromQuery, setValue]);
 
+  // Auto-select consultorio activo
+  useEffect(() => {
+    const id = selectedConsultorio?.id || selectedConsultorio?._id;
+    if (id && !consultorioId) {
+      setValue('consultorioId', id);
+    }
+  }, [selectedConsultorio, consultorioId, setValue]);
+
   const { data: pacientesData, isLoading: isLoadingPacientes } = useQuery({
     queryKey: ['pacientes', 'options'],
     queryFn: () => pacienteService.getAllPacientes(1, 1000),
@@ -130,6 +140,27 @@ function NuevaCitaContent() {
     queryFn: () => consultorioService.getAllConsultorios(1, 1000),
     enabled: !!user,
   });
+
+  // Prepare data for auto-selection logic
+  const pacientes = pacientesData?.data ?? [];
+  const allDoctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
+  const allConsultorios = consultoriosData?.data ?? [];
+  const consultorios = user?.role === 'admin' 
+    ? allConsultorios 
+    : allConsultorios.filter((c: Consultorio) => user?.consultoriosIds?.includes(c.id || c._id || ''));
+
+  // Filter doctors based on selected consultorio
+  const doctores = selectedConsultorioId
+    ? allDoctores.filter((doctor: User) => doctor.consultoriosIds?.includes(selectedConsultorioId))
+    : allDoctores;
+
+  // Auto-select doctor if only one is available
+  const doctorId = watch('doctorId');
+  useEffect(() => {
+    if (doctores.length === 1 && !doctorId) {
+      setValue('doctorId', doctores[0].id);
+    }
+  }, [doctores, doctorId, setValue]);
 
   const createMutation = useMutation({
     mutationFn: (payload: CreateCitaRequest) => citaService.createCita(payload),
@@ -174,20 +205,6 @@ function NuevaCitaContent() {
   if (!user || (user.role !== 'admin' && user.role !== 'doctor' && user.role !== 'recepcionista')) {
     return null;
   }
-
-  const pacientes = pacientesData?.data ?? [];
-  const allDoctores = (doctoresData?.data ?? []).filter((item: User) => item.role === 'doctor');
-  
-  // Filter consultorios based on user role
-  const allConsultorios = consultoriosData?.data ?? [];
-  const consultorios = user.role === 'admin' 
-    ? allConsultorios 
-    : allConsultorios.filter((c: Consultorio) => user.consultoriosIds?.includes(c.id ?? ''));
-
-  // Filter doctors based on selected consultorio
-  const doctores = selectedConsultorioId
-    ? allDoctores.filter((doctor: User) => doctor.consultoriosIds?.includes(selectedConsultorioId))
-    : allDoctores;
 
   return (
     <div className="min-h-screen bg-background">
@@ -245,11 +262,14 @@ function NuevaCitaContent() {
                   className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.consultorioId ? 'border-destructive' : ''}`}
                 >
                   <option value="">Selecciona un consultorio</option>
-                  {consultorios.map((consultorio: Consultorio) => (
-                    <option key={consultorio.id} value={consultorio.id}>
-                      {consultorio.name}
-                    </option>
-                  ))}
+                  {consultorios.map((consultorio: Consultorio) => {
+                    const id = consultorio.id || consultorio._id;
+                    return (
+                      <option key={id} value={id}>
+                        {consultorio.name}
+                      </option>
+                    );
+                  })}
                 </select>
                 {errors.consultorioId && (
                   <p className="text-sm text-destructive">{errors.consultorioId.message}</p>

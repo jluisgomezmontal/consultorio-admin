@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useConsultorio } from '@/contexts/ConsultorioContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,8 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
 import { reporteService, ReporteFilters } from '@/services/reporte.service';
-import { consultorioService } from '@/services/consultorio.service';
-import { userService } from '@/services/user.service';
+import { consultorioService, Consultorio } from '@/services/consultorio.service';
+import { userService, User } from '@/services/user.service';
+import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
 import {
   FileText,
@@ -24,17 +26,62 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function ReportesPage() {
   const { user, loading: authLoading } = useAuth();
-  console.log(user)
+  const { selectedConsultorio } = useConsultorio();
   const router = useRouter();
-  const today = new Date().toISOString().split('T')[0];
-  const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    .toISOString()
-    .split('T')[0];
+  
+  // Generate list of months (last 12 months)
+  const generateMonthOptions = () => {
+    const months = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const value = date.toISOString().slice(0, 7);
+      const label = date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' });
+      months.push({ value, label: label.charAt(0).toUpperCase() + label.slice(1) });
+    }
+    return months;
+  };
 
+  const monthOptions = generateMonthOptions();
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  // Calculate date range from selected month
+  const getMonthDateRange = (month: string) => {
+    const [year, monthNum] = month.split('-');
+    const firstDay = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
+    const lastDay = new Date(parseInt(year), parseInt(monthNum), 0);
+    return {
+      dateFrom: firstDay.toISOString().split('T')[0],
+      dateTo: lastDay.toISOString().split('T')[0],
+    };
+  };
+
+  const dateRange = getMonthDateRange(selectedMonth);
   const [filters, setFilters] = useState<ReporteFilters>({
-    dateFrom: firstDayOfMonth,
-    dateTo: today,
+    dateFrom: dateRange.dateFrom,
+    dateTo: dateRange.dateTo,
   });
+
+  // Update date range when month changes
+  useEffect(() => {
+    const range = getMonthDateRange(selectedMonth);
+    setFilters(prev => ({
+      ...prev,
+      dateFrom: range.dateFrom,
+      dateTo: range.dateTo,
+    }));
+  }, [selectedMonth]);
+
+  // Set consultorio filter when selectedConsultorio changes (for non-admin users)
+  useEffect(() => {
+    if (user && user.role !== 'admin' && selectedConsultorio) {
+      setFilters(prev => ({
+        ...prev,
+        consultorioId: selectedConsultorio.id || selectedConsultorio._id,
+      }));
+    }
+  }, [user, selectedConsultorio]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -76,8 +123,27 @@ export default function ReportesPage() {
     enabled: !!user && user.role !== 'recepcionista',
   });
 
-  const consultorios = consultoriosData?.data || [];
-  const doctores = doctoresData?.data || [];
+  // Get actual pacientes count (same as dashboard)
+  const { data: pacientesData } = useQuery({
+    queryKey: ['pacientes', 'reportes', selectedConsultorio?.id || selectedConsultorio?._id],
+    queryFn: () => pacienteService.getAllPacientes(1, 1000),
+    enabled: !!user && user.role !== 'recepcionista',
+  });
+
+  // Filter consultorios based on user role
+  const allConsultorios = consultoriosData?.data || [];
+  const consultorios = user?.role === 'admin' 
+    ? allConsultorios 
+    : allConsultorios.filter((c: Consultorio) => user?.consultoriosIds?.includes(c.id || c._id || ''));
+
+  // Filter doctors based on selected consultorio
+  const allDoctores = (doctoresData?.data || []).filter((item: User) => item.role === 'doctor');
+  const doctores = filters.consultorioId
+    ? allDoctores.filter((doctor: User) => doctor.consultoriosIds?.includes(filters.consultorioId))
+    : allDoctores;
+
+  // Get actual total pacientes count
+  const totalPacientes = pacientesData?.data?.length || 0;
 
   const handleFilterChange = (key: keyof ReporteFilters, value: string) => {
     setFilters((prev) => ({
@@ -87,10 +153,19 @@ export default function ReportesPage() {
   };
 
   const handleClearFilters = () => {
-    setFilters({
-      dateFrom: firstDayOfMonth,
-      dateTo: today,
-    });
+    setSelectedMonth(currentMonth);
+    const range = getMonthDateRange(currentMonth);
+    const baseFilters: ReporteFilters = {
+      dateFrom: range.dateFrom,
+      dateTo: range.dateTo,
+    };
+    
+    // Keep consultorio filter for non-admin users
+    if (user?.role !== 'admin' && selectedConsultorio) {
+      baseFilters.consultorioId = selectedConsultorio.id || selectedConsultorio._id;
+    }
+    
+    setFilters(baseFilters);
   };
 
   if (authLoading || isLoadingCitas || isLoadingIngresos || isLoadingPacientes) {
@@ -138,25 +213,21 @@ export default function ReportesPage() {
             <CardDescription>Personaliza el rango de datos a visualizar</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="dateFrom">Fecha Desde</Label>
-                <Input
-                  id="dateFrom"
-                  type="date"
-                  value={filters.dateFrom || ''}
-                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dateTo">Fecha Hasta</Label>
-                <Input
-                  id="dateTo"
-                  type="date"
-                  value={filters.dateTo || ''}
-                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                  min={filters.dateFrom || undefined}
-                />
+                <Label htmlFor="month">Mes</Label>
+                <select
+                  id="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  {monthOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="consultorioId">Consultorio</Label>
@@ -164,14 +235,18 @@ export default function ReportesPage() {
                   id="consultorioId"
                   value={filters.consultorioId || ''}
                   onChange={(e) => handleFilterChange('consultorioId', e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  disabled={user?.role !== 'admin'}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Todos</option>
-                  {consultorios.map((consultorio) => (
-                    <option key={consultorio.id} value={consultorio.id}>
-                      {consultorio.name}
-                    </option>
-                  ))}
+                  {consultorios.map((consultorio: Consultorio) => {
+                    const id = consultorio.id || consultorio._id;
+                    return (
+                      <option key={id} value={id}>
+                        {consultorio.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div className="space-y-2">
@@ -183,7 +258,7 @@ export default function ReportesPage() {
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                 >
                   <option value="">Todos</option>
-                  {doctores.map((doctor) => (
+                  {doctores.map((doctor: User) => (
                     <option key={doctor.id} value={doctor.id}>
                       {doctor.name}
                     </option>
@@ -232,9 +307,9 @@ export default function ReportesPage() {
               <Users className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{pacientes?.totalPacientes ?? 0}</div>
+              <div className="text-2xl font-bold">{totalPacientes}</div>
               <p className="text-xs text-muted-foreground">
-                {pacientes?.nuevosPacientes ?? 0} nuevos (últimos 30 días)
+                Registrados en el sistema
               </p>
             </CardContent>
           </Card>

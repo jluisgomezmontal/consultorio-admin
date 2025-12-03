@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ConsultorioProvider } from "@/contexts/ConsultorioContext";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const geistSans = Geist({
@@ -38,7 +39,9 @@ export default function RootLayout({
         >
           <QueryProvider>
             <AuthProvider>
-              {children}
+              <ConsultorioProvider>
+                {children}
+              </ConsultorioProvider>
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>

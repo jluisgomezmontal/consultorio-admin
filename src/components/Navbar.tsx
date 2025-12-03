@@ -1,16 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useConsultorio } from '@/contexts/ConsultorioContext';
 import { cn } from '@/lib/utils';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Building2 } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout } = useAuth();
+  const { consultorios, selectedConsultorio, setSelectedConsultorio } = useConsultorio();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -65,6 +75,34 @@ const navLinks = [
             </div>
           </div>
           <div className="flex items-center space-x-3">
+            {/* Selector de Consultorio */}
+            {user?.role !== 'admin' && consultorios.length > 0 && (
+              <div className="hidden sm:flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <Select
+                  value={selectedConsultorio?.id || selectedConsultorio?._id || ''}
+                  onValueChange={(value: string) => {
+                    const consultorio = consultorios.find((c: any) => (c.id === value) || (c._id === value));
+                    if (consultorio) {
+                      setSelectedConsultorio(consultorio);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Seleccionar consultorio">
+                      {selectedConsultorio?.name || 'Seleccionar consultorio'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {consultorios.map((consultorio: any) => (
+                      <SelectItem key={consultorio.id || consultorio._id || `consultorio-${Math.random()}`} value={consultorio.id || consultorio._id || ''}>
+                        {consultorio.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <ThemeToggle />
             <div className="text-sm hidden sm:block">
               <p className="font-medium">{user?.name || 'Usuario'}</p>
@@ -77,7 +115,7 @@ const navLinks = [
               variant="ghost"
               size="icon"
               className="sm:hidden"
-              onClick={() => setMobileOpen((prev) => !prev)}
+              onClick={() => setMobileOpen((prev: boolean) => !prev)}
               aria-label="Abrir menú"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -95,6 +133,37 @@ const navLinks = [
                 Cerrar Sesión
               </Button>
             </div>
+            {/* Selector de Consultorio - Mobile */}
+            {user?.role !== 'admin' && consultorios.length > 0 && (
+              <div className="flex flex-col gap-2 px-3">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                  <Building2 className="h-3 w-3" />
+                  Consultorio Activo
+                </label>
+                <Select
+                  value={selectedConsultorio?.id || selectedConsultorio?._id || ''}
+                  onValueChange={(value: string) => {
+                    const consultorio = consultorios.find((c: any) => (c.id === value) || (c._id === value));
+                    if (consultorio) {
+                      setSelectedConsultorio(consultorio);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleccionar consultorio">
+                      {selectedConsultorio?.name || 'Seleccionar consultorio'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {consultorios.map((consultorio: any) => (
+                      <SelectItem key={consultorio.id || consultorio._id || `consultorio-${Math.random()}`} value={consultorio.id || consultorio._id || ''}>
+                        {consultorio.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex flex-col space-y-2">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
