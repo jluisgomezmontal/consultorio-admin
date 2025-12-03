@@ -77,7 +77,14 @@ export default function RegisterPage() {
     setError('');
     setSuccess('');
     try {
-      await authService.register(data);
+      const payload = {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        role: data.role,
+        consultoriosIds: data.consultoriosIds,
+      };
+      await authService.register(payload);
       setSuccess('Usuario registrado exitosamente');
       router.push('/dashboard');
       reset();
