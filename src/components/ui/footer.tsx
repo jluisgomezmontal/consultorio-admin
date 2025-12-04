@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { 
   Github, 
-  Twitter, 
+  X, 
   Linkedin, 
   Facebook, 
   Instagram,
@@ -82,11 +82,11 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center space-x-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>info@consultorio.com</span>
+                <span>joseluisgomezmontalvan@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>+52 (555) 123-4567</span>
+                <span>+52 (744) 429-2283</span>
               </li>
               <li className="flex items-center space-x-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
@@ -100,15 +100,15 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground">Síguenos</h3>
             <div className="flex space-x-3">
               <a 
-                href="https://twitter.com" 
+                href="https://x.com/jluisgm220690?s=21" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
               >
-                <Twitter className="h-4 w-4" />
+                <X className="h-4 w-4" />
               </a>
               <a 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/profile.php?id=61584075058727" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
@@ -116,7 +116,7 @@ export function Footer() {
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/jluismontalvan/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
@@ -124,7 +124,7 @@ export function Footer() {
                 <Instagram className="h-4 w-4" />
               </a>
               <a 
-                href="https://linkedin.com" 
+                href="https://www.linkedin.com/in/jose-luis-gomez-montalvan-220690/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"

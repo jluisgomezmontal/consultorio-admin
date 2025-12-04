@@ -165,7 +165,7 @@ export default function TermsPage() {
                   </p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Email: legal@consultorio.com</li>
-                    <li>Teléfono: +52 (555) 123-4567</li>
+                    <li>Teléfono: +52 (744) 429-2283</li>
                     <li>Dirección: Ciudad de México, MX</li>
                   </ul>
                 </div>

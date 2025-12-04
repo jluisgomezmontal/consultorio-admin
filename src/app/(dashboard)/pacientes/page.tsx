@@ -70,19 +70,6 @@ export default function PacientesPage() {
         <Navbar />
 
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Gestión de Pacientes</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Administra los pacientes del consultorio
-            </p>
-          </div>
-          <Button onClick={() => router.push('/pacientes/nuevo')}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nuevo Paciente
-          </Button>
-        </div>
-
           <Card className="flex items-center justify-center py-24">
             <LoadingSpinner
               delay={0}

@@ -147,7 +147,7 @@ export default function SupportPage() {
                     <Phone className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Teléfono</p>
-                      <p className="text-sm text-muted-foreground">+52 (555) 123-4567</p>
+                      <p className="text-sm text-muted-foreground">+52 (744) 429-2283</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

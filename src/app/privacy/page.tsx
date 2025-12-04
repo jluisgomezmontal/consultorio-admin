@@ -111,8 +111,8 @@ export default function PrivacyPage() {
                   </p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Email: privacy@consultorio.com</li>
-                    <li>Teléfono: +52 (555) 123-4567</li>
-                    <li>Dirección: Ciudad de México, MX</li>
+                    <li>Teléfono: +52 (744) 429-2283</li>
+                    <li>Dirección: Acapulco, Guerrero</li>
                   </ul>
                 </div>
               </section>
