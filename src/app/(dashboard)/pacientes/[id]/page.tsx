@@ -69,7 +69,15 @@ export default function PacienteDetailPage() {
         <div className="mb-6 flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => router.push('/pacientes')}
+            onClick={() => {
+              router.back();
+              setTimeout(() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }, 80)
+            }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver a Pacientes

@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Phone, Mail, User } from 'lucide-react';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ResponsiveTable } from '@/components/ResponsiveTable';
 
 export default function PacientesPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -125,18 +126,18 @@ export default function PacientesPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         {/* Header con gradiente */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-6 shadow-lg border border-purple-100 dark:border-purple-900">
-          <div className="flex items-center justify-between">
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-4 sm:p-6 shadow-lg border border-purple-100 dark:border-purple-900">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                <h1 className="text-3xl font-bold text-foreground">Gestión de Pacientes</h1>
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Pacientes</h1>
               </div>
               <p className="text-sm text-muted-foreground">
                 Administra los pacientes del consultorio
               </p>
             </div>
-            <Button onClick={() => router.push('/pacientes/nuevo')} size="lg" className="bg-purple-600 hover:bg-purple-700 shadow-md">
+            <Button onClick={() => router.push('/pacientes/nuevo')} size="lg" className="bg-purple-600 hover:bg-purple-700 shadow-md w-full sm:w-auto">
               <UserPlus className="mr-2 h-5 w-5" />
               Nuevo Paciente
             </Button>
@@ -188,80 +189,153 @@ export default function PacientesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium">Nombre</th>
-                    <th className="text-left py-3 px-4 font-medium">Edad</th>
-                    <th className="text-left py-3 px-4 font-medium">Teléfono</th>
-                    <th className="text-left py-3 px-4 font-medium">Email</th>
-                    <th className="text-right py-3 px-4 font-medium">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pacientes.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No hay pacientes registrados
-                      </td>
-                    </tr>
-                  ) : (
-                    pacientes.map((paciente) => (
-                      <tr key={paciente.id} className="border-b hover:bg-muted/50">
-                        <td className="py-3 px-4 font-medium">{paciente.fullName}</td>
-                        <td className="py-3 px-4 text-muted-foreground">
-                          {paciente.age || '-'}
-                        </td>
-                        <td className="py-3 px-4 text-muted-foreground">
-                          {paciente.phone || '-'}
-                        </td>
-                        <td className="py-3 px-4 text-muted-foreground">
-                          {paciente.email || '-'}
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => router.push(`/citas/nueva?pacienteId=${paciente.id}`)}
-                              title="Crear cita"
-                            >
-                              <CalendarPlus className="h-4 w-4 text-primary" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => router.push(`/pacientes/${paciente.id}`)}
-                              title="Ver detalles"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => router.push(`/pacientes/${paciente.id}/editar`)}
-                              title="Editar paciente"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(paciente.id, paciente.fullName)}
-                              disabled={deleteMutation.isPending}
-                              title="Eliminar paciente"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+            {pacientes.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay pacientes registrados
+              </div>
+            ) : (
+              <ResponsiveTable
+                mobileCards={pacientes.map((paciente) => (
+                  <Card key={paciente.id} className="border-l-4 border-l-purple-500">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-base font-semibold">
+                            <User className="h-5 w-5 text-purple-600" />
+                            <span>{paciente.fullName}</span>
                           </div>
-                        </td>
+                          {paciente.age && (
+                            <p className="text-sm text-muted-foreground">{paciente.age} años</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        {paciente.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>{paciente.phone}</span>
+                          </div>
+                        )}
+                        {paciente.email && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Mail className="h-4 w-4" />
+                            <span className="truncate">{paciente.email}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => router.push(`/citas/nueva?pacienteId=${paciente.id}`)}
+                        >
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Cita
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => router.push(`/pacientes/${paciente.id}`)}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => router.push(`/pacientes/${paciente.id}/editar`)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleDelete(paciente.id, paciente.fullName)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              >
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-medium">Nombre</th>
+                        <th className="text-left py-3 px-4 font-medium">Edad</th>
+                        <th className="text-left py-3 px-4 font-medium">Teléfono</th>
+                        <th className="text-left py-3 px-4 font-medium">Email</th>
+                        <th className="text-right py-3 px-4 font-medium">Acciones</th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody>
+                      {pacientes.map((paciente) => (
+                        <tr key={paciente.id} className="border-b hover:bg-muted/50">
+                          <td className="py-3 px-4 font-medium">{paciente.fullName}</td>
+                          <td className="py-3 px-4 text-muted-foreground">
+                            {paciente.age || '-'}
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">
+                            {paciente.phone || '-'}
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">
+                            {paciente.email || '-'}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/citas/nueva?pacienteId=${paciente.id}`)}
+                                title="Crear cita"
+                              >
+                                <CalendarPlus className="h-4 w-4 text-primary" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/pacientes/${paciente.id}`)}
+                                title="Ver detalles"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/pacientes/${paciente.id}/editar`)}
+                                title="Editar paciente"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(paciente.id, paciente.fullName)}
+                                disabled={deleteMutation.isPending}
+                                title="Eliminar paciente"
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </ResponsiveTable>
+            )}
 
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-between">

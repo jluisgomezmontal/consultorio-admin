@@ -97,12 +97,18 @@ export default function PagoDetailPage() {
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/pagos">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Regresar
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" onClick={() => {
+              router.back();
+              setTimeout(() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }, 80);
+            }}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Regresar
+            </Button>
             {(user.role === 'admin' || user.role === 'doctor') && (
               <Button variant="outline" size="sm" onClick={() => router.push(`/pagos/${id}/editar`)}>
                 <Edit className="mr-2 h-4 w-4" />

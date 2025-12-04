@@ -12,9 +12,10 @@ import { citaService, Cita, CitaEstado, CitasFilters } from '@/services/cita.ser
 import { userService } from '@/services/user.service';
 import { consultorioService } from '@/services/consultorio.service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, UserRound, Building2, DollarSign } from 'lucide-react';
+import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, UserRound, Building2, DollarSign, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ResponsiveTable } from '@/components/ResponsiveTable';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -386,39 +387,111 @@ function CitasContent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Fecha | Hora
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Paciente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Doctor
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Consultorio
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Estado
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  {citas.length === 0 ? (
+            {citas.length === 0 ? (
+              <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+                No se encontraron citas con los filtros seleccionados
+              </div>
+            ) : (
+              <ResponsiveTable
+                mobileCards={citas.map((cita) => (
+                  <Card key={cita.id} className="border-l-4 border-l-green-500">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm font-medium">
+                            <Clock className="h-4 w-4 text-green-600" />
+                            <span>
+                              {new Date(cita.date).toLocaleDateString('es-MX', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                            <span className="text-muted-foreground">•</span>
+                            <span>{cita.time}</span>
+                          </div>
+                        </div>
+                        <Badge variant={estadoVariants[cita.estado]}>{estadoLabels[cita.estado]}</Badge>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <UserRound className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{cita.paciente?.fullName || 'Sin paciente'}</span>
+                        </div>
+                        {cita.paciente?.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>{cita.paciente.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Stethoscope className="h-4 w-4" />
+                          <span>{cita.doctor?.name || 'Sin doctor asignado'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Building2 className="h-4 w-4" />
+                          <span>{cita.consultorio?.name || 'Sin consultorio'}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        {(cita.estado === 'completada' && (cita.pagos?.length ?? 0) === 0) && (
+                          <Button size="sm" className="flex-1" asChild>
+                            <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
+                              <DollarSign className="mr-2 h-4 w-4" />
+                              Pagar
+                            </Link>
+                          </Button>
+                        )}
+                        <Button variant="outline" size="sm" className="flex-1" asChild>
+                          <Link href={`/citas/${cita.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Ver
+                          </Link>
+                        </Button>
+                        {user.role === 'admin' && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleDelete(cita)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Eliminar
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              >
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                        No se encontraron citas con los filtros seleccionados
-                      </td>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Fecha | Hora
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Paciente
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Doctor
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Consultorio
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Estado
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Acciones
+                      </th>
                     </tr>
-                  ) : (
-                    citas.map((cita) => (
+                  </thead>
+                  <tbody className="divide-y divide-border bg-card">
+                    {citas.map((cita) => (
                       <tr key={cita.id} className="hover:bg-muted/50">
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
@@ -466,14 +539,12 @@ function CitasContent() {
                         <td className="px-6 py-4 text-right text-sm">
                           <div className="flex justify-end gap-2">
                             {(cita.estado === 'completada' && (cita.pagos?.length ?? 0) === 0) && (
-                              <>
-                                <Button size="sm" asChild>
-                                  <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
-                                    <DollarSign className="mr-2 h-4 w-4" />
-                                    Pagar
-                                  </Link>
-                                </Button>
-                              </>
+                              <Button size="sm" asChild>
+                                <Link href={`/pagos/nuevo?citaId=${cita.id}`}>
+                                  <DollarSign className="mr-2 h-4 w-4" />
+                                  Pagar
+                                </Link>
+                              </Button>
                             )}
                             {user.role === 'admin' && (
                               <Button
@@ -495,11 +566,11 @@ function CitasContent() {
                           </div>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </ResponsiveTable>
+            )}
           </CardContent>
         </Card>
 

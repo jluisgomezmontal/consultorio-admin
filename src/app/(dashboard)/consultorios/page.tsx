@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Navbar } from '@/components/Navbar';
 import { consultorioService, Consultorio } from '@/services/consultorio.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, Edit, Eye, Plus, Search, Trash2, Clock, Phone, MapPin } from 'lucide-react';
+import { Building2, Edit, Eye, Plus, Search, Trash2, Clock, Phone, MapPin, Users, Calendar } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ResponsiveTable } from '@/components/ResponsiveTable';
 
 const normalizeText = (text: string | null | undefined) => {
   if (!text) return '';
@@ -166,113 +167,191 @@ export default function ConsultoriosPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Nombre
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Ubicación
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Contacto
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Horario
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Estadísticas
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  {consultorios.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                        No se encontraron consultorios
-                      </td>
-                    </tr>
-                  ) : (
-                    consultorios.map((consultorio) => (
-                      <tr key={consultorio.id} className="hover:bg-muted/50">
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div className="font-medium text-sm">{consultorio.name}</div>
+            {consultorios.length === 0 ? (
+              <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+                No se encontraron consultorios
+              </div>
+            ) : (
+              <ResponsiveTable
+                mobileCards={consultorios.map((consultorio) => (
+                  <Card key={consultorio.id} className="border-l-4 border-l-orange-500">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center gap-2 text-base font-semibold">
+                            <Building2 className="h-5 w-5 text-orange-600" />
+                            <span>{consultorio.name}</span>
+                          </div>
                           {consultorio.description && (
-                            <div className="text-xs text-muted-foreground line-clamp-1">
-                              {consultorio.description}
-                            </div>
+                            <p className="text-sm text-muted-foreground">{consultorio.description}</p>
                           )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        {consultorio.address && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <MapPin className="h-4 w-4" />
-                            {consultorio.address || 'Sin dirección registrada'}
+                            <span>{consultorio.address}</span>
                           </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
+                        )}
+                        {consultorio.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Phone className="h-4 w-4" />
-                            {consultorio.phone || 'Sin teléfono'}
+                            <span>{consultorio.phone}</span>
                           </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
+                        )}
+                        {consultorio.openHour && consultorio.closeHour && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Clock className="h-4 w-4" />
-                            {consultorio.openHour && consultorio.closeHour
-                              ? `${consultorio.openHour} - ${consultorio.closeHour}`
-                              : 'Horario no definido'}
+                            <span>{consultorio.openHour} - {consultorio.closeHour}</span>
                           </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          <div className="flex flex-col">
-                            <span>
-                              Usuarios: {consultorio._count?.users ?? 0}
-                            </span>
-                            <span>
-                              Citas: {consultorio._count?.citas ?? 0}
-                            </span>
+                        )}
+                        <div className="flex items-center gap-4 text-muted-foreground pt-2">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            <span>{consultorio._count?.users ?? 0} usuarios</span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/consultorios/${consultorio.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Ver
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{consultorio._count?.citas ?? 0} citas</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" className="flex-1" asChild>
+                          <Link href={`/consultorios/${consultorio.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Ver
+                          </Link>
+                        </Button>
+                        {user.role === 'admin' && (
+                          <>
+                            <Button variant="outline" size="sm" className="flex-1" asChild>
+                              <Link href={`/consultorios/${consultorio.id}/editar`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
                               </Link>
                             </Button>
-                            {user.role === 'admin' && (
-                              <>
-                                <Button variant="outline" size="sm" asChild>
-                                  <Link href={`/consultorios/${consultorio.id}/editar`}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    Editar
-                                  </Link>
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDelete(consultorio.id, consultorio.name)}
-                                  disabled={deleteMutation.isPending}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Eliminar
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </td>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => handleDelete(consultorio.id, consultorio.name)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Eliminar
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              >
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Nombre
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Ubicación
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Contacto
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Horario
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Estadísticas
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Acciones
+                        </th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody className="divide-y divide-border bg-card">
+                      {consultorios.map((consultorio) => (
+                        <tr key={consultorio.id} className="hover:bg-muted/50">
+                          <td className="whitespace-nowrap px-6 py-4">
+                            <div className="font-medium text-sm">{consultorio.name}</div>
+                            {consultorio.description && (
+                              <div className="text-xs text-muted-foreground line-clamp-1">
+                                {consultorio.description}
+                              </div>
+                            )}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              {consultorio.address || 'Sin dirección registrada'}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4" />
+                              {consultorio.phone || 'Sin teléfono'}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              {consultorio.openHour && consultorio.closeHour
+                                ? `${consultorio.openHour} - ${consultorio.closeHour}`
+                                : 'Horario no definido'}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            <div className="flex flex-col">
+                              <span>
+                                Usuarios: {consultorio._count?.users ?? 0}
+                              </span>
+                              <span>
+                                Citas: {consultorio._count?.citas ?? 0}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <Link href={`/consultorios/${consultorio.id}`}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Ver
+                                </Link>
+                              </Button>
+                              {user.role === 'admin' && (
+                                <>
+                                  <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/consultorios/${consultorio.id}/editar`}>
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Editar
+                                    </Link>
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDelete(consultorio.id, consultorio.name)}
+                                    disabled={deleteMutation.isPending}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Eliminar
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </ResponsiveTable>
+            )}
           </CardContent>
         </Card>
 

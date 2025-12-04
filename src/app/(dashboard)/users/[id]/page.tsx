@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState as useStateReact } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,7 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Lock, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -35,6 +36,10 @@ export default function EditUserPage() {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const userId = params?.id || '';
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const {
     register,
@@ -104,6 +109,19 @@ export default function EditUserPage() {
     },
   });
 
+  const updatePasswordMutation = useMutation({
+    mutationFn: (password: string) => userService.updatePassword(userId, password),
+    onSuccess: () => {
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordError('');
+      alert('Contraseña actualizada exitosamente');
+    },
+    onError: (error: any) => {
+      setPasswordError(error?.response?.data?.message || 'Error al actualizar contraseña');
+    },
+  });
+
   const onSubmit = (data: UserFormData) => {
     // Ensure consultoriosIds is always a clean array of strings
     const payload: UserFormData = {
@@ -115,6 +133,27 @@ export default function EditUserPage() {
 
     console.log('Submitting user update payload:', payload);
     updateMutation.mutate(payload);
+  };
+
+  const handlePasswordUpdate = () => {
+    setPasswordError('');
+    
+    if (!newPassword || !confirmPassword) {
+      setPasswordError('Ambos campos son obligatorios');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Las contraseñas no coinciden');
+      return;
+    }
+    
+    updatePasswordMutation.mutate(newPassword);
   };
 
   if (authLoading || isLoadingUser || isLoadingConsultorios) {
@@ -138,18 +177,21 @@ export default function EditUserPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
         <Button variant="ghost" onClick={() => router.push('/users')} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Volver a Usuarios
+          <ArrowLeft className="mr-2 h-4 w-4" /> 
+          <span className="hidden sm:inline">Volver a Usuarios</span>
+          <span className="sm:hidden">Volver</span>
         </Button>
 
+        <div className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Editar Usuario</CardTitle>
-            <CardDescription>Actualiza la información del usuario y sus consultorios asignados</CardDescription>
+            <CardTitle className="text-xl sm:text-2xl">Editar Usuario</CardTitle>
+            <CardDescription className="text-sm">Actualiza la información del usuario y sus consultorios asignados</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre</Label>
                 <Input id="name" placeholder="Nombre completo" {...register('name')} />
@@ -219,18 +261,78 @@ export default function EditUserPage() {
                 )}
               </div>
 
-              <div className="flex gap-4">
-                <Button type="submit" className="flex-1" disabled={updateMutation.isPending}>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button type="submit" className="flex-1 w-full" disabled={updateMutation.isPending}>
                   <Save className="mr-2 h-4 w-4" />
                   {updateMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => router.push('/users')}>
+                <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => router.push('/users')}>
                   Cancelar
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-xl sm:text-2xl">Cambiar Contraseña</CardTitle>
+            </div>
+            <CardDescription className="text-sm">Actualiza la contraseña del usuario</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Mínimo 6 caracteres"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Repite la contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+
+              {passwordError && (
+                <p className="text-sm text-destructive">{passwordError}</p>
+              )}
+
+              <Button
+                type="button"
+                onClick={handlePasswordUpdate}
+                disabled={updatePasswordMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                <Lock className="mr-2 h-4 w-4" />
+                {updatePasswordMutation.isPending ? 'Actualizando...' : 'Actualizar Contraseña'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        </div>
       </main>
     </div>
   );

@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Navbar } from '@/components/Navbar';
 import { pagoService, Pago, EstatusPago, PagosFilters } from '@/services/pago.service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { DollarSign, Eye, Pencil, Plus, Trash2, CreditCard } from 'lucide-react';
+import { DollarSign, Eye, Pencil, Plus, Trash2, CreditCard, Calendar, UserRound } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ResponsiveTable } from '@/components/ResponsiveTable';
 
 const estatusLabels: Record<EstatusPago, string> = {
   pagado: 'Pagado',
@@ -272,99 +273,165 @@ function PagosContent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Fecha
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Paciente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Monto
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Método
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Estado
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  {pagos.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                        No se encontraron pagos con los filtros seleccionados
-                      </td>
-                    </tr>
-                  ) : (
-                    pagos.map((pago) => (
-                      <tr key={pago.id} className="hover:bg-muted/50">
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          {new Date(pago.fechaPago).toLocaleDateString('es-MX', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm">
-                          <span className="font-medium text-foreground">
-                            {pago.cita?.paciente?.fullName || 'Sin paciente'}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-foreground">
-                          ${pago.monto.toFixed(2)}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4" />
-                            <span>{metodoLabels[pago.metodo]}</span>
+            {pagos.length === 0 ? (
+              <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+                No se encontraron pagos con los filtros seleccionados
+              </div>
+            ) : (
+              <ResponsiveTable
+                mobileCards={pagos.map((pago) => (
+                  <Card key={pago.id} className="border-l-4 border-l-green-500">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-lg font-bold text-green-600">
+                            <DollarSign className="h-5 w-5" />
+                            <span>${pago.monto.toFixed(2)}</span>
                           </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <Badge variant={estatusVariants[pago.estatus]}>{estatusLabels[pago.estatus]}</Badge>
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/pagos/${pago.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Ver
-                              </Link>
-                            </Button>
-                            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-                                <Button variant="outline" size="sm" asChild>
-                                  <Link href={`/pagos/${pago.id}/editar`}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Editar
-                                  </Link>
-                                </Button>
-                              )}
-                            {(user.role === 'admin' || user.role === 'doctor') && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleDelete(pago)}
-                                  disabled={deleteMutation.isPending}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                  Eliminar
-                                </Button>
-                              )}
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>
+                              {new Date(pago.fechaPago).toLocaleDateString('es-MX', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
                           </div>
-                        </td>
+                        </div>
+                        <Badge variant={estatusVariants[pago.estatus]}>{estatusLabels[pago.estatus]}</Badge>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <UserRound className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{pago.cita?.paciente?.fullName || 'Sin paciente'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <CreditCard className="h-4 w-4" />
+                          <span>{metodoLabels[pago.metodo]}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" className="flex-1" asChild>
+                          <Link href={`/pagos/${pago.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Ver
+                          </Link>
+                        </Button>
+                        {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
+                          <Button variant="outline" size="sm" className="flex-1" asChild>
+                            <Link href={`/pagos/${pago.id}/editar`}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Editar
+                            </Link>
+                          </Button>
+                        )}
+                        {(user.role === 'admin' || user.role === 'doctor') && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleDelete(pago)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Eliminar
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              >
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Fecha
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Paciente
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Monto
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Método
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Estado
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Acciones
+                        </th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody className="divide-y divide-border bg-card">
+                      {pagos.map((pago) => (
+                        <tr key={pago.id} className="hover:bg-muted/50">
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            {new Date(pago.fechaPago).toLocaleDateString('es-MX', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm">
+                            <span className="font-medium text-foreground">
+                              {pago.cita?.paciente?.fullName || 'Sin paciente'}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-foreground">
+                            ${pago.monto.toFixed(2)}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <CreditCard className="h-4 w-4" />
+                              <span>{metodoLabels[pago.metodo]}</span>
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4">
+                            <Badge variant={estatusVariants[pago.estatus]}>{estatusLabels[pago.estatus]}</Badge>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm">
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <Link href={`/pagos/${pago.id}`}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Ver
+                                </Link>
+                              </Button>
+                              {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
+                                  <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/pagos/${pago.id}/editar`}>
+                                      <Pencil className="mr-2 h-4 w-4" />
+                                      Editar
+                                    </Link>
+                                  </Button>
+                                )}
+                              {(user.role === 'admin' || user.role === 'doctor') && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDelete(pago)}
+                                    disabled={deleteMutation.isPending}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                    Eliminar
+                                  </Button>
+                                )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </ResponsiveTable>
+            )}
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t px-6 py-4">

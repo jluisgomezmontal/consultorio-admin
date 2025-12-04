@@ -52,6 +52,16 @@ export default function CitaDetailPage() {
     }
   }, [authLoading, user, router]);
 
+  // Refrescar datos cuando se vuelve a la página (por ejemplo, después de crear un pago)
+  useEffect(() => {
+    const handleFocus = () => {
+      queryClient.invalidateQueries({ queryKey: ['cita', id] });
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [id, queryClient]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['cita', id],
     queryFn: () => citaService.getCitaById(id),
@@ -288,12 +298,18 @@ export default function CitaDetailPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Link href="/citas">
-                  <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Citas
-                  </Button>
-                </Link>
+                <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50" onClick={() => {
+                  router.back();
+                  setTimeout(() => {
+                    window.scrollTo({
+                      top: 0,
+                      behavior: "smooth",
+                    });
+                  }, 80);
+                }}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Citas
+                </Button>
                 {cita.paciente?.id && (
                   <Link href={`/pacientes/${cita.paciente.id}`}>
                     <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50">
@@ -347,12 +363,11 @@ export default function CitaDetailPage() {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-muted-foreground">Estado:</span>
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${
-              cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
               cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-              cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-            }`}>
+                cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+              }`}>
               {estadoLabels[cita.estado]}
             </span>
           </div>
@@ -473,35 +488,58 @@ export default function CitaDetailPage() {
         <div className="grid gap-6 lg:grid-cols-2 mt-6">
           <Card className="shadow-md hover:shadow-lg transition-shadow">
             <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                Información de pagos
-              </CardTitle>
-              <CardDescription>
-                Historial de pagos asociados a la cita
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                    Información de pagos
+                  </CardTitle>
+                  <CardDescription>
+                    Historial de pagos asociados a la cita
+                  </CardDescription>
+                </div>
+                {cita.estado === 'completada' && (
+                  <Button size="sm" asChild className="bg-green-600 hover:bg-green-700">
+                    <Link href={`/pagos/nuevo?citaId=${id}`}>
+                      <Coins className="mr-2 h-4 w-4" />
+                      Registrar Pago
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-3 pt-6">
               {cita.pagos && cita.pagos.length > 0 ? (
                 cita.pagos.map((pago) => (
-                  <div key={pago.id} className="rounded-lg border border-border p-4 bg-muted/30 hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-foreground font-semibold text-lg">${pago.monto.toFixed(2)} MXN</p>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        pago.estatus === 'completado' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                        pago.estatus === 'pendiente' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                        'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                      }`}>
-                        {pago.estatus}
-                      </span>
+                  <Link href={`/pagos/${pago.id}`} key={pago.id}>
+                    <div key={pago.id} className="rounded-lg border border-border p-4 bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-foreground font-semibold text-lg">${pago.monto.toFixed(2)} MXN</p>
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${pago.estatus === 'completado' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          pago.estatus === 'pendiente' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                            'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                          }`}>
+                          {pago.estatus}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(pago.createdAt).toLocaleString('es-MX')}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(pago.createdAt).toLocaleString('es-MX')}
-                    </p>
-                  </div>
+                  </Link>
                 ))
               ) : (
-                <p className="text-muted-foreground text-center py-4">No hay pagos registrados.</p>
+                <div className="text-center py-6">
+                  <p className="text-muted-foreground mb-3">No hay pagos registrados.</p>
+                  {cita.estado === 'completada' && (
+                    <Button size="sm" asChild variant="outline">
+                      <Link href={`/pagos/nuevo?citaId=${id}`}>
+                        <Coins className="mr-2 h-4 w-4" />
+                        Crear primer pago
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>

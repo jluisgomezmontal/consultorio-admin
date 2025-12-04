@@ -76,6 +76,11 @@ class UserService {
     const response = await apiClient.delete(`/users/${id}`);
     return response.data;
   }
+
+  async updatePassword(id: string, password: string): Promise<{ success: boolean; message: string }> {
+    const response = await apiClient.patch(`/users/${id}/password`, { password });
+    return response.data;
+  }
 }
 
 export const userService = new UserService();
