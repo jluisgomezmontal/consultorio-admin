@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Edit, Calendar, FileText } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
+import { documentoService } from '@/services/documento.service';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { DocumentList } from '@/components/DocumentList';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -32,6 +34,12 @@ export default function PacienteDetailPage() {
   const { data: historyData } = useQuery({
     queryKey: ['paciente-history', id],
     queryFn: () => pacienteService.getPacienteHistory(id),
+    enabled: !!user && !!id,
+  });
+
+  const { data: documentosData, refetch: refetchDocumentos } = useQuery({
+    queryKey: ['documentos-paciente', id],
+    queryFn: () => documentoService.getDocumentosByPaciente(id, 1, 50),
     enabled: !!user && !!id,
   });
 
@@ -195,6 +203,19 @@ export default function PacienteDetailPage() {
             </Card>
           </div>
         </div>
+
+        {/* Sección de Documentos del Paciente */}
+        {documentosData?.documentos && documentosData.documentos.length > 0 && (
+          <div className="mt-6">
+            <DocumentList
+              documentos={documentosData.documentos}
+              onDelete={() => {
+                refetchDocumentos();
+              }}
+              showCitaInfo={true}
+            />
+          </div>
+        )}
       </main>
     </div>
   );

@@ -25,6 +25,9 @@ import {
   Download,
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { DocumentUploader } from '@/components/DocumentUploader';
+import { DocumentList } from '@/components/DocumentList';
+import { documentoService } from '@/services/documento.service';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -51,6 +54,12 @@ export default function CitaDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['cita', id],
     queryFn: () => citaService.getCitaById(id),
+    enabled: !!user && !!id,
+  });
+
+  const { data: documentosData, refetch: refetchDocumentos } = useQuery({
+    queryKey: ['documentos', id],
+    queryFn: () => documentoService.getDocumentosByCita(id),
     enabled: !!user && !!id,
   });
 
@@ -465,6 +474,29 @@ export default function CitaDetailPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Sección de Documentos */}
+        <div className="mt-6 space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <DocumentUploader
+              citaId={id}
+              pacienteId={cita.paciente?.id || ''}
+              onUploadSuccess={() => {
+                refetchDocumentos();
+              }}
+            />
+            <div>
+              {documentosData?.data && (
+                <DocumentList
+                  documentos={documentosData.data}
+                  onDelete={() => {
+                    refetchDocumentos();
+                  }}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </main>
     </div>
