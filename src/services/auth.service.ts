@@ -27,6 +27,7 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  isActive?: boolean;
   consultoriosIds?: string[];
   consultorios?: Consultorio[];
 }

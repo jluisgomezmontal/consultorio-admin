@@ -118,10 +118,15 @@ export default function UsersPage() {
                             <UsersIcon className="h-5 w-5 text-blue-600" />
                             <span>{u.name}</span>
                           </div>
-                          <Badge className="capitalize">
-                            <Shield className="mr-1 h-3 w-3" />
-                            {u.role}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className="capitalize">
+                              <Shield className="mr-1 h-3 w-3" />
+                              {u.role}
+                            </Badge>
+                            <Badge variant={u.isActive ? 'default' : 'destructive'}>
+                              {u.isActive ? 'Activo' : 'Inactivo'}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
 
@@ -172,6 +177,7 @@ export default function UsersPage() {
                         <th className="text-left py-3 px-4 font-medium">Nombre</th>
                         <th className="text-left py-3 px-4 font-medium">Email</th>
                         <th className="text-left py-3 px-4 font-medium">Rol</th>
+                        <th className="text-left py-3 px-4 font-medium">Estado</th>
                         <th className="text-left py-3 px-4 font-medium">Consultorios</th>
                         <th className="text-right py-3 px-4 font-medium">Acciones</th>
                       </tr>
@@ -185,6 +191,11 @@ export default function UsersPage() {
                             <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-primary/10 text-primary capitalize">
                               {u.role}
                             </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge variant={u.isActive ? 'default' : 'destructive'}>
+                              {u.isActive ? 'Activo' : 'Inactivo'}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4">
                             <ClinicsDisplay consultorios={u.consultorios || []} />

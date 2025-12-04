@@ -14,8 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save, Lock, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
+import { Switch } from '@/components/ui/switch';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -40,6 +41,7 @@ export default function EditUserPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isActive, setIsActive] = useState(true);
 
   const {
     register,
@@ -97,6 +99,8 @@ export default function EditUserPage() {
         role: apiUser.role as UserFormData['role'],
         consultoriosIds: consultoriosIds.filter(Boolean),
       });
+      
+      setIsActive(apiUser.isActive ?? true);
     }
   }, [userData, reset]);
 
@@ -119,6 +123,15 @@ export default function EditUserPage() {
     },
     onError: (error: any) => {
       setPasswordError(error?.response?.data?.message || 'Error al actualizar contraseña');
+    },
+  });
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: (isActive: boolean) => userService.toggleUserStatus(userId, isActive),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user', userId] });
+      setIsActive(response.data.isActive);
     },
   });
 
@@ -154,6 +167,10 @@ export default function EditUserPage() {
     }
     
     updatePasswordMutation.mutate(newPassword);
+  };
+
+  const handleToggleStatus = (checked: boolean) => {
+    toggleStatusMutation.mutate(checked);
   };
 
   if (authLoading || isLoadingUser || isLoadingConsultorios) {
@@ -330,6 +347,46 @@ export default function EditUserPage() {
                 {updatePasswordMutation.isPending ? 'Actualizando...' : 'Actualizar Contraseña'}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-xl sm:text-2xl">Estado de la Cuenta</CardTitle>
+            </div>
+            <CardDescription className="text-sm">
+              Activar o desactivar el acceso del usuario a la aplicación
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="user-status" className="text-base font-medium">
+                  {isActive ? 'Cuenta Activa' : 'Cuenta Desactivada'}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {isActive
+                    ? 'El usuario puede iniciar sesión y usar la aplicación'
+                    : 'El usuario no puede iniciar sesión. Contactar al administrador.'}
+                </p>
+              </div>
+              <Switch
+                id="user-status"
+                checked={isActive}
+                onCheckedChange={handleToggleStatus}
+                disabled={toggleStatusMutation.isPending}
+              />
+            </div>
+            {!isActive && (
+              <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <p className="font-medium">⚠️ Cuenta desactivada</p>
+                <p className="mt-1">
+                  Este usuario no podrá iniciar sesión ni realizar acciones en la aplicación.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
         </div>

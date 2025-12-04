@@ -14,6 +14,7 @@ export interface User {
   email: string;
   role: string;
   consultoriosIds: string[];
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
   consultorios?: Consultorio[];
@@ -79,6 +80,11 @@ class UserService {
 
   async updatePassword(id: string, password: string): Promise<{ success: boolean; message: string }> {
     const response = await apiClient.patch(`/users/${id}/password`, { password });
+    return response.data;
+  }
+
+  async toggleUserStatus(id: string, isActive: boolean): Promise<UserResponse> {
+    const response = await apiClient.patch<UserResponse>(`/users/${id}/status`, { isActive });
     return response.data;
   }
 }

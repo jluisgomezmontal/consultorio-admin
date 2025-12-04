@@ -46,6 +46,19 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // Check if account is deactivated
+    if (error.response?.status === 401) {
+      const errorMessage = (error.response?.data as any)?.message || '';
+      if (errorMessage.includes('deactivated') || errorMessage.includes('desactivada')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login?deactivated=true';
+        }
+        return Promise.reject(error);
+      }
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

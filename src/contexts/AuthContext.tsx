@@ -32,6 +32,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     try {
       const response = await authService.getCurrentUser();
+      
+      // Check if user account is active
+      if (response.data.isActive === false) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        setUser(null);
+        setLoading(false);
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login?deactivated=true';
+        }
+        return;
+      }
+      
       setUser(response.data);
     } catch (error) {
       localStorage.removeItem('token');
