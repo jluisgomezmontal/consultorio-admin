@@ -67,9 +67,16 @@ const formatFileSize = (bytes: number) => {
 export function DocumentList({ documentos, onDelete, showCitaInfo = false }: DocumentListProps) {
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const handleDownload = (documento: Documento) => {
-    if (documento.downloadUrl) {
-      documentoService.downloadDocumento(documento.downloadUrl, documento.nombre);
+  const handleDownload = async (documento: Documento) => {
+    try {
+      if (documento.downloadUrl) {
+        documentoService.downloadDocumento(documento.downloadUrl, documento.nombre);
+      } else {
+        alert('URL de descarga no disponible');
+      }
+    } catch (error) {
+      console.error('Error al descargar documento:', error);
+      alert('Error al descargar el documento');
     }
   };
 
@@ -94,32 +101,38 @@ export function DocumentList({ documentos, onDelete, showCitaInfo = false }: Doc
 
   if (documentos.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center text-muted-foreground">
-            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No hay documentos adjuntos</p>
-          </div>
+      <Card className="shadow-md">
+        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            Documentos
+          </CardTitle>
+          <CardDescription>Documentos adjuntos</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground text-center py-8">
+            No hay documentos disponibles
+          </p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
         <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
+          <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           Documentos ({documentos.length})
         </CardTitle>
-        <CardDescription>Archivos adjuntos a esta cita</CardDescription>
+        <CardDescription>Documentos adjuntos a esta cita</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <div className="space-y-3">
           {documentos.map((documento) => (
             <div
-              key={documento.id || documento._id}
-              className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+              key={documento.id || documento._id || `doc-${documento.nombre}-${documento.createdAt}`}
+              className="flex items-start gap-4 rounded-lg border border-border p-4 hover:bg-muted/50 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all shadow-sm hover:shadow-md"
             >
               <div className="flex-shrink-0">{getFileIcon(documento.mimeType)}</div>
 

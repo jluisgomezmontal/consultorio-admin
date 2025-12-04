@@ -124,20 +124,30 @@ export default function PacientesPage() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Gestión de Pacientes</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Administra los pacientes del consultorio
-            </p>
+        {/* Header con gradiente */}
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-6 shadow-lg border border-purple-100 dark:border-purple-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <h1 className="text-3xl font-bold text-foreground">Gestión de Pacientes</h1>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Administra los pacientes del consultorio
+              </p>
+            </div>
+            <Button onClick={() => router.push('/pacientes/nuevo')} size="lg" className="bg-purple-600 hover:bg-purple-700 shadow-md">
+              <UserPlus className="mr-2 h-5 w-5" />
+              Nuevo Paciente
+            </Button>
           </div>
-          <Button onClick={() => router.push('/pacientes/nuevo')}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nuevo Paciente
-          </Button>
         </div>
 
-        <Card className="mb-6">
+        <Card className="mb-6 shadow-md">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20">
+            <CardTitle className="text-lg">Búsqueda de Pacientes</CardTitle>
+            <CardDescription>Busca pacientes por nombre, teléfono o email</CardDescription>
+          </CardHeader>
           <CardContent className="pt-6">
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="relative flex-1">
@@ -167,10 +177,10 @@ export default function PacientesPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
+        <Card className="shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               Lista de Pacientes
             </CardTitle>
             <CardDescription>

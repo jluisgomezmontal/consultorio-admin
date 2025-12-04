@@ -64,17 +64,22 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
-        <div className="mb-8 overflow-hidden rounded-lg bg-gradient-to-r from-primary to-primary/80">
+        {/* Hero Section */}
+        <div className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-2xl">
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="flex flex-col justify-center p-8 text-primary-foreground">
-              <h2 className="text-3xl font-bold">
+            <div className="flex flex-col justify-center p-8 text-white">
+              <div className="inline-flex items-center gap-2 mb-4">
+                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span className="text-sm font-medium opacity-90">Sistema Activo</span>
+              </div>
+              <h1 className="text-4xl font-bold mb-2">
                 Bienvenido, {user.name}
-              </h2>
-              <p className="mt-2 text-lg opacity-90">
-                Panel de control del sistema
+              </h1>
+              <p className="text-xl opacity-90 mb-4">
+                Panel de Control
               </p>
-              <p className="mt-4 text-sm opacity-80">
-                Gestiona citas, pacientes y consultorios de manera eficiente
+              <p className="text-sm opacity-80 max-w-md">
+                Gestiona citas, pacientes y consultorios de manera eficiente desde un solo lugar
               </p>
             </div>
             <div className="relative hidden h-64 md:block">
@@ -82,113 +87,139 @@ export default function DashboardPage() {
                 src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=1200&auto=format&fit=crop"
                 alt="Equipo médico"
                 fill
-                className="object-cover"
+                className="object-cover opacity-90"
                 priority
               />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-indigo-600/20"></div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Citas Hoy
-              </CardTitle>
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary?.citasHoy ?? 0}</div>
-              <p className="text-xs text-muted-foreground">
-                Programadas para hoy
-              </p>
-            </CardContent>
-          </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          <Link href={`/citas?dateFrom=${new Date().toISOString().split('T')[0]}&dateTo=${new Date().toISOString().split('T')[0]}`}>
+            <Card className="hover:shadow-xl transition-all hover:-translate-y-1 border-l-4 border-l-blue-500 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Citas Hoy
+                </CardTitle>
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{summary?.citasHoy ?? 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Programadas para hoy
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Citas Pendientes
-              </CardTitle>
-              <Clock className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary?.citasPendientes ?? 0}</div>
-              <p className="text-xs text-muted-foreground">
-                Por confirmar
-              </p>
-            </CardContent>
-          </Card>
+          <Link href="/citas?estado=pendiente">
+            <Card className="hover:shadow-xl transition-all hover:-translate-y-1 border-l-4 border-l-yellow-500 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Citas Pendientes
+                </CardTitle>
+                <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+                  <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{summary?.citasPendientes ?? 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Por confirmar
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Pacientes
-              </CardTitle>
-              <Users className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalPacientes}</div>
-              <p className="text-xs text-muted-foreground">
-                Registrados
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Ingresos Hoy
-              </CardTitle>
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${summary?.ingresosHoy?.toFixed(2) ?? '0.00'}</div>
-              <p className="text-xs text-muted-foreground">
-                Pagos recibidos
-              </p>
-            </CardContent>
-          </Card>
+          <Link href="/pacientes">
+            <Card className="hover:shadow-xl transition-all hover:-translate-y-1 border-l-4 border-l-purple-500 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Pacientes
+                </CardTitle>
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                  <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{totalPacientes}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Registrados
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/pagos">
+            <Card className="hover:shadow-xl transition-all hover:-translate-y-1 border-l-4 border-l-green-500 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Ingresos Hoy
+                </CardTitle>
+                <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">${summary?.ingresosHoy?.toFixed(2) ?? '0.00'}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Pagos recibidos
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Acciones Rápidas</CardTitle>
+        {/* Quick Actions */}
+        <Card className="shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20">
+            <CardTitle className="text-xl">Acciones Rápidas</CardTitle>
             <CardDescription>
               Accede rápidamente a las funciones más utilizadas
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Button variant="outline" className="h-20 flex-col" asChild>
+              <Button variant="outline" className="h-24 flex-col hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-md" asChild>
                 <Link href="/citas/nueva">
-                  <Clock className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg mb-2">
+                    <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-sm font-semibold">
                     Nueva Cita
                   </span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-20 flex-col" asChild>
+              <Button variant="outline" className="h-24 flex-col hover:bg-purple-50 dark:hover:bg-purple-950/20 hover:border-purple-300 dark:hover:border-purple-700 transition-all hover:shadow-md" asChild>
                 <Link href="/pacientes/nuevo">
-                  <Users className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg mb-2">
+                    <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <span className="text-sm font-semibold">
                     Nuevo Paciente
                   </span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-20 flex-col" asChild>
+              <Button variant="outline" className="h-24 flex-col hover:bg-green-50 dark:hover:bg-green-950/20 hover:border-green-300 dark:hover:border-green-700 transition-all hover:shadow-md" asChild>
                 <Link href="/citas">
-                  <Calendar className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg mb-2">
+                    <Calendar className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <span className="text-sm font-semibold">
                     Ver Calendario
                   </span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-20 flex-col" asChild>
-                <Link href="/reportes">
-                  <FileText className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">
-                    Reportes
+              <Button variant="outline" className="h-24 flex-col hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:border-orange-300 dark:hover:border-orange-700 transition-all hover:shadow-md" asChild>
+                <Link href={user.role !== 'recepcionista' ? '/reportes' : '/pagos'}>
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg mb-2">
+                    <FileText className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <span className="text-sm font-semibold">
+                    {user.role !== 'recepcionista' ? 'Reportes' : 'Pagos'}
                   </span>
                 </Link>
               </Button>

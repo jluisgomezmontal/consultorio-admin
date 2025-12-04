@@ -275,22 +275,32 @@ function CitasContent() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Gestión de Citas</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Visualiza y administra las citas del consultorio
-            </p>
+        {/* Header con gradiente */}
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 p-6 shadow-lg border border-green-100 dark:border-green-900">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <h1 className="text-3xl font-bold text-foreground">Gestión de Citas</h1>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Visualiza y administra las citas del consultorio
+              </p>
+            </div>
+            {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
+              <Button onClick={() => router.push('/citas/nueva')} size="lg" className="bg-green-600 hover:bg-green-700 shadow-md">
+                <Plus className="mr-2 h-5 w-5" />
+                Nueva Cita
+              </Button>
+            )}
           </div>
-          {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-            <Button onClick={() => router.push('/citas/nueva')}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva Cita
-            </Button>
-          )}
         </div>
 
-        <Card className="mb-6">
+        <Card className="mb-6 shadow-md">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20">
+            <CardTitle className="text-lg">Filtros de Búsqueda</CardTitle>
+            <CardDescription>Filtra las citas por diferentes criterios</CardDescription>
+          </CardHeader>
           <CardContent className="pt-6">
             <form onSubmit={handleFiltersSubmit} className="flex flex-col gap-4">
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
