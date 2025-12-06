@@ -296,3 +296,79 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+/* SweetAlert2 Custom Styles */
+.swal2-custom-popup {
+  font-family: var(--font-sans) !important;
+}
+
+.swal2-custom-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+}
+
+.swal2-custom-text {
+  font-size: 0.875rem !important;
+  color: #6b7280 !important;
+}
+
+/* Dark mode text colors */
+.dark .swal2-custom-title {
+  color: #f9fafb !important;
+}
+
+.dark .swal2-custom-text {
+  color: #9ca3af !important;
+}
+
+.swal2-custom-confirm {
+  border-radius: 0.375rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s !important;
+}
+
+.swal2-custom-confirm:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+}
+
+.swal2-custom-cancel {
+  border-radius: 0.375rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s !important;
+}
+
+.swal2-custom-cancel:hover {
+  opacity: 0.9 !important;
+}
+
+.swal2-icon {
+  border-width: 3px !important;
+}
+
+/* Dark mode adjustments for icons */
+.dark .swal2-icon.swal2-warning {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+.dark .swal2-icon.swal2-error {
+  border-color: #ef4444 !important;
+}
+
+.dark .swal2-icon.swal2-success {
+  border-color: #10b981 !important;
+}
+
+.dark .swal2-icon.swal2-info {
+  border-color: #3b82f6 !important;
+}
+
+.dark .swal2-icon.swal2-question {
+  border-color: #8b5cf6 !important;
+}

@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Edit, Eye, Plus, Search, Trash2, Clock, Phone, MapPin, Users, Calendar } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const normalizeText = (text: string | null | undefined) => {
   if (!text) return '';
@@ -26,6 +27,7 @@ export default function ConsultoriosPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 10;
@@ -52,7 +54,13 @@ export default function ConsultoriosPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!user || user.role !== 'admin') return;
 
-    if (confirm(`¿Estás seguro de eliminar el consultorio "${name}"?`)) {
+    const confirmed = await confirm({
+      title: '¿Eliminar consultorio?',
+      text: `¿Estás seguro de eliminar el consultorio "${name}"? Esta acción no se puede deshacer.`,
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (error) {

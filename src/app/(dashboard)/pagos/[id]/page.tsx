@@ -23,6 +23,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const estatusLabels: Record<EstatusPago, string> = {
   pagado: 'Pagado',
@@ -46,6 +47,7 @@ export default function PagoDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -68,7 +70,13 @@ export default function PagoDetailPage() {
   });
 
   const handleDelete = async () => {
-    if (confirm('¿Eliminar este pago permanentemente?')) {
+    const confirmed = await confirm({
+      title: '¿Eliminar este pago?',
+      text: 'Esta acción no se puede deshacer',
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       await deleteMutation.mutateAsync();
     }
   };

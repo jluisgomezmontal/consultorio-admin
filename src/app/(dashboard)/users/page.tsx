@@ -14,11 +14,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClinicsDisplay } from '@/components/ClinicsDisplay';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { Badge } from '@/components/ui/badge';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 export default function UsersPage() {
   const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -42,7 +44,13 @@ export default function UsersPage() {
   });
 
   const handleDelete = async (id: string, userName: string) => {
-    if (confirm(`¿Estás seguro de eliminar al usuario ${userName}?`)) {
+    const confirmed = await confirm({
+      title: '¿Eliminar usuario?',
+      text: `¿Estás seguro de eliminar al usuario ${userName}? Esta acción no se puede deshacer.`,
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (error) {
@@ -73,17 +81,22 @@ export default function UsersPage() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Gestión de Usuarios</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Administra los usuarios del sistema
-            </p>
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-violet-950/20 p-4 sm:p-6 shadow-lg border border-blue-100 dark:border-blue-900">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <UsersIcon className="h-5 w-5 md:h-6 md:w-6 text-blue-600 dark:text-blue-400" />
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestión de Usuarios</h1>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Administra los usuarios del sistema
+              </p>
+            </div>
+            <Button onClick={() => router.push('/register')} size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-md w-full sm:w-auto">
+              <UserPlus className="mr-2 h-5 w-5" />
+              Nuevo Usuario
+            </Button>
           </div>
-          <Button onClick={() => router.push('/register')}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nuevo Usuario
-          </Button>
         </div>
 
         {error && (

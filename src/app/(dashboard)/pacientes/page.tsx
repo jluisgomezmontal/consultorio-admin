@@ -13,11 +13,13 @@ import { pacienteService, Paciente } from '@/services/paciente.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 export default function PacientesPage() {
   const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 10;
@@ -43,7 +45,13 @@ export default function PacientesPage() {
   });
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`¿Estás seguro de eliminar al paciente ${name}?`)) {
+    const confirmed = await confirm({
+      title: '¿Eliminar paciente?',
+      text: `¿Estás seguro de eliminar al paciente ${name}? Esta acción no se puede deshacer.`,
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (error) {

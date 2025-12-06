@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save, DollarSign } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { citaService, CreateCitaRequest, CitaEstado } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
@@ -401,30 +401,18 @@ function NuevaCitaContent() {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button type="submit" disabled={createMutation.isPending} className="flex-1">
                   <Save className="mr-2 h-4 w-4" />
                   {createMutation.isPending ? 'Guardando...' : 'Guardar Cita'}
                 </Button>
-                {(user.role === 'admin' || user.role === 'recepcionista') && (
-                  <Button 
-                    type="button" 
-                    variant="secondary"
-                    onClick={() => {
-                      const pacienteId = watch('pacienteId');
-                      if (pacienteId) {
-                        router.push(`/pagos/nuevo?pacienteId=${pacienteId}`);
-                      } else {
-                        setError('Selecciona un paciente antes de registrar un pago');
-                      }
-                    }}
-                    disabled={createMutation.isPending}
-                  >
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    Registrar Pago
-                  </Button>
-                )}
-                <Button type="button" variant="outline" onClick={() => router.push('/citas')}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => router.push('/citas')}
+                  disabled={createMutation.isPending}
+                  className="sm:w-auto"
+                >
                   Cancelar
                 </Button>
               </div>

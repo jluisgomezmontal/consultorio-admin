@@ -49,12 +49,12 @@ const navLinks = [
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex flex-shrink-0 items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold  text-primary-foreground">
+              <span className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full bg-primary text-xs md:text-sm font-semibold text-primary-foreground">
                 Mi
               </span>
-              <span className="text-xl font-bold">Consultorio</span>
+              <span className="text-lg md:text-xl font-bold">Consultorio</span>
             </Link>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+            <div className="hidden md:ml-6 md:flex md:space-x-2 lg:space-x-4">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 return (
@@ -74,10 +74,10 @@ const navLinks = [
               })}
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 lg:space-x-3">
             {/* Selector de Consultorio */}
             {user?.role !== 'admin' && consultorios.length > 0 && (
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
                 <Select
                   value={selectedConsultorio?.id || selectedConsultorio?._id || ''}
@@ -104,17 +104,17 @@ const navLinks = [
               </div>
             )}
             <ThemeToggle />
-            <div className="text-sm hidden sm:block">
+            <div className="text-sm hidden lg:block">
               <p className="font-medium">{user?.name || 'Usuario'}</p>
               <p className="text-xs text-muted-foreground capitalize">{user?.role || 'Rol'}</p>
             </div>
-            <Button onClick={logout} variant="outline" size="sm" className="hidden sm:inline-flex">
+            <Button onClick={logout} variant="outline" size="sm" className="hidden lg:inline-flex">
               Cerrar Sesión
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="sm:hidden"
+              className="lg:hidden"
               onClick={() => setMobileOpen((prev: boolean) => !prev)}
               aria-label="Abrir menú"
             >
@@ -123,7 +123,7 @@ const navLinks = [
           </div>
         </div>
         {mobileOpen && (
-          <div className="space-y-4 border-t border-border pb-4 pt-4 sm:hidden">
+          <div className="space-y-4 border-t border-border pb-4 pt-4 lg:hidden">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">{user?.name}</p>

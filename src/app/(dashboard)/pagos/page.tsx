@@ -14,6 +14,7 @@ import { DollarSign, Eye, Pencil, Plus, Trash2, CreditCard, Calendar, UserRound 
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const estatusLabels: Record<EstatusPago, string> = {
   pagado: 'Pagado',
@@ -52,6 +53,7 @@ function PagosContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
   const limit = 10;
   const today = new Date().toISOString().split('T')[0];
   const estatusParam = searchParams.get('estatus');
@@ -134,7 +136,13 @@ function PagosContent() {
   });
 
   const handleDelete = async (pago: Pago) => {
-    if (confirm(`¿Eliminar el pago de $${pago.monto}?`)) {
+    const confirmed = await confirm({
+      title: '¿Eliminar pago?',
+      text: `¿Estás seguro de eliminar el pago de $${pago.monto}? Esta acción no se puede deshacer.`,
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       try {
         await deleteMutation.mutateAsync(pago.id);
       } catch (error) {

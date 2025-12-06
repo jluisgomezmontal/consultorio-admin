@@ -16,6 +16,7 @@ import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, Us
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -52,6 +53,7 @@ function CitasContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
   const limit = 10;
   const todayDate = useMemo(() => {
     const nowDate = new Date();
@@ -188,7 +190,14 @@ function CitasContent() {
   const handleCancel = async (cita: Cita) => {
     if (cita.estado === 'cancelada' || cita.estado === 'completada') return;
 
-    if (confirm(`¿Cancelar la cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}?`)) {
+    const confirmed = await confirm({
+      title: '¿Cancelar esta cita?',
+      text: `Cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}`,
+      confirmButtonText: 'Sí, cancelar',
+      confirmButtonColor: '#f59e0b',
+    });
+
+    if (confirmed) {
       try {
         await cancelMutation.mutateAsync(cita.id);
       } catch (error) {
@@ -198,7 +207,13 @@ function CitasContent() {
   };
 
   const handleDelete = async (cita: Cita) => {
-    if (confirm(`¿Eliminar la cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}?`)) {
+    const confirmed = await confirm({
+      title: '¿Eliminar esta cita?',
+      text: `Cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}. Esta acción no se puede deshacer.`,
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       try {
         await deleteMutation.mutateAsync(cita.id);
       } catch (error) {
@@ -266,8 +281,8 @@ function CitasContent() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <CalendarDays className="h-6 w-6 text-green-600 dark:text-green-400" />
-                <h1 className="text-3xl font-bold text-foreground">Gestión de Citas</h1>
+                <CalendarDays className="h-5 w-5 md:h-6 md:w-6 text-green-600 dark:text-green-400" />
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestión de Citas</h1>
               </div>
               <p className="text-sm text-muted-foreground">
                 Visualiza y administra las citas del consultorio

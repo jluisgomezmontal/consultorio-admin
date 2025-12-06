@@ -29,6 +29,7 @@ import { jsPDF } from 'jspdf';
 import { DocumentUploader } from '@/components/DocumentUploader';
 import { DocumentList } from '@/components/DocumentList';
 import { documentoService } from '@/services/documento.service';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -43,6 +44,7 @@ export default function CitaDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const queryClient = useQueryClient();
+  const { confirm } = useConfirmDialog();
   const [selectedEstado, setSelectedEstado] = useState<CitaEstado>('pendiente');
   const [estadoError, setEstadoError] = useState('');
 
@@ -113,13 +115,26 @@ export default function CitaDetailPage() {
     if (!data?.data) return;
     if (data.data.estado === 'cancelada' || data.data.estado === 'completada') return;
 
-    if (confirm('¿Deseas cancelar esta cita?')) {
+    const confirmed = await confirm({
+      title: '¿Cancelar esta cita?',
+      text: 'Esta acción cambiará el estado de la cita a cancelada',
+      confirmButtonText: 'Sí, cancelar',
+      confirmButtonColor: '#f59e0b',
+    });
+
+    if (confirmed) {
       await cancelMutation.mutateAsync();
     }
   };
 
   const handleDelete = async () => {
-    if (confirm('¿Eliminar esta cita permanentemente?')) {
+    const confirmed = await confirm({
+      title: '¿Eliminar esta cita?',
+      text: 'Esta acción no se puede deshacer',
+      confirmButtonText: 'Sí, eliminar',
+    });
+
+    if (confirmed) {
       await deleteMutation.mutateAsync();
     }
   };
@@ -325,10 +340,11 @@ export default function CitaDetailPage() {
                 {cita.paciente?.fullName} • {new Date(cita.date).toLocaleDateString('es-MX')}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleExportPDF} className="bg-white dark:bg-gray-800">
                 <Download className="mr-2 h-4 w-4" />
-                Exportar PDF
+                <span className="hidden sm:inline">Exportar PDF</span>
+                <span className="sm:hidden">PDF</span>
               </Button>
               {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
                 <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)} className="bg-white dark:bg-gray-800">
@@ -340,7 +356,8 @@ export default function CitaDetailPage() {
                 <Button variant="default" size="sm" asChild className="bg-green-600 hover:bg-green-700">
                   <Link href={`/pagos/nuevo?citaId=${id}`}>
                     <Coins className="mr-2 h-4 w-4" />
-                    Registrar pago
+                    <span className="hidden sm:inline">Registrar pago</span>
+                    <span className="sm:hidden">Pago</span>
                   </Link>
                 </Button>
               )}
@@ -352,7 +369,8 @@ export default function CitaDetailPage() {
                   disabled={deleteMutation.isPending}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Eliminar
+                  <span className="hidden sm:inline">Eliminar</span>
+                  <span className="sm:hidden">Borrar</span>
                 </Button>
               )}
             </div>
