@@ -111,21 +111,21 @@ export default function CitaDetailPage() {
     },
   });
 
-  const handleCancel = async () => {
-    if (!data?.data) return;
-    if (data.data.estado === 'cancelada' || data.data.estado === 'completada') return;
+  // const handleCancel = async () => {
+  //   if (!data?.data) return;
+  //   if (data.data.estado === 'cancelada' || data.data.estado === 'completada') return;
 
-    const confirmed = await confirm({
-      title: '¿Cancelar esta cita?',
-      text: 'Esta acción cambiará el estado de la cita a cancelada',
-      confirmButtonText: 'Sí, cancelar',
-      confirmButtonColor: '#f59e0b',
-    });
+  //   const confirmed = await confirm({
+  //     title: '¿Cancelar esta cita?',
+  //     text: 'Esta acción cambiará el estado de la cita a cancelada',
+  //     confirmButtonText: 'Sí, cancelar',
+  //     confirmButtonColor: '#f59e0b',
+  //   });
 
-    if (confirmed) {
-      await cancelMutation.mutateAsync();
-    }
-  };
+  //   if (confirmed) {
+  //     await cancelMutation.mutateAsync();
+  //   }
+  // };
 
   const handleDelete = async () => {
     const confirmed = await confirm({
@@ -145,146 +145,215 @@ export default function CitaDetailPage() {
     await updateEstadoMutation.mutateAsync(selectedEstado);
   };
 
-  const handleExportPDF = () => {
-    if (!cita) return;
+const handleExportPDF = () => {
+  if (!cita) return;
 
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let yPosition = 20;
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a5"
+  });
 
-    // Header
-    doc.setFontSize(18);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // --- Fondo hueso ---
+  doc.setFillColor(245, 240, 230);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+  // --- Borde completo con 4 líneas (no se corta en ningún lado) ---
+  doc.setDrawColor(200, 190, 175);
+  doc.setLineWidth(1);
+
+  // Top border
+  doc.line(3, 3, pageWidth - 3, 3);
+
+  // Left border
+  doc.line(3, 3, 3, pageHeight - 3);
+
+  // Right border
+  doc.line(pageWidth - 3, 3, pageWidth - 3, pageHeight - 3);
+
+  // Bottom border
+  doc.line(3, pageHeight - 3, pageWidth - 3, pageHeight - 3);
+
+  let yPosition = 15;
+
+  // --- Logo ---
+  try {
+    doc.addImage('/logo.png', 'PNG', 10, yPosition - 9, 30, 30);
+  } catch (error) {
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Resumen de Cita Médica', pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 15;
+    doc.setTextColor(70, 130, 180);
+    doc.text('MiConsultorio', 10, yPosition);
+  }
 
-    // Consultorio info
-    if (cita.consultorio?.name) {
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.text(cita.consultorio.name, pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 6;
-      if (cita.consultorio.address) {
-        doc.setFontSize(10);
-        doc.text(cita.consultorio.address, pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 6;
-      }
-      if (cita.consultorio.phone) {
-        doc.text(`Tel: ${cita.consultorio.phone}`, pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 10;
-      }
-    }
-    yPosition += 5;
+  // --- Título ---
+  doc.setTextColor(70, 130, 180);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Resumen de Cita Médica', pageWidth - 10, yPosition, { align: 'right' });
+  yPosition += 8;
 
-    // Line separator
-    doc.setLineWidth(0.5);
-    doc.line(15, yPosition, pageWidth - 15, yPosition);
-    yPosition += 10;
-
-    // Patient info
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Información del Paciente', 15, yPosition);
-    yPosition += 8;
-    doc.setFontSize(11);
+  // --- Info del consultorio ---
+  doc.setTextColor(60, 60, 60);
+  if (cita.consultorio?.name) {
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Nombre: ${cita.paciente?.fullName || 'No especificado'}`, 15, yPosition);
-    yPosition += 6;
-    if (cita.paciente?.phone) {
-      doc.text(`Teléfono: ${cita.paciente.phone}`, 15, yPosition);
+    doc.text(cita.consultorio.name, pageWidth - 10, yPosition, { align: 'right' });
+    yPosition += 4;
+    if (cita.consultorio.address) {
+      doc.setFontSize(8);
+      doc.text(cita.consultorio.address, pageWidth - 10, yPosition, { align: 'right' });
+      yPosition += 4;
+    }
+    if (cita.consultorio.phone) {
+      doc.text(`Tel: ${cita.consultorio.phone}`, pageWidth - 10, yPosition, { align: 'right' });
       yPosition += 6;
     }
-    if (cita.paciente?.age) {
-      doc.text(`Edad: ${cita.paciente.age} años`, 15, yPosition);
-      yPosition += 6;
-    }
-    yPosition += 5;
+  }
+  yPosition += 2;
 
-    // Appointment info
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Detalles de la Cita', 15, yPosition);
-    yPosition += 8;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    const fechaFormateada = new Date(cita.date).toLocaleDateString('es-MX', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-    doc.text(`Fecha: ${fechaFormateada}`, 15, yPosition);
-    yPosition += 6;
-    doc.text(`Hora: ${cita.time}`, 15, yPosition);
-    yPosition += 6;
-    doc.text(`Doctor: ${cita.doctor?.name || 'No especificado'}`, 15, yPosition);
-    yPosition += 6;
-    doc.text(`Estado: ${estadoLabels[cita.estado]}`, 15, yPosition);
-    yPosition += 10;
+  // --- Línea decorativa ---
+  doc.setDrawColor(70, 130, 180);
+  doc.setLineWidth(0.8);
+  doc.line(10, yPosition, pageWidth - 10, yPosition);
+  yPosition += 9;
 
-    // Medical details
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Información Médica', 15, yPosition);
-    yPosition += 8;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
+  // --- Info del paciente ---
+  doc.setFillColor(230, 240, 250);
+  doc.roundedRect(10, yPosition - 3, pageWidth - 20, 25, 2, 2, 'F');
 
-    if (cita.motivo) {
-      doc.text('Motivo de consulta:', 15, yPosition);
-      yPosition += 6;
-      const motivoLines = doc.splitTextToSize(cita.motivo, pageWidth - 30);
-      doc.text(motivoLines, 15, yPosition);
-      yPosition += motivoLines.length * 6 + 4;
-    }
+  doc.setTextColor(70, 130, 180);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Información del Paciente', 15, yPosition);
+  yPosition += 5;
 
-    if (cita.diagnostico) {
-      doc.text('Diagnóstico:', 15, yPosition);
-      yPosition += 6;
-      const diagnosticoLines = doc.splitTextToSize(cita.diagnostico, pageWidth - 30);
-      doc.text(diagnosticoLines, 15, yPosition);
-      yPosition += diagnosticoLines.length * 6 + 4;
-    }
+  doc.setTextColor(60, 60, 60);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Nombre: ${cita.paciente?.fullName || 'No especificado'}`, 15, yPosition);
+  yPosition += 4;
 
-    if (cita.tratamiento) {
-      doc.text('Tratamiento:', 15, yPosition);
-      yPosition += 6;
-      const tratamientoLines = doc.splitTextToSize(cita.tratamiento, pageWidth - 30);
-      doc.text(tratamientoLines, 15, yPosition);
-      yPosition += tratamientoLines.length * 6 + 4;
-    }
+  if (cita.paciente?.phone) {
+    doc.text(`Teléfono: ${cita.paciente.phone}`, 15, yPosition);
+    yPosition += 4;
+  }
 
-    if (cita.notas) {
-      doc.text('Notas adicionales:', 15, yPosition);
-      yPosition += 6;
-      const notasLines = doc.splitTextToSize(cita.notas, pageWidth - 30);
-      doc.text(notasLines, 15, yPosition);
-      yPosition += notasLines.length * 6 + 4;
-    }
+  if (cita.paciente?.age) {
+    doc.text(`Edad: ${cita.paciente.age} años`, 15, yPosition);
+    yPosition += 4;
+  }
 
-    // Cost
-    if (cita.costo !== undefined && cita.costo !== null) {
-      yPosition += 5;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Costo de consulta: $${cita.costo.toFixed(2)} MXN`, 15, yPosition);
-    }
+  yPosition += 5;
 
-    // Footer
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'italic');
-    doc.text(
-      `Generado el ${new Date().toLocaleDateString('es-MX')} a las ${new Date().toLocaleTimeString('es-MX')}`,
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: 'center' }
-    );
+  // --- Detalles de la cita ---
+  doc.setFillColor(230, 250, 240);
+  doc.roundedRect(10, yPosition - 3, pageWidth - 20, 25, 2, 2, 'F');
 
-    // Save PDF
-    const fileName = `Cita_${cita.paciente?.fullName.replace(/\s+/g, '_')}_${new Date(cita.date).toISOString().split('T')[0]}.pdf`;
-    doc.save(fileName);
-  };
+  doc.setTextColor(70, 130, 180);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Detalles de la Cita', 15, yPosition);
+  yPosition += 5;
+
+  doc.setTextColor(60, 60, 60);
+  doc.setFontSize(9);
+
+  const fechaFormateada = new Date(cita.date).toLocaleDateString('es-MX', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  doc.text(`Fecha: ${fechaFormateada}`, 15, yPosition);
+  yPosition += 4;
+
+  doc.text(`Hora: ${cita.time}`, 15, yPosition);
+  yPosition += 4;
+
+  doc.text(`Doctor: ${cita.doctor?.name || 'No especificado'}`, 15, yPosition);
+  yPosition += 9;
+
+  // --- Información médica ---
+  doc.setFillColor(255, 250, 230);
+
+  let additionalHeight = 0;
+  const baseHeight = 30;
+
+  if (cita.motivo) additionalHeight += doc.splitTextToSize(cita.motivo, pageWidth - 30).length * 4 + 6;
+  if (cita.diagnostico) additionalHeight += doc.splitTextToSize(cita.diagnostico, pageWidth - 30).length * 4 + 6;
+  if (cita.tratamiento) additionalHeight += doc.splitTextToSize(cita.tratamiento, pageWidth - 30).length * 4 + 6;
+  if (cita.notas) additionalHeight += doc.splitTextToSize(cita.notas, pageWidth - 30).length * 4 + 6;
+
+  doc.roundedRect(10, yPosition - 3, pageWidth - 20, baseHeight + additionalHeight, 2, 2, 'F');
+
+  doc.setTextColor(70, 130, 180);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Información Médica', 15, yPosition);
+  yPosition += 5;
+
+  doc.setTextColor(60, 60, 60);
+  doc.setFontSize(9);
+
+  if (cita.motivo) {
+    doc.text('Motivo de consulta:', 15, yPosition);
+    yPosition += 4;
+    const motivoLines = doc.splitTextToSize(cita.motivo, pageWidth - 30);
+    doc.text(motivoLines, 15, yPosition);
+    yPosition += motivoLines.length * 4 + 2;
+  }
+
+  if (cita.diagnostico) {
+    doc.text('Diagnóstico:', 15, yPosition);
+    yPosition += 4;
+    const diagnosticoLines = doc.splitTextToSize(cita.diagnostico, pageWidth - 30);
+    doc.text(diagnosticoLines, 15, yPosition);
+    yPosition += diagnosticoLines.length * 4 + 2;
+  }
+
+  if (cita.tratamiento) {
+    doc.text('Tratamiento:', 15, yPosition);
+    yPosition += 4;
+    const tratamientoLines = doc.splitTextToSize(cita.tratamiento, pageWidth - 30);
+    doc.text(tratamientoLines, 15, yPosition);
+    yPosition += tratamientoLines.length * 4 + 2;
+  }
+
+  if (cita.notas) {
+    doc.text('Notas adicionales:', 15, yPosition);
+    yPosition += 4;
+    const notasLines = doc.splitTextToSize(cita.notas, pageWidth - 30);
+    doc.text(notasLines, 15, yPosition);
+    yPosition += notasLines.length * 4 + 2;
+  }
+
+  // --- Footer ---
+  const footerY = pageHeight - 3;
+
+  doc.setDrawColor(70, 130, 180);
+  doc.setLineWidth(0.5);
+  // doc.line(10, footerY - 3, pageWidth - 10, footerY - 3);
+
+  doc.setTextColor(100, 100, 100);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.text(
+    `Generado el ${new Date().toLocaleDateString('es-MX')} a las ${new Date().toLocaleTimeString('es-MX')}`,
+    pageWidth / 2,
+    footerY,
+    { align: 'center' }
+  );
+
+  // --- Guardar archivo ---
+  const fileName = `Cita_${cita.paciente?.fullName.replace(/\s+/g, '_')}_${new Date(cita.date).toISOString().split('T')[0]}.pdf`;
+  doc.save(fileName);
+};
+
 
   if (authLoading || isLoading) {
     return (
@@ -343,7 +412,7 @@ export default function CitaDetailPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleExportPDF} className="bg-white dark:bg-gray-800">
                 <Download className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Exportar PDF</span>
+                <span className="hidden sm:inline">Exportar Receta</span>
                 <span className="sm:hidden">PDF</span>
               </Button>
               {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
