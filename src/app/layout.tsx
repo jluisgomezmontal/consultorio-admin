@@ -19,6 +19,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Consultorio - Sistema de Gestión",
   description: "Sistema de gestión para consultorios médicos",
+  icons: {
+    icon: "/miconsultorio.svg",
+    shortcut: "/miconsultorio.svg",
+    apple: "/miconsultorio.svg",
+  },
 };
 
 export default function RootLayout({

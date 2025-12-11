@@ -49,10 +49,8 @@ const navLinks = [
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex flex-shrink-0 items-center gap-2">
-              <span className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full bg-primary text-xs md:text-sm font-semibold text-primary-foreground">
-                Mi
-              </span>
-              <span className="text-lg md:text-xl font-bold">Consultorio</span>
+              <img src="/miconsultorio.svg" alt="Consultorio" className="h-8 w-8 md:h-9 md:w-9" />
+              <span className="text-lg md:text-xl font-bold">Mi Consultorio</span>
             </Link>
             <div className="hidden md:ml-6 md:flex md:space-x-2 lg:space-x-4">
               {navLinks.map((link) => {
