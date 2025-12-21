@@ -33,7 +33,7 @@ const consultorioSchema = z.object({
 const profileSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
-  cedulas: z.array(z.string().min(1, 'La cédula no puede estar vacía')).default([]),
+  cedulas: z.array(z.object({ value: z.string().min(1, 'La cédula no puede estar vacía') })).default([]),
 });
 
 const passwordSchema = z.object({
@@ -122,7 +122,7 @@ export default function ConfiguracionPage() {
     resolver: zodResolver(profileSchema),
   });
 
-  const { fields: cedulasFields, append: appendCedula, remove: removeCedula } = useFieldArray<ProfileFormData>({
+  const { fields: cedulasFields, append: appendCedula, remove: removeCedula } = useFieldArray({
     control: controlProfile,
     name: 'cedulas',
   });
@@ -165,7 +165,7 @@ export default function ConfiguracionPage() {
       resetProfile({
         name: user.name,
         email: user.email,
-        cedulas: user.cedulas || [],
+        cedulas: (user.cedulas || []).map(c => ({ value: c })),
       });
     }
   }, [user, resetProfile]);
@@ -200,7 +200,13 @@ export default function ConfiguracionPage() {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: ProfileFormData) => userService.updateOwnProfile(data),
+    mutationFn: (data: ProfileFormData) => {
+      const payload = {
+        ...data,
+        cedulas: data.cedulas.map(c => c.value),
+      };
+      return userService.updateOwnProfile(payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       setSuccess('Perfil actualizado exitosamente');
@@ -899,7 +905,7 @@ export default function ConfiguracionPage() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => appendCedula('' as any)}
+                          onClick={() => appendCedula({ value: '' })}
                         >
                           <Plus className="mr-2 h-4 w-4" />
                           Agregar Cédula
@@ -915,7 +921,7 @@ export default function ConfiguracionPage() {
                       {cedulasFields.map((field, index) => (
                         <div key={field.id} className="flex gap-2">
                           <Input
-                            {...registerProfile(`cedulas.${index}` as const)}
+                            {...registerProfile(`cedulas.${index}.value` as const)}
                             placeholder="Ej: 12345678"
                             className="flex-1"
                           />
