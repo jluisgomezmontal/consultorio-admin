@@ -10,11 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Save } from 'lucide-react';
-import { pacienteService, CreatePacienteRequest } from '@/services/paciente.service';
+import { pacienteService, CreatePacienteRequest, ClinicalHistory } from '@/services/paciente.service';
+import { consultorioService } from '@/services/consultorio.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -36,6 +38,13 @@ export default function NuevoPacientePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
+  const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
+
+  const { data: configData } = useQuery({
+    queryKey: ['consultorio-config', selectedConsultorio?.id || selectedConsultorio?._id],
+    queryFn: () => consultorioService.getClinicalHistoryConfig(selectedConsultorio?.id || selectedConsultorio?._id || ''),
+    enabled: !!(selectedConsultorio?.id || selectedConsultorio?._id),
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -87,6 +96,7 @@ export default function NuevoPacientePage() {
       medicalHistory: data.medicalHistory || undefined,
       allergies: data.allergies || undefined,
       notes: data.notes || undefined,
+      clinicalHistory,
     };
     createMutation.mutate(payload);
   };
@@ -245,6 +255,12 @@ export default function NuevoPacientePage() {
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
+
+              <ClinicalHistoryForm
+                clinicalHistory={clinicalHistory}
+                onClinicalHistoryChange={setClinicalHistory}
+                config={configData?.data}
+              />
 
               <div className="flex gap-4">
                 <Button

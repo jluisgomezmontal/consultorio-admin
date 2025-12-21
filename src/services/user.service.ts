@@ -12,12 +12,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: 'admin' | 'doctor' | 'recepcionista';
   consultoriosIds: string[];
-  isActive: boolean;
+  consultorios?: Consultorio[];
   createdAt: string;
   updatedAt: string;
-  consultorios?: Consultorio[];
+  isActive: boolean;
 }
 
 export interface CreateUserRequest {
@@ -35,6 +35,22 @@ export interface UpdateUserRequest {
   consultoriosIds?: string[];
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+}
+
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UpdateReceptionistRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
 export interface UsersResponse {
   success: boolean;
   data: User[];
@@ -44,6 +60,12 @@ export interface UsersResponse {
 export interface UserResponse {
   success: boolean;
   data: User;
+  message?: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
   message?: string;
 }
 
@@ -73,8 +95,30 @@ class UserService {
     return response.data;
   }
 
-  async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.delete(`/users/${id}`);
+  async deleteUser(id: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.delete<ApiResponse<{ message: string }>>(`/users/${id}`);
+    return response.data;
+  }
+
+  async updateOwnProfile(data: UpdateProfileRequest): Promise<ApiResponse<User>> {
+    const response = await apiClient.put<ApiResponse<User>>('/users/me/profile', data);
+    return response.data;
+  }
+
+  async updateOwnPassword(data: UpdatePasswordRequest): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.put<ApiResponse<{ message: string }>>('/users/me/password', data);
+    return response.data;
+  }
+
+  async getReceptionistsByConsultorio(consultorioId: string): Promise<ApiResponse<User[]>> {
+    const response = await apiClient.get<ApiResponse<User[]>>('/users/receptionists', {
+      params: { consultorioId },
+    });
+    return response.data;
+  }
+
+  async updateReceptionist(id: string, data: UpdateReceptionistRequest): Promise<ApiResponse<User>> {
+    const response = await apiClient.put<ApiResponse<User>>(`/users/receptionists/${id}`, data);
     return response.data;
   }
 

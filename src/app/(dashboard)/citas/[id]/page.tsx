@@ -25,9 +25,9 @@ import {
   Download,
   ExternalLink,
 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 import { DocumentUploader } from '@/components/DocumentUploader';
 import { DocumentList } from '@/components/DocumentList';
+import { GenerarRecetaDialog } from '@/components/GenerarRecetaDialog';
 import { documentoService } from '@/services/documento.service';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
@@ -44,6 +44,7 @@ export default function CitaDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const queryClient = useQueryClient();
+  const [recetaDialogOpen, setRecetaDialogOpen] = useState(false);
   const { confirm } = useConfirmDialog();
   const [selectedEstado, setSelectedEstado] = useState<CitaEstado>('pendiente');
   const [estadoError, setEstadoError] = useState('');
@@ -145,216 +146,6 @@ export default function CitaDetailPage() {
     await updateEstadoMutation.mutateAsync(selectedEstado);
   };
 
-const handleExportPDF = () => {
-  if (!cita) return;
-
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a5"
-  });
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  // --- Fondo hueso ---
-  doc.setFillColor(245, 240, 230);
-  doc.rect(0, 0, pageWidth, pageHeight, 'F');
-
-  // --- Borde completo con 4 líneas (no se corta en ningún lado) ---
-  doc.setDrawColor(200, 190, 175);
-  doc.setLineWidth(1);
-
-  // Top border
-  doc.line(3, 3, pageWidth - 3, 3);
-
-  // Left border
-  doc.line(3, 3, 3, pageHeight - 3);
-
-  // Right border
-  doc.line(pageWidth - 3, 3, pageWidth - 3, pageHeight - 3);
-
-  // Bottom border
-  doc.line(3, pageHeight - 3, pageWidth - 3, pageHeight - 3);
-
-  let yPosition = 15;
-
-  // --- Logo ---
-  try {
-    doc.addImage('/logo.png', 'PNG', 10, yPosition - 9, 30, 30);
-  } catch (error) {
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(70, 130, 180);
-    doc.text('MiConsultorio', 10, yPosition);
-  }
-
-  // --- Título ---
-  doc.setTextColor(70, 130, 180);
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Resumen de Cita Médica', pageWidth - 10, yPosition, { align: 'right' });
-  yPosition += 8;
-
-  // --- Info del consultorio ---
-  doc.setTextColor(60, 60, 60);
-  if (cita.consultorio?.name) {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(cita.consultorio.name, pageWidth - 10, yPosition, { align: 'right' });
-    yPosition += 4;
-    if (cita.consultorio.address) {
-      doc.setFontSize(8);
-      doc.text(cita.consultorio.address, pageWidth - 10, yPosition, { align: 'right' });
-      yPosition += 4;
-    }
-    if (cita.consultorio.phone) {
-      doc.text(`Tel: ${cita.consultorio.phone}`, pageWidth - 10, yPosition, { align: 'right' });
-      yPosition += 6;
-    }
-  }
-  yPosition += 2;
-
-  // --- Línea decorativa ---
-  doc.setDrawColor(70, 130, 180);
-  doc.setLineWidth(0.8);
-  doc.line(10, yPosition, pageWidth - 10, yPosition);
-  yPosition += 9;
-
-  // --- Info del paciente ---
-  doc.setFillColor(230, 240, 250);
-  doc.roundedRect(10, yPosition - 3, pageWidth - 20, 25, 2, 2, 'F');
-
-  doc.setTextColor(70, 130, 180);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Información del Paciente', 15, yPosition);
-  yPosition += 5;
-
-  doc.setTextColor(60, 60, 60);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Nombre: ${cita.paciente?.fullName || 'No especificado'}`, 15, yPosition);
-  yPosition += 4;
-
-  if (cita.paciente?.phone) {
-    doc.text(`Teléfono: ${cita.paciente.phone}`, 15, yPosition);
-    yPosition += 4;
-  }
-
-  if (cita.paciente?.age) {
-    doc.text(`Edad: ${cita.paciente.age} años`, 15, yPosition);
-    yPosition += 4;
-  }
-
-  yPosition += 5;
-
-  // --- Detalles de la cita ---
-  doc.setFillColor(230, 250, 240);
-  doc.roundedRect(10, yPosition - 3, pageWidth - 20, 25, 2, 2, 'F');
-
-  doc.setTextColor(70, 130, 180);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Detalles de la Cita', 15, yPosition);
-  yPosition += 5;
-
-  doc.setTextColor(60, 60, 60);
-  doc.setFontSize(9);
-
-  const fechaFormateada = new Date(cita.date).toLocaleDateString('es-MX', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-
-  doc.text(`Fecha: ${fechaFormateada}`, 15, yPosition);
-  yPosition += 4;
-
-  doc.text(`Hora: ${cita.time}`, 15, yPosition);
-  yPosition += 4;
-
-  doc.text(`Doctor: ${cita.doctor?.name || 'No especificado'}`, 15, yPosition);
-  yPosition += 9;
-
-  // --- Información médica ---
-  doc.setFillColor(255, 250, 230);
-
-  let additionalHeight = 0;
-  const baseHeight = 30;
-
-  if (cita.motivo) additionalHeight += doc.splitTextToSize(cita.motivo, pageWidth - 30).length * 4 + 6;
-  if (cita.diagnostico) additionalHeight += doc.splitTextToSize(cita.diagnostico, pageWidth - 30).length * 4 + 6;
-  if (cita.tratamiento) additionalHeight += doc.splitTextToSize(cita.tratamiento, pageWidth - 30).length * 4 + 6;
-  if (cita.notas) additionalHeight += doc.splitTextToSize(cita.notas, pageWidth - 30).length * 4 + 6;
-
-  doc.roundedRect(10, yPosition - 3, pageWidth - 20, baseHeight + additionalHeight, 2, 2, 'F');
-
-  doc.setTextColor(70, 130, 180);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Información Médica', 15, yPosition);
-  yPosition += 5;
-
-  doc.setTextColor(60, 60, 60);
-  doc.setFontSize(9);
-
-  if (cita.motivo) {
-    doc.text('Motivo de consulta:', 15, yPosition);
-    yPosition += 4;
-    const motivoLines = doc.splitTextToSize(cita.motivo, pageWidth - 30);
-    doc.text(motivoLines, 15, yPosition);
-    yPosition += motivoLines.length * 4 + 2;
-  }
-
-  if (cita.diagnostico) {
-    doc.text('Diagnóstico:', 15, yPosition);
-    yPosition += 4;
-    const diagnosticoLines = doc.splitTextToSize(cita.diagnostico, pageWidth - 30);
-    doc.text(diagnosticoLines, 15, yPosition);
-    yPosition += diagnosticoLines.length * 4 + 2;
-  }
-
-  if (cita.tratamiento) {
-    doc.text('Tratamiento:', 15, yPosition);
-    yPosition += 4;
-    const tratamientoLines = doc.splitTextToSize(cita.tratamiento, pageWidth - 30);
-    doc.text(tratamientoLines, 15, yPosition);
-    yPosition += tratamientoLines.length * 4 + 2;
-  }
-
-  if (cita.notas) {
-    doc.text('Notas adicionales:', 15, yPosition);
-    yPosition += 4;
-    const notasLines = doc.splitTextToSize(cita.notas, pageWidth - 30);
-    doc.text(notasLines, 15, yPosition);
-    yPosition += notasLines.length * 4 + 2;
-  }
-
-  // --- Footer ---
-  const footerY = pageHeight - 3;
-
-  doc.setDrawColor(70, 130, 180);
-  doc.setLineWidth(0.5);
-  // doc.line(10, footerY - 3, pageWidth - 10, footerY - 3);
-
-  doc.setTextColor(100, 100, 100);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  doc.text(
-    `Generado el ${new Date().toLocaleDateString('es-MX')} a las ${new Date().toLocaleTimeString('es-MX')}`,
-    pageWidth / 2,
-    footerY,
-    { align: 'center' }
-  );
-
-  // --- Guardar archivo ---
-  const fileName = `Cita_${cita.paciente?.fullName.replace(/\s+/g, '_')}_${new Date(cita.date).toISOString().split('T')[0]}.pdf`;
-  doc.save(fileName);
-};
-
-
   if (authLoading || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -410,11 +201,18 @@ const handleExportPDF = () => {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportPDF} className="bg-white dark:bg-gray-800">
-                <Download className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Exportar Receta</span>
-                <span className="sm:hidden">PDF</span>
-              </Button>
+              {(user.role === 'doctor' || user.role === 'admin') && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setRecetaDialogOpen(true)} 
+                  className="bg-white dark:bg-gray-800"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Generar Receta</span>
+                  <span className="sm:hidden">Receta</span>
+                </Button>
+              )}
               {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
                 <Button variant="outline" size="sm" onClick={() => router.push(`/citas/${id}/editar`)} className="bg-white dark:bg-gray-800">
                   <Edit className="mr-2 h-4 w-4" />
@@ -673,6 +471,15 @@ const handleExportPDF = () => {
           </div>
         </div>
       </main>
+
+      {cita && (
+        <GenerarRecetaDialog
+          open={recetaDialogOpen}
+          onOpenChange={setRecetaDialogOpen}
+          citaId={id}
+          pacienteNombre={cita.paciente?.fullName || 'Paciente'}
+        />
+      )}
     </div>
   );
 }

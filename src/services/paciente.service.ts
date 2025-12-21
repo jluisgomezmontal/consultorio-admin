@@ -1,5 +1,38 @@
 import apiClient from '@/lib/api-client';
 
+export interface AntecedentesHeredofamiliares {
+  diabetes?: boolean;
+  hipertension?: boolean;
+  cancer?: boolean;
+  cardiopatias?: boolean;
+  otros?: string;
+}
+
+export interface AntecedentesPersonalesPatologicos {
+  cirugias?: string;
+  hospitalizaciones?: string;
+}
+
+export interface AntecedentesPersonalesNoPatologicos {
+  tabaquismo?: boolean;
+  alcoholismo?: boolean;
+  actividadFisica?: string;
+  vacunas?: string;
+}
+
+export interface GinecoObstetricos {
+  embarazos?: number;
+  partos?: number;
+  cesareas?: number;
+}
+
+export interface ClinicalHistory {
+  antecedentesHeredofamiliares?: AntecedentesHeredofamiliares;
+  antecedentesPersonalesPatologicos?: AntecedentesPersonalesPatologicos;
+  antecedentesPersonalesNoPatologicos?: AntecedentesPersonalesNoPatologicos;
+  ginecoObstetricos?: GinecoObstetricos;
+}
+
 export interface Paciente {
   id: string;
   fullName: string;
@@ -12,6 +45,7 @@ export interface Paciente {
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
+  clinicalHistory?: ClinicalHistory;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +61,7 @@ export interface CreatePacienteRequest {
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
+  clinicalHistory?: ClinicalHistory;
 }
 
 export interface UpdatePacienteRequest {
@@ -39,6 +74,7 @@ export interface UpdatePacienteRequest {
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
+  clinicalHistory?: ClinicalHistory;
 }
 
 export interface PacientesResponse {

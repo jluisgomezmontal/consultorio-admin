@@ -9,11 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Save } from 'lucide-react';
-import { pacienteService, UpdatePacienteRequest } from '@/services/paciente.service';
+import { pacienteService, UpdatePacienteRequest, ClinicalHistory } from '@/services/paciente.service';
+import { consultorioService } from '@/services/consultorio.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -36,6 +38,7 @@ export default function EditarPacientePage() {
   const id = params.id as string;
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
+  const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -47,6 +50,14 @@ export default function EditarPacientePage() {
     queryKey: ['paciente', id],
     queryFn: () => pacienteService.getPacienteById(id),
     enabled: !!user && !!id,
+  });
+
+  const consultorioId = pacienteData?.data?.consultorioId;
+
+  const { data: configData } = useQuery({
+    queryKey: ['consultorio-config', consultorioId],
+    queryFn: () => consultorioService.getClinicalHistoryConfig(consultorioId || ''),
+    enabled: !!consultorioId,
   });
 
   const {
@@ -71,6 +82,7 @@ export default function EditarPacientePage() {
         allergies: pacienteData.data.allergies || '',
         notes: pacienteData.data.notes || '',
       });
+      setClinicalHistory(pacienteData.data.clinicalHistory || {});
     }
   }, [pacienteData, reset]);
 
@@ -98,6 +110,7 @@ export default function EditarPacientePage() {
       medicalHistory: data.medicalHistory || undefined,
       allergies: data.allergies || undefined,
       notes: data.notes || undefined,
+      clinicalHistory,
     };
     updateMutation.mutate(payload);
   };
@@ -256,6 +269,12 @@ export default function EditarPacientePage() {
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
+
+              <ClinicalHistoryForm
+                clinicalHistory={clinicalHistory}
+                onClinicalHistoryChange={setClinicalHistory}
+                config={configData?.data}
+              />
 
               <div className="flex gap-4">
                 <Button

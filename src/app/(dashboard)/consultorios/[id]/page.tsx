@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Navbar } from '@/components/Navbar';
 import { consultorioService } from '@/services/consultorio.service';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Edit, MapPin, Phone, Clock, Users, BarChart3, CalendarDays, Stethoscope } from 'lucide-react';
+import { ArrowLeft, Edit, MapPin, Phone, Clock, Users, BarChart3, CalendarDays, Stethoscope, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 const formatCurrency = (value: number) =>
@@ -72,6 +72,12 @@ export default function ConsultorioDetailPage() {
                 <Button variant="outline" size="sm" onClick={() => router.push(`/consultorios/${id}/editar`)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
+                </Button>
+              )}
+              {(user.role === 'doctor' || user.role === 'admin') && (
+                <Button variant="outline" size="sm" onClick={() => router.push(`/consultorios/${id}/configuracion`)}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configurar Historia Clínica
                 </Button>
               )}
             </div>
