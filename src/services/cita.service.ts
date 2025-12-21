@@ -2,6 +2,14 @@ import apiClient from '@/lib/api-client';
 
 export type CitaEstado = 'pendiente' | 'confirmada' | 'completada' | 'cancelada';
 
+export interface Medicamento {
+  nombre: string;
+  dosis?: string;
+  frecuencia?: string;
+  duracion?: string;
+  indicaciones?: string;
+}
+
 export interface CitaPaciente {
   id: string;
   fullName: string;
@@ -34,6 +42,7 @@ export interface Cita {
   motivo?: string;
   diagnostico?: string;
   tratamiento?: string;
+  medicamentos?: Medicamento[];
   estado: CitaEstado;
   costo?: number;
   notas?: string;
@@ -59,6 +68,7 @@ export interface CreateCitaRequest {
   motivo?: string;
   diagnostico?: string;
   tratamiento?: string;
+  medicamentos?: Medicamento[];
   estado?: CitaEstado;
   costo?: number;
   notas?: string;
@@ -73,6 +83,7 @@ export interface UpdateCitaRequest {
   motivo?: string;
   diagnostico?: string;
   tratamiento?: string;
+  medicamentos?: Medicamento[];
   estado?: CitaEstado;
   costo?: number;
   notas?: string;

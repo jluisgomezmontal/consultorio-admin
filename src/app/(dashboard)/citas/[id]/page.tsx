@@ -366,6 +366,28 @@ export default function CitaDetailPage() {
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Tratamiento</p>
                 <p className="text-foreground">{cita.tratamiento || 'Sin tratamiento registrado'}</p>
               </div>
+              {cita.medicamentos && cita.medicamentos.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Medicamentos Prescritos</p>
+                  <div className="space-y-3">
+                    {cita.medicamentos.map((med, index) => (
+                      <div key={index} className="border-l-2 border-blue-500 pl-3 py-2 bg-background/50 rounded-r">
+                        <p className="font-semibold text-foreground mb-1">{index + 1}. {med.nombre}</p>
+                        <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                          {med.dosis && <p><span className="font-medium">Dosis:</span> {med.dosis}</p>}
+                          {med.frecuencia && <p><span className="font-medium">Frecuencia:</span> {med.frecuencia}</p>}
+                          {med.duracion && <p><span className="font-medium">Duración:</span> {med.duracion}</p>}
+                        </div>
+                        {med.indicaciones && (
+                          <p className="text-sm text-muted-foreground mt-2 italic">
+                            <span className="font-medium">Indicaciones:</span> {med.indicaciones}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

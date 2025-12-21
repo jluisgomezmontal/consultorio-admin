@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2 } from 'lucide-react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,6 +33,7 @@ const consultorioSchema = z.object({
 const profileSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
+  cedulas: z.array(z.string().min(1, 'La cédula no puede estar vacía')).default([]),
 });
 
 const passwordSchema = z.object({
@@ -115,9 +116,15 @@ export default function ConfiguracionPage() {
     register: registerProfile,
     handleSubmit: handleSubmitProfile,
     reset: resetProfile,
+    control: controlProfile,
     formState: { errors: errorsProfile },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
+  });
+
+  const { fields: cedulasFields, append: appendCedula, remove: removeCedula } = useFieldArray<ProfileFormData>({
+    control: controlProfile,
+    name: 'cedulas',
   });
 
   const {
@@ -131,6 +138,12 @@ export default function ConfiguracionPage() {
 
   useEffect(() => {
     if (consultorioData?.data) {
+      console.log('📋 Consultorio data loaded:', {
+        name: consultorioData.data.name,
+        imageUrl: consultorioData.data.imageUrl,
+        hasImage: !!consultorioData.data.imageUrl,
+      });
+      
       resetConsultorio({
         name: consultorioData.data.name,
         description: consultorioData.data.description || '',
@@ -139,9 +152,11 @@ export default function ConfiguracionPage() {
         openHour: consultorioData.data.openHour || '',
         closeHour: consultorioData.data.closeHour || '',
       });
-      if (consultorioData.data.imageUrl) {
-        setImagePreview(consultorioData.data.imageUrl);
-      }
+      
+      // Always set image preview, use default if not available
+      const imageUrl = consultorioData.data.imageUrl || 'https://miconsultorio.vercel.app/miconsultorio.svg';
+      console.log('🖼️ Setting image preview to:', imageUrl);
+      setImagePreview(imageUrl);
     }
   }, [consultorioData, resetConsultorio]);
 
@@ -150,6 +165,7 @@ export default function ConfiguracionPage() {
       resetProfile({
         name: user.name,
         email: user.email,
+        cedulas: user.cedulas || [],
       });
     }
   }, [user, resetProfile]);
@@ -406,11 +422,10 @@ export default function ConfiguracionPage() {
                         <div className="flex-shrink-0">
                           {imagePreview ? (
                             <div className="relative h-32 w-32 rounded-lg overflow-hidden border-2 border-border">
-                              <Image
+                              <img
                                 src={imagePreview}
                                 alt="Preview"
-                                fill
-                                className="object-cover"
+                                className="w-full h-full object-cover"
                               />
                             </div>
                           ) : (
@@ -875,6 +890,52 @@ export default function ConfiguracionPage() {
                       <p className="text-sm text-destructive">{errorsProfile.email.message}</p>
                     )}
                   </div>
+
+                  {user?.role === 'doctor' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base">Cédulas Profesionales</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => appendCedula('' as any)}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Agregar Cédula
+                        </Button>
+                      </div>
+                      
+                      {cedulasFields.length === 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          No hay cédulas profesionales registradas. Haz clic en &quot;Agregar Cédula&quot; para añadir una.
+                        </p>
+                      )}
+
+                      {cedulasFields.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <Input
+                            {...registerProfile(`cedulas.${index}` as const)}
+                            placeholder="Ej: 12345678"
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeCedula(index)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      ))}
+                      {errorsProfile.cedulas && (
+                        <p className="text-sm text-destructive">
+                          {errorsProfile.cedulas.message || 'Error en las cédulas'}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   <Button
                     type="submit"

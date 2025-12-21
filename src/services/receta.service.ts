@@ -10,9 +10,6 @@ export interface Medicamento {
 
 export interface GenerateRecetaRequest {
   citaId: string;
-  diagnostico: string;
-  medicamentos: Medicamento[];
-  indicaciones?: string;
 }
 
 class RecetaService {

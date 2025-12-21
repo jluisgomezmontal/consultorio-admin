@@ -28,6 +28,7 @@ export interface User {
   name: string;
   role: string;
   isActive?: boolean;
+  cedulas?: string[];
   consultoriosIds?: string[];
   consultorios?: Consultorio[];
 }

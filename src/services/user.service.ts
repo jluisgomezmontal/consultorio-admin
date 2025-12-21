@@ -15,6 +15,7 @@ export interface User {
   role: 'admin' | 'doctor' | 'recepcionista';
   consultoriosIds: string[];
   consultorios?: Consultorio[];
+  cedulas?: string[];
   createdAt: string;
   updatedAt: string;
   isActive: boolean;
@@ -38,6 +39,7 @@ export interface UpdateUserRequest {
 export interface UpdateProfileRequest {
   name?: string;
   email?: string;
+  cedulas?: string[];
 }
 
 export interface UpdatePasswordRequest {

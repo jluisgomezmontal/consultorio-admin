@@ -8,17 +8,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save } from 'lucide-react';
-import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse } from '@/services/cita.service';
+import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
 import { consultorioService, Consultorio } from '@/services/consultorio.service';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
+const medicamentoSchema = z.object({
+  nombre: z.string().min(1, 'Nombre del medicamento es requerido'),
+  dosis: z.string().optional(),
+  frecuencia: z.string().optional(),
+  duracion: z.string().optional(),
+  indicaciones: z.string().optional(),
+});
 
 const citaSchema = z.object({
   pacienteId: z.string().regex(objectIdRegex, { message: 'Selecciona un paciente válido' }),
@@ -29,6 +37,7 @@ const citaSchema = z.object({
   motivo: z.string().optional(),
   diagnostico: z.string().optional(),
   tratamiento: z.string().optional(),
+  medicamentos: z.array(medicamentoSchema).optional(),
   estado: z.enum(['pendiente', 'confirmada', 'completada', 'cancelada']).default('pendiente'),
   costo: z
     .string()
@@ -71,11 +80,17 @@ export default function EditarCitaPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
     setValue,
     watch,
   } = useForm<CitaFormData>({
     resolver: zodResolver(citaSchema),
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'medicamentos',
   });
 
   const consultorioId = watch('consultorioId');
@@ -110,6 +125,7 @@ export default function EditarCitaPage() {
         motivo: cita.motivo || '',
         diagnostico: cita.diagnostico || '',
         tratamiento: cita.tratamiento || '',
+        medicamentos: cita.medicamentos || [],
         estado: cita.estado,
         costo: cita.costo !== undefined && cita.costo !== null ? String(cita.costo) : '',
         notas: cita.notas || '',
@@ -158,6 +174,13 @@ export default function EditarCitaPage() {
       motivo: data.motivo || undefined,
       diagnostico: data.diagnostico || undefined,
       tratamiento: data.tratamiento || undefined,
+      medicamentos: data.medicamentos?.filter(m => m.nombre && m.nombre.trim() !== '').map(m => ({
+        nombre: m.nombre!,
+        dosis: m.dosis,
+        frecuencia: m.frecuencia,
+        duracion: m.duracion,
+        indicaciones: m.indicaciones,
+      })) || undefined,
       estado: data.estado,
       costo: data.costo ? Number(data.costo) : undefined,
       notas: data.notas || undefined,
@@ -335,6 +358,94 @@ export default function EditarCitaPage() {
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   placeholder="Tratamiento recomendado"
                 />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base">Medicamentos</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ nombre: '', dosis: '', frecuencia: '', duracion: '', indicaciones: '' })}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Agregar Medicamento
+                  </Button>
+                </div>
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-medium">Medicamento #{index + 1}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor={`medicamentos.${index}.nombre`}>
+                          Nombre del Medicamento <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          {...register(`medicamentos.${index}.nombre`)}
+                          id={`medicamentos.${index}.nombre`}
+                          placeholder="Ej: Amoxicilina 500mg"
+                        />
+                        {errors.medicamentos?.[index]?.nombre && (
+                          <p className="text-sm text-destructive">
+                            {errors.medicamentos[index]?.nombre?.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`medicamentos.${index}.dosis`}>Dosis</Label>
+                        <Input
+                          {...register(`medicamentos.${index}.dosis`)}
+                          id={`medicamentos.${index}.dosis`}
+                          placeholder="Ej: 1 tableta"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`medicamentos.${index}.frecuencia`}>Frecuencia</Label>
+                        <Input
+                          {...register(`medicamentos.${index}.frecuencia`)}
+                          id={`medicamentos.${index}.frecuencia`}
+                          placeholder="Ej: Cada 8 horas"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`medicamentos.${index}.duracion`}>Duración</Label>
+                        <Input
+                          {...register(`medicamentos.${index}.duracion`)}
+                          id={`medicamentos.${index}.duracion`}
+                          placeholder="Ej: 7 días"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`medicamentos.${index}.indicaciones`}>
+                          Indicaciones Especiales
+                        </Label>
+                        <Input
+                          {...register(`medicamentos.${index}.indicaciones`)}
+                          id={`medicamentos.${index}.indicaciones`}
+                          placeholder="Ej: Tomar con alimentos"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
