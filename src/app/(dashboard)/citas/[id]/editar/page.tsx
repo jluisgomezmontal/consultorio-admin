@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
@@ -35,6 +35,13 @@ const citaSchema = z.object({
   date: z.string().min(1, 'La fecha es obligatoria'),
   time: z.string().min(1, 'La hora es obligatoria'),
   motivo: z.string().optional(),
+  weight: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Peso inválido' }),
+  bloodPressure: z.string().optional(),
+  height: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Altura inválida' }),
+  waist: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cintura inválida' }),
+  hip: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cadera inválida' }),
+  currentCondition: z.string().optional(),
+  physicalExam: z.string().optional(),
   diagnostico: z.string().optional(),
   tratamiento: z.string().optional(),
   medicamentos: z.array(medicamentoSchema).optional(),
@@ -65,6 +72,20 @@ export default function EditarCitaPage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
+  const [openSections, setOpenSections] = useState({
+    appointmentInfo: true,
+    vitalSigns: false,
+    medicalEvaluation: false,
+    diagnosisTreatment: false,
+    medications: false,
+    additionalNotes: false,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const isDoctor = user?.role === 'doctor' || user?.role === 'admin';
 
   useEffect(() => {
     if (!authLoading) {
@@ -123,6 +144,13 @@ export default function EditarCitaPage() {
         date: cita.date.substring(0, 10),
         time: cita.time,
         motivo: cita.motivo || '',
+        weight: cita.weight ? String(cita.weight) : '',
+        bloodPressure: cita.bloodPressure || '',
+        height: cita.measurements?.height ? String(cita.measurements.height) : '',
+        waist: cita.measurements?.waist ? String(cita.measurements.waist) : '',
+        hip: cita.measurements?.hip ? String(cita.measurements.hip) : '',
+        currentCondition: cita.currentCondition || '',
+        physicalExam: cita.physicalExam || '',
         diagnostico: cita.diagnostico || '',
         tratamiento: cita.tratamiento || '',
         medicamentos: cita.medicamentos || [],
@@ -172,6 +200,15 @@ export default function EditarCitaPage() {
       date: data.date,
       time: data.time,
       motivo: data.motivo || undefined,
+      weight: data.weight ? Number(data.weight) : undefined,
+      bloodPressure: data.bloodPressure || undefined,
+      measurements: (data.height || data.waist || data.hip) ? {
+        height: data.height ? Number(data.height) : undefined,
+        waist: data.waist ? Number(data.waist) : undefined,
+        hip: data.hip ? Number(data.hip) : undefined,
+      } : undefined,
+      currentCondition: data.currentCondition || undefined,
+      physicalExam: data.physicalExam || undefined,
       diagnostico: data.diagnostico || undefined,
       tratamiento: data.tratamiento || undefined,
       medicamentos: data.medicamentos?.filter(m => m.nombre && m.nombre.trim() !== '').map(m => ({
