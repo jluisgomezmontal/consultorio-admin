@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, User, Phone, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { pacienteService, UpdatePacienteRequest, ClinicalHistory } from '@/services/paciente.service';
 import { consultorioService } from '@/services/consultorio.service';
 import { useForm } from 'react-hook-form';
@@ -19,11 +19,17 @@ import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  birthDate: z.string().optional(),
   age: z.number().int().positive('La edad debe ser un número positivo').optional().or(z.literal('')),
   gender: z.enum(['masculino', 'femenino', 'otro']).optional().or(z.literal('')),
   phone: z.string().optional(),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   address: z.string().optional(),
+  bloodType: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']).optional().or(z.literal('')),
+  medicalInsurance: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactRelationship: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
   medicalHistory: z.string().optional(),
   allergies: z.string().optional(),
   notes: z.string().optional(),
@@ -39,6 +45,17 @@ export default function EditarPacientePage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
+  const [openSections, setOpenSections] = useState({
+    personalInfo: true,
+    contactInfo: true,
+    medicalInfo: false,
+    emergencyContact: false,
+    additionalInfo: false,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -73,11 +90,17 @@ export default function EditarPacientePage() {
     if (pacienteData?.data) {
       reset({
         fullName: pacienteData.data.fullName,
+        birthDate: pacienteData.data.birthDate ? new Date(pacienteData.data.birthDate).toISOString().split('T')[0] : '',
         age: pacienteData.data.age || ('' as any),
         gender: pacienteData.data.gender || ('' as any),
         phone: pacienteData.data.phone || '',
         email: pacienteData.data.email || '',
         address: pacienteData.data.address || '',
+        bloodType: pacienteData.data.bloodType || ('' as any),
+        medicalInsurance: pacienteData.data.medicalInsurance || '',
+        emergencyContactName: pacienteData.data.emergencyContact?.name || '',
+        emergencyContactRelationship: pacienteData.data.emergencyContact?.relationship || '',
+        emergencyContactPhone: pacienteData.data.emergencyContact?.phone || '',
         medicalHistory: pacienteData.data.medicalHistory || '',
         allergies: pacienteData.data.allergies || '',
         notes: pacienteData.data.notes || '',
@@ -102,11 +125,19 @@ export default function EditarPacientePage() {
     setError('');
     const payload: UpdatePacienteRequest = {
       fullName: data.fullName,
+      birthDate: data.birthDate || undefined,
       age: data.age ? Number(data.age) : undefined,
       gender: data.gender || undefined,
       phone: data.phone || undefined,
       email: data.email || undefined,
       address: data.address || undefined,
+      bloodType: data.bloodType || undefined,
+      medicalInsurance: data.medicalInsurance || undefined,
+      emergencyContact: (data.emergencyContactName || data.emergencyContactRelationship || data.emergencyContactPhone) ? {
+        name: data.emergencyContactName || undefined,
+        relationship: data.emergencyContactRelationship || undefined,
+        phone: data.emergencyContactPhone || undefined,
+      } : undefined,
       medicalHistory: data.medicalHistory || undefined,
       allergies: data.allergies || undefined,
       notes: data.notes || undefined,
@@ -159,115 +190,297 @@ export default function EditarPacientePage() {
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nombre Completo *</Label>
-                <Input
-                  {...register('fullName')}
-                  id="fullName"
-                  placeholder="Juan Pérez García"
-                  className={errors.fullName ? 'border-destructive' : ''}
-                />
-                {errors.fullName && (
-                  <p className="text-sm text-destructive">{errors.fullName.message}</p>
+              {/* Información Personal */}
+              <div className="rounded-lg border bg-card">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('personalInfo')}
+                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Información Personal</span>
+                  </div>
+                  {openSections.personalInfo ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </button>
+                {openSections.personalInfo && (
+                  <div className="space-y-4 p-4 pt-0">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Nombre Completo *</Label>
+                      <Input
+                        {...register('fullName')}
+                        id="fullName"
+                        placeholder="Juan Pérez García"
+                        className={errors.fullName ? 'border-destructive' : ''}
+                      />
+                      {errors.fullName && (
+                        <p className="text-sm text-destructive">{errors.fullName.message}</p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
+                        <Input
+                          {...register('birthDate')}
+                          id="birthDate"
+                          type="date"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="age">Edad</Label>
+                        <Input
+                          {...register('age', { valueAsNumber: true })}
+                          id="age"
+                          type="number"
+                          placeholder="35"
+                          className={errors.age ? 'border-destructive' : ''}
+                        />
+                        {errors.age && (
+                          <p className="text-sm text-destructive">{errors.age.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="gender">Género</Label>
+                        <select
+                          {...register('gender')}
+                          id="gender"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          <option value="">Seleccionar</option>
+                          <option value="masculino">Masculino</option>
+                          <option value="femenino">Femenino</option>
+                          <option value="otro">Otro</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="age">Edad</Label>
-                  <Input
-                    {...register('age', { valueAsNumber: true })}
-                    id="age"
-                    type="number"
-                    placeholder="35"
-                    className={errors.age ? 'border-destructive' : ''}
-                  />
-                  {errors.age && (
-                    <p className="text-sm text-destructive">{errors.age.message}</p>
+              {/* Información de Contacto */}
+              <div className="rounded-lg border bg-card">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('contactInfo')}
+                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Información de Contacto</span>
+                  </div>
+                  {openSections.contactInfo ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
+                </button>
+                {openSections.contactInfo && (
+                  <div className="space-y-4 p-4 pt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Teléfono</Label>
+                        <Input
+                          {...register('phone')}
+                          id="phone"
+                          type="tel"
+                          placeholder="+52 555 1234567"
+                        />
+                      </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="gender">Género</Label>
-                  <select
-                    {...register('gender')}
-                    id="gender"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    <option value="">Seleccionar</option>
-                    <option value="masculino">Masculino</option>
-                    <option value="femenino">Femenino</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          {...register('email')}
+                          id="email"
+                          type="email"
+                          placeholder="paciente@ejemplo.com"
+                          className={errors.email ? 'border-destructive' : ''}
+                        />
+                        {errors.email && (
+                          <p className="text-sm text-destructive">{errors.email.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Dirección</Label>
+                      <Input
+                        {...register('address')}
+                        id="address"
+                        placeholder="Calle Principal 123, Colonia Centro"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    {...register('phone')}
-                    id="phone"
-                    type="tel"
-                    placeholder="+52 555 1234567"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    {...register('email')}
-                    id="email"
-                    type="email"
-                    placeholder="paciente@ejemplo.com"
-                    className={errors.email ? 'border-destructive' : ''}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email.message}</p>
+              {/* Información Médica */}
+              <div className="rounded-lg border bg-card">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('medicalInfo')}
+                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Información Médica</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.medicalInfo ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
+                </button>
+                {openSections.medicalInfo && (
+                  <div className="space-y-4 p-4 pt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bloodType">Tipo de Sangre</Label>
+                        <select
+                          {...register('bloodType')}
+                          id="bloodType"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          <option value="">Seleccionar</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="medicalInsurance">Seguro Médico</Label>
+                        <Input
+                          {...register('medicalInsurance')}
+                          id="medicalInsurance"
+                          placeholder="Nombre del seguro médico"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="medicalHistory">Historial Médico</Label>
+                      <textarea
+                        {...register('medicalHistory')}
+                        id="medicalHistory"
+                        rows={3}
+                        placeholder="Antecedentes médicos relevantes..."
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="allergies">Alergias</Label>
+                      <textarea
+                        {...register('allergies')}
+                        id="allergies"
+                        rows={2}
+                        placeholder="Alergias conocidas..."
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="address">Dirección</Label>
-                <Input
-                  {...register('address')}
-                  id="address"
-                  placeholder="Calle Principal 123, Colonia Centro"
-                />
+              {/* Contacto de Emergencia */}
+              <div className="rounded-lg border bg-card">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('emergencyContact')}
+                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Contacto de Emergencia</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.emergencyContact ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </button>
+                {openSections.emergencyContact && (
+                  <div className="space-y-4 p-4 pt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="emergencyContactName">Nombre del Contacto</Label>
+                        <Input
+                          {...register('emergencyContactName')}
+                          id="emergencyContactName"
+                          placeholder="María García"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="emergencyContactRelationship">Parentesco</Label>
+                        <Input
+                          {...register('emergencyContactRelationship')}
+                          id="emergencyContactRelationship"
+                          placeholder="Madre, Esposo/a, Hermano/a..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="emergencyContactPhone">Teléfono de Emergencia</Label>
+                      <Input
+                        {...register('emergencyContactPhone')}
+                        id="emergencyContactPhone"
+                        type="tel"
+                        placeholder="+52 555 9876543"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="medicalHistory">Historial Médico</Label>
-                <textarea
-                  {...register('medicalHistory')}
-                  id="medicalHistory"
-                  rows={3}
-                  placeholder="Antecedentes médicos relevantes..."
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="allergies">Alergias</Label>
-                <textarea
-                  {...register('allergies')}
-                  id="allergies"
-                  rows={2}
-                  placeholder="Alergias conocidas..."
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notas</Label>
-                <textarea
-                  {...register('notes')}
-                  id="notes"
-                  rows={2}
-                  placeholder="Notas adicionales..."
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                />
+              {/* Notas Adicionales */}
+              <div className="rounded-lg border bg-card">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('additionalInfo')}
+                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Notas Adicionales</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.additionalInfo ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </button>
+                {openSections.additionalInfo && (
+                  <div className="space-y-4 p-4 pt-0">
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">Notas</Label>
+                      <textarea
+                        {...register('notes')}
+                        id="notes"
+                        rows={3}
+                        placeholder="Notas adicionales sobre el paciente..."
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <ClinicalHistoryForm

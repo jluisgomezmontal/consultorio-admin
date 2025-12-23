@@ -33,15 +33,25 @@ export interface ClinicalHistory {
   ginecoObstetricos?: GinecoObstetricos;
 }
 
+export interface EmergencyContact {
+  name?: string;
+  relationship?: string;
+  phone?: string;
+}
+
 export interface Paciente {
   id: string;
   fullName: string;
   consultorioId: string;
+  birthDate?: string;
   age?: number;
   gender?: 'masculino' | 'femenino' | 'otro';
   phone?: string;
   email?: string;
   address?: string;
+  bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  medicalInsurance?: string;
+  emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
@@ -53,11 +63,15 @@ export interface Paciente {
 export interface CreatePacienteRequest {
   fullName: string;
   consultorioId: string;
+  birthDate?: string;
   age?: number;
   gender?: 'masculino' | 'femenino' | 'otro';
   phone?: string;
   email?: string;
   address?: string;
+  bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  medicalInsurance?: string;
+  emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
@@ -66,11 +80,15 @@ export interface CreatePacienteRequest {
 
 export interface UpdatePacienteRequest {
   fullName?: string;
+  birthDate?: string;
   age?: number;
   gender?: 'masculino' | 'femenino' | 'otro';
   phone?: string;
   email?: string;
   address?: string;
+  bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  medicalInsurance?: string;
+  emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
   notes?: string;
