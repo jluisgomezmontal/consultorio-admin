@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Save, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { citaService, CreateCitaRequest, CitaEstado } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
@@ -29,13 +29,6 @@ const citaSchema = z.object({
   date: z.string().min(1, 'La fecha es obligatoria'),
   time: z.string().min(1, 'La hora es obligatoria'),
   motivo: z.string().optional(),
-  weight: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Peso inválido' }),
-  bloodPressure: z.string().optional(),
-  height: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Altura inválida' }),
-  waist: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cintura inválida' }),
-  hip: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cadera inválida' }),
-  currentCondition: z.string().optional(),
-  physicalExam: z.string().optional(),
   diagnostico: z.string().optional(),
   tratamiento: z.string().optional(),
   estado: z.enum(['pendiente', 'confirmada', 'completada', 'cancelada']).default('pendiente'),

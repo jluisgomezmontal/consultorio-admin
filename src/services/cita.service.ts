@@ -10,6 +10,12 @@ export interface Medicamento {
   indicaciones?: string;
 }
 
+export interface Measurements {
+  height?: number;
+  waist?: number;
+  hip?: number;
+}
+
 export interface CitaPaciente {
   id: string;
   fullName: string;
@@ -40,6 +46,11 @@ export interface Cita {
   date: string;
   time: string;
   motivo?: string;
+  weight?: number;
+  bloodPressure?: string;
+  measurements?: Measurements;
+  currentCondition?: string;
+  physicalExam?: string;
   diagnostico?: string;
   tratamiento?: string;
   medicamentos?: Medicamento[];
@@ -66,6 +77,11 @@ export interface CreateCitaRequest {
   date: string;
   time: string;
   motivo?: string;
+  weight?: number;
+  bloodPressure?: string;
+  measurements?: Measurements;
+  currentCondition?: string;
+  physicalExam?: string;
   diagnostico?: string;
   tratamiento?: string;
   medicamentos?: Medicamento[];
@@ -81,6 +97,11 @@ export interface UpdateCitaRequest {
   date?: string;
   time?: string;
   motivo?: string;
+  weight?: number;
+  bloodPressure?: string;
+  measurements?: Measurements;
+  currentCondition?: string;
+  physicalExam?: string;
   diagnostico?: string;
   tratamiento?: string;
   medicamentos?: Medicamento[];
