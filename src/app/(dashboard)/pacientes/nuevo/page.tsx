@@ -60,6 +60,35 @@ export default function NuevoPacientePage() {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<PacienteFormData>({
+    resolver: zodResolver(pacienteSchema),
+  });
+
+  const calculateAge = (birthDate: string): number => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const birthDate = watch('birthDate');
+  useEffect(() => {
+    if (birthDate) {
+      const calculatedAge = calculateAge(birthDate);
+      setValue('age', calculatedAge);
+    }
+  }, [birthDate, setValue]);
+
   const { data: configData } = useQuery({
     queryKey: ['consultorio-config', selectedConsultorio?.id || selectedConsultorio?._id],
     queryFn: () => consultorioService.getClinicalHistoryConfig(selectedConsultorio?.id || selectedConsultorio?._id || ''),
@@ -71,14 +100,6 @@ export default function NuevoPacientePage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PacienteFormData>({
-    resolver: zodResolver(pacienteSchema),
-  });
 
   const createMutation = useMutation({
     mutationFn: (data: CreatePacienteRequest) => pacienteService.createPaciente(data),
@@ -221,12 +242,15 @@ export default function NuevoPacientePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="age">Edad</Label>
+                        <Label htmlFor="age">
+                          Edad {birthDate && <span className="text-xs text-muted-foreground">(calculada automáticamente)</span>}
+                        </Label>
                         <Input
                           {...register('age', { valueAsNumber: true })}
                           id="age"
                           type="number"
-                          placeholder="35"
+                          placeholder={birthDate ? "Calculada automáticamente" : "35"}
+                          disabled={!!birthDate}
                           className={errors.age ? 'border-destructive' : ''}
                         />
                         {errors.age && (

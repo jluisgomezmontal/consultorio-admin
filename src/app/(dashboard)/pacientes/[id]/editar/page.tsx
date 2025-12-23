@@ -60,6 +60,17 @@ export default function EditarPacientePage() {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const calculateAge = (birthDate: string): number => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
@@ -84,10 +95,20 @@ export default function EditarPacientePage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<PacienteFormData>({
     resolver: zodResolver(pacienteSchema),
   });
+
+  const birthDate = watch('birthDate');
+  useEffect(() => {
+    if (birthDate) {
+      const calculatedAge = calculateAge(birthDate);
+      setValue('age', calculatedAge);
+    }
+  }, [birthDate, setValue]);
 
   useEffect(() => {
     if (pacienteData?.data) {
@@ -244,12 +265,15 @@ export default function EditarPacientePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="age">Edad</Label>
+                        <Label htmlFor="age">
+                          Edad {birthDate && <span className="text-xs text-muted-foreground">(calculada automáticamente)</span>}
+                        </Label>
                         <Input
                           {...register('age', { valueAsNumber: true })}
                           id="age"
                           type="number"
-                          placeholder="35"
+                          placeholder={birthDate ? "Calculada automáticamente" : "35"}
+                          disabled={!!birthDate}
                           className={errors.age ? 'border-destructive' : ''}
                         />
                         {errors.age && (
