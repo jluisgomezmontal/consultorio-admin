@@ -372,3 +372,73 @@
 .dark .swal2-icon.swal2-question {
   border-color: #8b5cf6 !important;
 }
+
+/* Print styles for clinical record export */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  nav,
+  header,
+  footer,
+  .sidebar {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .shadow-md,
+  .shadow-lg,
+  .hover\:shadow-lg {
+    box-shadow: none !important;
+  }
+
+  .bg-gradient-to-r {
+    background: white !important;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .dark .bg-gradient-to-r {
+    background: white !important;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  * {
+    color: black !important;
+    background: white !important;
+  }
+
+  .border {
+    border-color: #d1d5db !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  .card,
+  .grid > div {
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  button,
+  a[href]:after {
+    content: none !important;
+  }
+}

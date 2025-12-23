@@ -569,7 +569,7 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/4] rounded border-2 border-green-600 bg-white mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded border-2 border-green-600 bg-white mb-3 overflow-hidden">
                         <div className="p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-green-600 text-[11px]">CONSULTORIO</div>
@@ -607,7 +607,7 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/4] rounded border-2 border-blue-600 bg-white mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded border-2 border-blue-600 bg-white mb-3 overflow-hidden">
                         <div className="p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-blue-600 text-[11px]">CONSULTORIO</div>
@@ -645,24 +645,24 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/4] rounded border bg-white mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded border-2 border-gray-800 bg-white mb-3 overflow-hidden">
                         <div className="p-2 text-xs">
-                          <div className="border-b border-gray-800 pb-1 mb-1">
-                            <div className="font-semibold text-[10px]">Consultorio</div>
+                          <div className="text-center mb-1">
+                            <div className="font-bold text-gray-800 text-[11px]">CONSULTORIO</div>
+                            <div className="text-[9px] text-gray-600 italic">Dr. Nombre</div>
                           </div>
-                          <div className="text-2xl font-light mb-1">℞</div>
+                          <div className="text-[8px] border-t border-b py-1 mb-1">
+                            <div>Paciente: Nombre</div>
+                          </div>
                           <div className="text-[8px] space-y-1">
-                            <div className="text-gray-500 uppercase text-[7px]">Paciente</div>
-                            <div>Nombre</div>
-                            <div className="border-t pt-1">
-                              <div className="bg-gray-50 p-1 border-l-2 border-gray-800">Med 1</div>
-                            </div>
+                            <div className="font-semibold text-gray-800">Diagnóstico</div>
+                            <div className="bg-gray-100 p-1">Medicamento 1</div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Minimalista</div>
-                        <div className="text-xs text-muted-foreground">Simple y elegante</div>
+                        <div className="font-semibold">Negro y Gris</div>
+                        <div className="text-xs text-muted-foreground">Elegante profesional</div>
                       </div>
                     </button>
 
@@ -683,23 +683,24 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/4] rounded border bg-gradient-to-br from-purple-500 to-indigo-500 mb-3 overflow-hidden">
-                        <div className="p-2 text-xs text-white">
+                      <div className="aspect-[3/2] rounded border-2 border-red-600 bg-white mb-3 overflow-hidden">
+                        <div className="p-2 text-xs">
                           <div className="text-center mb-1">
-                            <div className="font-bold text-[11px]">CONSULTORIO</div>
-                            <div className="text-[8px] bg-white/20 inline-block px-2 py-0.5 rounded-full mt-1">RECETA</div>
+                            <div className="font-bold text-red-600 text-[11px]">CONSULTORIO</div>
+                            <div className="text-[9px] text-red-500 italic">Dr. Nombre</div>
                           </div>
-                          <div className="bg-white/10 rounded p-1 text-[8px] mb-1">
+                          <div className="text-[8px] border-t border-b py-1 mb-1">
                             <div>Paciente: Nombre</div>
                           </div>
-                          <div className="text-[8px]">
-                            <div className="bg-white/90 text-purple-600 p-1 rounded">Medicamento</div>
+                          <div className="text-[8px] space-y-1">
+                            <div className="font-semibold text-red-600">Diagnóstico</div>
+                            <div className="bg-red-50 p-1">Medicamento 1</div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Morado Moderno</div>
-                        <div className="text-xs text-muted-foreground">Contemporáneo</div>
+                        <div className="font-semibold">Rojo Profesional</div>
+                        <div className="text-xs text-muted-foreground">Impactante</div>
                       </div>
                     </button>
 
@@ -720,24 +721,24 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/4] rounded border-2 border-red-400 bg-white mb-3 overflow-hidden">
-                        <div className="p-2 text-xs">
+                      <div className="aspect-[3/2] rounded bg-gradient-to-br from-indigo-500 to-purple-600 mb-3 overflow-hidden">
+                        <div className="p-2 text-xs text-white">
                           <div className="text-center mb-1">
-                            <div className="font-bold text-red-500 text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] text-red-600 font-semibold">Dr. Nombre</div>
+                            <div className="font-bold text-[11px]">CONSULTORIO</div>
+                            <div className="text-[9px] italic">Dr. Nombre</div>
                           </div>
-                          <div className="bg-red-50 border border-red-200 rounded p-1 text-[8px] mb-1">
-                            Paciente: Nombre
+                          <div className="text-[8px] border-t border-white/30 py-1 mb-1">
+                            <div>Paciente: Nombre</div>
                           </div>
-                          <div className="text-center text-3xl text-red-100 my-1">℞</div>
-                          <div className="text-[8px]">
-                            <div className="bg-red-50 p-1 rounded border-l-2 border-red-500">Med 1</div>
+                          <div className="text-[8px] space-y-1">
+                            <div className="font-semibold">Diagnóstico</div>
+                            <div className="bg-white/90 text-purple-700 p-1 rounded">Medicamento 1</div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Coral Profesional</div>
-                        <div className="text-xs text-muted-foreground">Cálido y acogedor</div>
+                        <div className="font-semibold">Gradiente Moderno</div>
+                        <div className="text-xs text-muted-foreground">Contemporáneo</div>
                       </div>
                     </button>
                   </div>
