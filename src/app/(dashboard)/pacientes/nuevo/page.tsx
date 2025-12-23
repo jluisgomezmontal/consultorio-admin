@@ -27,7 +27,10 @@ const pacienteSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   address: z.string().optional(),
   bloodType: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']).optional().or(z.literal('')),
-  medicalInsurance: z.string().optional(),
+  insuranceInsurer: z.string().optional(),
+  insurancePolicyNumber: z.string().optional(),
+  insuranceHolderName: z.string().optional(),
+  insuranceRelationship: z.enum(['Titular', 'Esposo(a)', 'Hijo(a)', 'Otro']).optional().or(z.literal('')),
   emergencyContactName: z.string().optional(),
   emergencyContactRelationship: z.string().optional(),
   emergencyContactPhone: z.string().optional(),
@@ -112,7 +115,12 @@ export default function NuevoPacientePage() {
       email: data.email || undefined,
       address: data.address || undefined,
       bloodType: data.bloodType || undefined,
-      medicalInsurance: data.medicalInsurance || undefined,
+      medicalInsurance: (data.insuranceInsurer || data.insurancePolicyNumber || data.insuranceHolderName || data.insuranceRelationship) ? {
+        insurer: data.insuranceInsurer || undefined,
+        policyNumber: data.insurancePolicyNumber || undefined,
+        holderName: data.insuranceHolderName || undefined,
+        relationship: data.insuranceRelationship || undefined,
+      } : undefined,
       emergencyContact: (data.emergencyContactName || data.emergencyContactRelationship || data.emergencyContactPhone) ? {
         name: data.emergencyContactName || undefined,
         relationship: data.emergencyContactRelationship || undefined,
@@ -321,33 +329,69 @@ export default function NuevoPacientePage() {
                 </button>
                 {openSections.medicalInfo && (
                   <div className="space-y-4 p-4 pt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="bloodType">Tipo de Sangre</Label>
-                        <select
-                          {...register('bloodType')}
-                          id="bloodType"
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <option value="">Seleccionar</option>
-                          <option value="A+">A+</option>
-                          <option value="A-">A-</option>
-                          <option value="B+">B+</option>
-                          <option value="B-">B-</option>
-                          <option value="AB+">AB+</option>
-                          <option value="AB-">AB-</option>
-                          <option value="O+">O+</option>
-                          <option value="O-">O-</option>
-                        </select>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bloodType">Tipo de Sangre</Label>
+                      <select
+                        {...register('bloodType')}
+                        id="bloodType"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="">Seleccionar</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
+                    </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="medicalInsurance">Seguro Médico</Label>
-                        <Input
-                          {...register('medicalInsurance')}
-                          id="medicalInsurance"
-                          placeholder="Nombre del seguro médico"
-                        />
+                    <div className="space-y-3 pt-2">
+                      <Label className="text-base font-semibold">Seguro Médico</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="insuranceInsurer">Aseguradora</Label>
+                          <Input
+                            {...register('insuranceInsurer')}
+                            id="insuranceInsurer"
+                            placeholder="Nombre de la aseguradora"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="insurancePolicyNumber">Número de Póliza</Label>
+                          <Input
+                            {...register('insurancePolicyNumber')}
+                            id="insurancePolicyNumber"
+                            placeholder="Número de póliza"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="insuranceHolderName">Nombre del Titular</Label>
+                          <Input
+                            {...register('insuranceHolderName')}
+                            id="insuranceHolderName"
+                            placeholder="Nombre completo del titular"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="insuranceRelationship">Parentesco del Paciente</Label>
+                          <select
+                            {...register('insuranceRelationship')}
+                            id="insuranceRelationship"
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          >
+                            <option value="">Seleccionar</option>
+                            <option value="Titular">Titular</option>
+                            <option value="Esposo(a)">Esposo(a)</option>
+                            <option value="Hijo(a)">Hijo(a)</option>
+                            <option value="Otro">Otro</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
 

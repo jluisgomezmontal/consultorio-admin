@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check, User, Phone, Mail, MapPin, Cake, Users, Droplet, Shield, AlertCircle, ClipboardList } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { documentoService } from '@/services/documento.service';
 import { useQuery } from '@tanstack/react-query';
@@ -529,64 +529,215 @@ export default function PacienteDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">{paciente.fullName}</CardTitle>
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  {paciente.fullName}
+                </CardTitle>
                 <CardDescription>
                   Paciente registrado el {new Date(paciente.createdAt).toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Edad</p>
-                    <p className="text-base">{paciente.age || 'No especificada'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Género</p>
-                    <p className="text-base capitalize">{paciente.gender || 'No especificado'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                    <p className="text-base">{paciente.phone || 'No especificado'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Email</p>
-                    <p className="text-base">{paciente.email || 'No especificado'}</p>
-                  </div>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {paciente.birthDate && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Cake className="h-5 w-5 text-pink-600 dark:text-pink-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Fecha de Nacimiento</p>
+                        <p className="text-base font-medium">{new Date(paciente.birthDate).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  )}
+                  {paciente.age && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <User className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Edad</p>
+                        <p className="text-base font-medium">{paciente.age} años</p>
+                      </div>
+                    </div>
+                  )}
+                  {paciente.gender && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Users className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Género</p>
+                        <p className="text-base font-medium capitalize">{paciente.gender}</p>
+                      </div>
+                    </div>
+                  )}
+                  {paciente.bloodType && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Droplet className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Tipo de Sangre</p>
+                        <p className="text-base font-medium">{paciente.bloodType}</p>
+                      </div>
+                    </div>
+                  )}
+                  {paciente.phone && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Phone className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
+                        <p className="text-base font-medium">{paciente.phone}</p>
+                      </div>
+                    </div>
+                  )}
+                  {paciente.email && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Mail className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Email</p>
+                        <p className="text-base font-medium">{paciente.email}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Dirección</p>
-                  <p className="text-base">{paciente.address || 'No especificada'}</p>
-                </div>
+                {paciente.address && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 mt-4">
+                    <MapPin className="h-5 w-5 text-cyan-600 dark:text-cyan-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Dirección</p>
+                      <p className="text-base font-medium">{paciente.address}</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
+            {paciente.medicalInsurance && (paciente.medicalInsurance.insurer || paciente.medicalInsurance.policyNumber) && (
+              <Card>
+                <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    Seguro Médico
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {paciente.medicalInsurance.insurer && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Aseguradora</p>
+                          <p className="text-base font-medium">{paciente.medicalInsurance.insurer}</p>
+                        </div>
+                      </div>
+                    )}
+                    {paciente.medicalInsurance.policyNumber && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Número de Póliza</p>
+                          <p className="text-base font-medium">{paciente.medicalInsurance.policyNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                    {paciente.medicalInsurance.holderName && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <User className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Titular</p>
+                          <p className="text-base font-medium">{paciente.medicalInsurance.holderName}</p>
+                        </div>
+                      </div>
+                    )}
+                    {paciente.medicalInsurance.relationship && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Parentesco</p>
+                          <p className="text-base font-medium">{paciente.medicalInsurance.relationship}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {paciente.emergencyContact && (paciente.emergencyContact.name || paciente.emergencyContact.phone) && (
+              <Card>
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20">
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    Contacto de Emergencia
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {paciente.emergencyContact.name && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <User className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Nombre</p>
+                          <p className="text-base font-medium">{paciente.emergencyContact.name}</p>
+                        </div>
+                      </div>
+                    )}
+                    {paciente.emergencyContact.relationship && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <Users className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Parentesco</p>
+                          <p className="text-base font-medium">{paciente.emergencyContact.relationship}</p>
+                        </div>
+                      </div>
+                    )}
+                    {paciente.emergencyContact.phone && (
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <Phone className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
+                          <p className="text-base font-medium">{paciente.emergencyContact.phone}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
-              <CardHeader>
+              <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20">
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                  <ClipboardList className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   Información Médica
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Historial Médico</p>
-                  <p className="text-base whitespace-pre-wrap">
-                    {paciente.medicalHistory || 'Sin historial médico registrado'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Alergias</p>
-                  <p className="text-base whitespace-pre-wrap">
-                    {paciente.allergies || 'Sin alergias registradas'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Notas</p>
-                  <p className="text-base whitespace-pre-wrap">
-                    {paciente.notes || 'Sin notas adicionales'}
-                  </p>
-                </div>
+              <CardContent className="pt-6 space-y-4">
+                {paciente.medicalHistory && (
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border-l-4 border-violet-500">
+                    <Heart className="h-5 w-5 text-violet-600 dark:text-violet-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Historial Médico</p>
+                      <p className="text-base whitespace-pre-wrap">{paciente.medicalHistory}</p>
+                    </div>
+                  </div>
+                )}
+                {paciente.allergies && (
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border-l-4 border-red-500">
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Alergias</p>
+                      <p className="text-base whitespace-pre-wrap">{paciente.allergies}</p>
+                    </div>
+                  </div>
+                )}
+                {paciente.notes && (
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border-l-4 border-blue-500">
+                    <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Notas</p>
+                      <p className="text-base whitespace-pre-wrap">{paciente.notes}</p>
+                    </div>
+                  </div>
+                )}
+                {!paciente.medicalHistory && !paciente.allergies && !paciente.notes && (
+                  <p className="text-sm text-muted-foreground text-center py-4">Sin información médica registrada</p>
+                )}
               </CardContent>
             </Card>
 

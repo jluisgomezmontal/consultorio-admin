@@ -39,6 +39,13 @@ export interface EmergencyContact {
   phone?: string;
 }
 
+export interface MedicalInsurance {
+  insurer?: string;
+  policyNumber?: string;
+  holderName?: string;
+  relationship?: 'Titular' | 'Esposo(a)' | 'Hijo(a)' | 'Otro';
+}
+
 export interface Paciente {
   id: string;
   fullName: string;
@@ -50,7 +57,7 @@ export interface Paciente {
   email?: string;
   address?: string;
   bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  medicalInsurance?: string;
+  medicalInsurance?: MedicalInsurance;
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
@@ -70,7 +77,7 @@ export interface CreatePacienteRequest {
   email?: string;
   address?: string;
   bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  medicalInsurance?: string;
+  medicalInsurance?: MedicalInsurance;
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
@@ -87,7 +94,7 @@ export interface UpdatePacienteRequest {
   email?: string;
   address?: string;
   bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  medicalInsurance?: string;
+  medicalInsurance?: MedicalInsurance;
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
