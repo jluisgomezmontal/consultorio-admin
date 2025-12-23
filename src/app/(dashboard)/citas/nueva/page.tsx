@@ -79,7 +79,20 @@ function NuevaCitaContent() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
+  const [openSections, setOpenSections] = useState({
+    appointmentInfo: true,
+    vitalSigns: false,
+    medicalEvaluation: false,
+    diagnosisTreatment: false,
+    additionalNotes: false,
+  });
   const pacienteIdFromQuery = searchParams.get('pacienteId');
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const isDoctor = user?.role === 'doctor' || user?.role === 'admin';
 
   useEffect(() => {
     if (!authLoading) {
@@ -189,6 +202,15 @@ function NuevaCitaContent() {
       date: data.date,
       time: data.time,
       motivo: data.motivo || undefined,
+      weight: data.weight ? Number(data.weight) : undefined,
+      bloodPressure: data.bloodPressure || undefined,
+      measurements: (data.height || data.waist || data.hip) ? {
+        height: data.height ? Number(data.height) : undefined,
+        waist: data.waist ? Number(data.waist) : undefined,
+        hip: data.hip ? Number(data.hip) : undefined,
+      } : undefined,
+      currentCondition: data.currentCondition || undefined,
+      physicalExam: data.physicalExam || undefined,
       diagnostico: data.diagnostico || undefined,
       tratamiento: data.tratamiento || undefined,
       estado: data.estado,
@@ -235,177 +257,405 @@ function NuevaCitaContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
                   {error}
                 </div>
               )}
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="pacienteId">Paciente *</Label>
-                  <select
-                    id="pacienteId"
-                    {...register('pacienteId')}
-                    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.pacienteId ? 'border-destructive' : ''}`}
-                  >
-                    <option value="">Selecciona un paciente</option>
-                    {pacientes.map((paciente: Paciente) => (
-                      <option key={paciente.id} value={paciente.id}>
-                        {paciente.fullName}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.pacienteId && (
-                    <p className="text-sm text-destructive">{errors.pacienteId.message}</p>
-                  )}
-                </div>
-              <div className="space-y-2">
-                <Label htmlFor="consultorioId">Consultorio *</Label>
-                <select
-                  id="consultorioId"
-                  {...register('consultorioId')}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.consultorioId ? 'border-destructive' : ''}`}
+              {/* Sección: Información de la Cita */}
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('appointmentInfo')}
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-950/30 dark:hover:to-indigo-950/30 transition-colors"
                 >
-                  <option value="">Selecciona un consultorio</option>
-                  {consultorios.map((consultorio: Consultorio) => {
-                    const id = consultorio.id || consultorio._id;
-                    return (
-                      <option key={id} value={id}>
-                        {consultorio.name}
-                      </option>
-                    );
-                  })}
-                </select>
-                {errors.consultorioId && (
-                  <p className="text-sm text-destructive">{errors.consultorioId.message}</p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <span className="font-semibold">Información de la Cita</span>
+                    <span className="text-xs text-muted-foreground">(Requerido)</span>
+                  </div>
+                  {openSections.appointmentInfo ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </button>
+                {openSections.appointmentInfo && (
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="pacienteId">Paciente *</Label>
+                        <select
+                          id="pacienteId"
+                          {...register('pacienteId')}
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.pacienteId ? 'border-destructive' : ''}`}
+                        >
+                          <option value="">Selecciona un paciente</option>
+                          {pacientes.map((paciente: Paciente) => (
+                            <option key={paciente.id} value={paciente.id}>
+                              {paciente.fullName}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.pacienteId && (
+                          <p className="text-sm text-destructive">{errors.pacienteId.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="consultorioId">Consultorio *</Label>
+                        <select
+                          id="consultorioId"
+                          {...register('consultorioId')}
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.consultorioId ? 'border-destructive' : ''}`}
+                        >
+                          <option value="">Selecciona un consultorio</option>
+                          {consultorios.map((consultorio: Consultorio) => {
+                            const id = consultorio.id || consultorio._id;
+                            return (
+                              <option key={id} value={id}>
+                                {consultorio.name}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        {errors.consultorioId && (
+                          <p className="text-sm text-destructive">{errors.consultorioId.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="doctorId">Doctor *</Label>
+                        <select
+                          id="doctorId"
+                          {...register('doctorId')}
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.doctorId ? 'border-destructive' : ''}`}
+                        >
+                          <option value="">Selecciona un doctor</option>
+                          {doctores.map((doctor: User) => (
+                            <option key={doctor.id} value={doctor.id}>
+                              {doctor.name}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.doctorId && (
+                          <p className="text-sm text-destructive">{errors.doctorId.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="estado">Estado</Label>
+                        <select
+                          id="estado"
+                          {...register('estado')}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          {estadoOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="date">Fecha *</Label>
+                        <Input
+                          id="date"
+                          type="date"
+                          {...register('date')}
+                          className={errors.date ? 'border-destructive' : ''}
+                        />
+                        {errors.date && (
+                          <p className="text-sm text-destructive">{errors.date.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="time">Hora *</Label>
+                        <Input
+                          id="time"
+                          type="time"
+                          {...register('time')}
+                          className={errors.time ? 'border-destructive' : ''}
+                        />
+                        {errors.time && (
+                          <p className="text-sm text-destructive">{errors.time.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="costo">Costo (MXN)</Label>
+                        <Input
+                          id="costo"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          {...register('costo')}
+                          placeholder="0.00"
+                          className={errors.costo ? 'border-destructive' : ''}
+                        />
+                        {errors.costo && (
+                          <p className="text-sm text-destructive">{errors.costo.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="motivo">Motivo de Consulta</Label>
+                        <textarea
+                          id="motivo"
+                          {...register('motivo')}
+                          rows={2}
+                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          placeholder="¿Por qué viene el paciente?"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="doctorId">Doctor *</Label>
-                  <select
-                    id="doctorId"
-                    {...register('doctorId')}
-                    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${errors.doctorId ? 'border-destructive' : ''}`}
-                  >
-                    <option value="">Selecciona un doctor</option>
-                    {doctores.map((doctor: User) => (
-                      <option key={doctor.id} value={doctor.id}>
-                        {doctor.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.doctorId && (
-                    <p className="text-sm text-destructive">{errors.doctorId.message}</p>
+              {/* Sección: Signos Vitales */}
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('vitalSigns')}
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-950/30 dark:hover:to-emerald-950/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <span className="font-semibold">Signos Vitales</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.vitalSigns ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
+                </button>
+                {openSections.vitalSigns && (
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="weight" className="flex items-center gap-2">
+                          <Weight className="h-4 w-4 text-green-600" />
+                          Peso (kg)
+                        </Label>
+                        <Input
+                          id="weight"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          {...register('weight')}
+                          placeholder="70.5"
+                          className={errors.weight ? 'border-destructive' : ''}
+                        />
+                        {errors.weight && (
+                          <p className="text-sm text-destructive">{errors.weight.message}</p>
+                        )}
+                      </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="date">Fecha *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    {...register('date')}
-                    className={errors.date ? 'border-destructive' : ''}
-                  />
-                  {errors.date && (
-                    <p className="text-sm text-destructive">{errors.date.message}</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="bloodPressure" className="flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-red-600" />
+                          Presión Arterial
+                        </Label>
+                        <Input
+                          id="bloodPressure"
+                          type="text"
+                          {...register('bloodPressure')}
+                          placeholder="120/80"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="height" className="flex items-center gap-2">
+                          <Ruler className="h-4 w-4 text-blue-600" />
+                          Altura (cm)
+                        </Label>
+                        <Input
+                          id="height"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          {...register('height')}
+                          placeholder="170"
+                          className={errors.height ? 'border-destructive' : ''}
+                        />
+                        {errors.height && (
+                          <p className="text-sm text-destructive">{errors.height.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="waist">Cintura (cm)</Label>
+                        <Input
+                          id="waist"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          {...register('waist')}
+                          placeholder="80"
+                          className={errors.waist ? 'border-destructive' : ''}
+                        />
+                        {errors.waist && (
+                          <p className="text-sm text-destructive">{errors.waist.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="hip">Cadera (cm)</Label>
+                        <Input
+                          id="hip"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          {...register('hip')}
+                          placeholder="95"
+                          className={errors.hip ? 'border-destructive' : ''}
+                        />
+                        {errors.hip && (
+                          <p className="text-sm text-destructive">{errors.hip.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sección: Evaluación Médica */}
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('medicalEvaluation')}
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-950/30 dark:hover:to-violet-950/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Stethoscope className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <span className="font-semibold">Evaluación Médica</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.medicalEvaluation ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
+                </button>
+                {openSections.medicalEvaluation && (
+                  <div className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentCondition">Padecimiento Actual</Label>
+                      <textarea
+                        id="currentCondition"
+                        {...register('currentCondition')}
+                        rows={3}
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        placeholder="Descripción detallada del padecimiento actual del paciente..."
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="time">Hora *</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    {...register('time')}
-                    className={errors.time ? 'border-destructive' : ''}
-                  />
-                  {errors.time && (
-                    <p className="text-sm text-destructive">{errors.time.message}</p>
+                    <div className="space-y-2">
+                      <Label htmlFor="physicalExam">Exploración Física</Label>
+                      <textarea
+                        id="physicalExam"
+                        {...register('physicalExam')}
+                        rows={3}
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        placeholder="Hallazgos de la exploración física..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sección: Diagnóstico y Tratamiento - SOLO DOCTOR */}
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('diagnosisTreatment')}
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-950/30 dark:hover:to-orange-950/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <span className="font-semibold">Diagnóstico y Tratamiento</span>
+                    {!isDoctor && <span className="text-xs text-amber-600 dark:text-amber-400">(Solo Doctor)</span>}
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.diagnosisTreatment ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
+                </button>
+                {openSections.diagnosisTreatment && (
+                  <div className="p-4 space-y-4">
+                    {!isDoctor && (
+                      <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
+                        <p className="font-medium">⚠️ Acceso Restringido</p>
+                        <p className="text-xs mt-1">Solo los doctores pueden editar el diagnóstico y tratamiento. Puedes visualizar esta información pero no modificarla.</p>
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor="diagnostico">Diagnóstico</Label>
+                      <textarea
+                        id="diagnostico"
+                        {...register('diagnostico')}
+                        rows={3}
+                        disabled={!isDoctor}
+                        className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!isDoctor ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        placeholder={isDoctor ? "Diagnóstico médico del paciente..." : "Solo el doctor puede ingresar el diagnóstico"}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tratamiento">Tratamiento</Label>
+                      <textarea
+                        id="tratamiento"
+                        {...register('tratamiento')}
+                        rows={3}
+                        disabled={!isDoctor}
+                        className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!isDoctor ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        placeholder={isDoctor ? "Plan de tratamiento recomendado..." : "Solo el doctor puede ingresar el tratamiento"}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="motivo">Motivo</Label>
-                <textarea
-                  id="motivo"
-                  {...register('motivo')}
-                  rows={2}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  placeholder="Motivo de la consulta"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="diagnostico">Diagnóstico</Label>
-                <textarea
-                  id="diagnostico"
-                  {...register('diagnostico')}
-                  rows={2}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  placeholder="Diagnóstico del paciente"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tratamiento">Tratamiento</Label>
-                <textarea
-                  id="tratamiento"
-                  {...register('tratamiento')}
-                  rows={2}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  placeholder="Tratamiento recomendado"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="estado">Estado</Label>
-                  <select
-                    id="estado"
-                    {...register('estado')}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    {estadoOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="costo">Costo (MXN)</Label>
-                  <Input
-                    id="costo"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...register('costo')}
-                    className={errors.costo ? 'border-destructive' : ''}
-                  />
-                  {errors.costo && (
-                    <p className="text-sm text-destructive">{errors.costo.message}</p>
+              {/* Sección: Notas Adicionales */}
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('additionalNotes')}
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-950/20 dark:to-gray-950/20 hover:from-slate-100 hover:to-gray-100 dark:hover:from-slate-950/30 dark:hover:to-gray-950/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    <span className="font-semibold">Notas Adicionales</span>
+                    <span className="text-xs text-muted-foreground">(Opcional)</span>
+                  </div>
+                  {openSections.additionalNotes ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notas">Notas</Label>
-                <textarea
-                  id="notas"
-                  {...register('notas')}
-                  rows={2}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  placeholder="Notas adicionales"
-                />
+                </button>
+                {openSections.additionalNotes && (
+                  <div className="p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="notas">Notas</Label>
+                      <textarea
+                        id="notas"
+                        {...register('notas')}
+                        rows={3}
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        placeholder="Notas adicionales sobre la cita..."
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
