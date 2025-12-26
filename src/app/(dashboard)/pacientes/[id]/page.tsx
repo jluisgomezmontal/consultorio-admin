@@ -1142,6 +1142,19 @@ export default function PacienteDetailPage() {
                     </CardContent>
                   </Card>
                 )}
+                {/* Sección de Documentos del Paciente */}
+            {documentosData?.documentos && documentosData.documentos.length > 0 && (
+              <div className="mt-6">
+                <DocumentList
+                  documentos={documentosData.documentos}
+                  onDelete={() => {
+                    refetchDocumentos();
+                  }}
+                  showCitaInfo={true}
+                  context="paciente"
+                />
+              </div>
+            )}
               </>
             )}
           </div>
@@ -1203,19 +1216,7 @@ export default function PacienteDetailPage() {
                 </Button>
               </CardContent>
             </Card>
-            {/* Sección de Documentos del Paciente */}
-            {documentosData?.documentos && documentosData.documentos.length > 0 && (
-              <div className="mt-6">
-                <DocumentList
-                  documentos={documentosData.documentos}
-                  onDelete={() => {
-                    refetchDocumentos();
-                  }}
-                  showCitaInfo={true}
-                  context="paciente"
-                />
-              </div>
-            )}
+            
           </div>
         </div>
       </main>

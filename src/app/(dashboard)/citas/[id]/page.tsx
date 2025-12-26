@@ -164,12 +164,12 @@ export default function CitaDetailPage() {
   const cita = data.data;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header con gradiente */}
-        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 border border-blue-100 dark:border-blue-900">
+        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 border border-blue-100 dark:border-blue-900 overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -195,8 +195,8 @@ export default function CitaDetailPage() {
                   </Link>
                 )}
               </div>
-              <h1 className="text-2xl font-bold text-foreground">Detalle de Cita</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <h1 className="text-2xl font-bold text-foreground break-words">Detalle de Cita</h1>
+              <p className="text-sm text-muted-foreground mt-1 break-words">
                 {cita.paciente?.fullName} • {new Date(cita.date).toLocaleDateString('es-MX')}
               </p>
             </div>
@@ -356,15 +356,15 @@ export default function CitaDetailPage() {
             <CardContent className="space-y-5 pt-6">
               <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Motivo de Consulta</p>
-                <p className="text-foreground">{cita.motivo || 'Sin motivo registrado'}</p>
+                <p className="text-foreground break-words">{cita.motivo || 'Sin motivo registrado'}</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Diagnóstico</p>
-                <p className="text-foreground">{cita.diagnostico || 'Sin diagnóstico registrado'}</p>
+                <p className="text-foreground break-words">{cita.diagnostico || 'Sin diagnóstico registrado'}</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Tratamiento</p>
-                <p className="text-foreground">{cita.tratamiento || 'Sin tratamiento registrado'}</p>
+                <p className="text-foreground break-words">{cita.tratamiento || 'Sin tratamiento registrado'}</p>
               </div>
               {cita.medicamentos && cita.medicamentos.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/50">
@@ -372,14 +372,14 @@ export default function CitaDetailPage() {
                   <div className="space-y-3">
                     {cita.medicamentos.map((med, index) => (
                       <div key={index} className="border-l-2 border-blue-500 pl-3 py-2 bg-background/50 rounded-r">
-                        <p className="font-semibold text-foreground mb-1">{index + 1}. {med.nombre}</p>
-                        <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                          {med.dosis && <p><span className="font-medium">Dosis:</span> {med.dosis}</p>}
-                          {med.frecuencia && <p><span className="font-medium">Frecuencia:</span> {med.frecuencia}</p>}
-                          {med.duracion && <p><span className="font-medium">Duración:</span> {med.duracion}</p>}
+                        <p className="font-semibold text-foreground mb-1 break-words">{index + 1}. {med.nombre}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                          {med.dosis && <p className="break-words"><span className="font-medium">Dosis:</span> {med.dosis}</p>}
+                          {med.frecuencia && <p className="break-words"><span className="font-medium">Frecuencia:</span> {med.frecuencia}</p>}
+                          {med.duracion && <p className="break-words"><span className="font-medium">Duración:</span> {med.duracion}</p>}
                         </div>
                         {med.indicaciones && (
-                          <p className="text-sm text-muted-foreground mt-2 italic">
+                          <p className="text-sm text-muted-foreground mt-2 italic break-words">
                             <span className="font-medium">Indicaciones:</span> {med.indicaciones}
                           </p>
                         )}
@@ -395,10 +395,10 @@ export default function CitaDetailPage() {
         <div className="grid gap-6 lg:grid-cols-2 mt-6">
           <Card className="shadow-md hover:shadow-lg transition-shadow">
             <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <CardTitle className="flex items-center gap-2 text-xl">
-                    <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                    <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
                     Información de pagos
                   </CardTitle>
                   <CardDescription>
@@ -406,7 +406,7 @@ export default function CitaDetailPage() {
                   </CardDescription>
                 </div>
                 {cita.estado === 'completada' && (
-                  <Button size="sm" asChild className="bg-green-600 hover:bg-green-700">
+                  <Button size="sm" asChild className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                     <Link href={`/pagos/nuevo?citaId=${id}`}>
                       <Coins className="mr-2 h-4 w-4" />
                       Registrar Pago
@@ -464,15 +464,15 @@ export default function CitaDetailPage() {
             <CardContent className="pt-6">
               <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
                 <StickyNote className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                <p className="text-foreground">{cita.notas || 'Sin notas registradas.'}</p>
+                <p className="text-foreground break-words">{cita.notas || 'Sin notas registradas.'}</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Sección de Documentos */}
-        <div className="mt-6 space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
+        <div className="mt-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <DocumentUploader
               citaId={id}
               pacienteId={cita.paciente?.id || ''}
@@ -480,16 +480,14 @@ export default function CitaDetailPage() {
                 refetchDocumentos();
               }}
             />
-            <div>
-              {documentosData?.data && (
-                <DocumentList
-                  documentos={documentosData.data}
-                  onDelete={() => {
-                    refetchDocumentos();
-                  }}
-                />
-              )}
-            </div>
+            {documentosData?.data && (
+              <DocumentList
+                documentos={documentosData.data}
+                onDelete={() => {
+                  refetchDocumentos();
+                }}
+              />
+            )}
           </div>
         </div>
       </main>

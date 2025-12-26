@@ -73,6 +73,18 @@ export default function PacientesPage() {
       .replace(/[\u0300-\u036f]/g, '');
   };
 
+  const calculateAge = (birthDate: string | undefined): number | null => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   if (authLoading || isLoading) {
     return <div className="min-h-screen bg-background">
         <Navbar />
@@ -119,7 +131,7 @@ export default function PacientesPage() {
     <div className="bg-background flex-1 flex flex-col">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 w-full">
         {/* Header con gradiente */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-4 sm:p-6 shadow-lg border border-purple-100 dark:border-purple-900">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -173,34 +185,43 @@ export default function PacientesPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg ">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               Lista de Pacientes
             </CardTitle>
             <CardDescription>
-              {total} paciente{total !== 1 ? 's' : ''} registrado{total !== 1 ? 's' : ''}
+              {total} paciente{total !== 1 ? 's' : ''} {search ? 'encontrado' : 'registrado'}{total !== 1 ? 's' : ''}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-h-[500px] overflow-x-auto">
             {pacientes.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No hay pacientes registrados
+              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground min-h-[400px] w-full">
+                <Users className="h-16 w-16 mb-4 opacity-20" />
+                <p className="text-lg font-medium">
+                  {search ? 'No se encontraron pacientes' : 'No hay pacientes registrados'}
+                </p>
+                {search && (
+                  <p className="text-sm mt-2">
+                    Intenta con otro término de búsqueda
+                  </p>
+                )}
               </div>
             ) : (
-              <ResponsiveTable
-                mobileCards={pacientes.map((paciente) => (
-                  <Card key={paciente.id} className="border-l-4 border-l-purple-500">
-                    <CardContent className="p-4 space-y-3">
+              <div className="min-h-[400px]">
+                <ResponsiveTable
+                  mobileCards={pacientes.map((paciente) => (
+                    <Card key={paciente.id} className="border-l-4 border-l-purple-500">
+                      <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-base font-semibold">
                             <User className="h-5 w-5 text-purple-600" />
                             <span>{paciente.fullName}</span>
                           </div>
-                          {paciente.age && (
-                            <p className="text-sm text-muted-foreground">{paciente.age} años</p>
+                          {calculateAge(paciente.birthDate) !== null && (
+                            <p className="text-sm text-muted-foreground">{calculateAge(paciente.birthDate)} años</p>
                           )}
                         </div>
                       </div>
@@ -259,32 +280,32 @@ export default function PacientesPage() {
                           Eliminar
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              >
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                      </CardContent>
+                    </Card>
+                  ))}
+                >
+                  <div className="overflow-x-auto">
+                  <table className="w-full table-fixed">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium">Nombre</th>
-                        <th className="text-left py-3 px-4 font-medium">Edad</th>
-                        <th className="text-left py-3 px-4 font-medium">Teléfono</th>
-                        <th className="text-left py-3 px-4 font-medium">Email</th>
-                        <th className="text-right py-3 px-4 font-medium">Acciones</th>
+                        <th className="text-left py-3 px-4 font-medium w-[25%] min-w-[180px]">Nombre</th>
+                        <th className="text-left py-3 px-4 font-medium w-[10%] min-w-[80px]">Edad</th>
+                        <th className="text-left py-3 px-4 font-medium w-[15%] min-w-[120px]">Teléfono</th>
+                        <th className="text-left py-3 px-4 font-medium w-[25%] min-w-[200px]">Email</th>
+                        <th className="text-right py-3 px-4 font-medium w-[25%] min-w-[180px]">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {pacientes.map((paciente) => (
                         <tr key={paciente.id} className="border-b hover:bg-muted/50">
-                          <td className="py-3 px-4 font-medium">{paciente.fullName}</td>
+                          <td className="py-3 px-4 font-medium truncate">{paciente.fullName}</td>
                           <td className="py-3 px-4 text-muted-foreground">
-                            {paciente.age || '-'}
+                            {calculateAge(paciente.birthDate) !== null ? calculateAge(paciente.birthDate) : '-'}
                           </td>
                           <td className="py-3 px-4 text-muted-foreground">
                             {paciente.phone || '-'}
                           </td>
-                          <td className="py-3 px-4 text-muted-foreground">
+                          <td className="py-3 px-4 text-muted-foreground truncate" title={paciente.email || '-'}>
                             {paciente.email || '-'}
                           </td>
                           <td className="py-3 px-4">
@@ -327,17 +348,18 @@ export default function PacientesPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
-              </ResponsiveTable>
+                    </table>
+                  </div>
+                </ResponsiveTable>
+              </div>
             )}
 
             {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-between">
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-4">
                 <p className="text-sm text-muted-foreground">
-                  Página {page} de {totalPages}
+                  Mostrando {startIndex + 1}-{Math.min(endIndex, total)} de {total} paciente{total !== 1 ? 's' : ''}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -346,6 +368,9 @@ export default function PacientesPage() {
                   >
                     Anterior
                   </Button>
+                  <span className="text-sm text-muted-foreground px-2">
+                    Página {page} de {totalPages}
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"

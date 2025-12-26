@@ -112,35 +112,35 @@ export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: Docume
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5" />
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 break-words text-lg sm:text-xl">
+          <Upload className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
           Subir Documento
         </CardTitle>
-        <CardDescription>
-          Adjunta documentos médicos a esta cita (máx. 10MB)
+        <CardDescription className="break-words text-xs sm:text-sm">
+          Adjunta documentos médicos (máx. 10MB)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4">
         {error && (
-          <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+          <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-2 sm:p-3 text-xs sm:text-sm text-destructive break-words">
             {error}
           </div>
         )}
         {success && (
-          <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+          <div className="rounded-lg bg-green-50 border border-green-200 p-2 sm:p-3 text-xs sm:text-sm text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400 break-words">
             {success}
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label htmlFor="tipo">Tipo de Documento *</Label>
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="tipo" className="text-xs sm:text-sm">Tipo de Documento *</Label>
           <select
             id="tipo"
             value={tipo}
             onChange={(e) => setTipo(e.target.value as Documento['tipo'])}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-9 sm:h-10 w-full rounded-md border border-input bg-background px-2 sm:px-3 py-2 text-xs sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             disabled={uploading}
           >
             {TIPO_OPTIONS.map((option) => (
@@ -151,21 +151,22 @@ export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: Docume
           </select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="file">Archivo *</Label>
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="file" className="text-xs sm:text-sm">Archivo *</Label>
           {!file ? (
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="file"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">Click para subir</span> o arrastra el archivo
+                <div className="flex flex-col items-center justify-center pt-4 pb-5 px-3">
+                  <Upload className="w-8 h-8 sm:w-10 sm:h-10 mb-2 sm:mb-3 text-muted-foreground" />
+                  <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-muted-foreground text-center">
+                    <span className="font-semibold">Click para subir</span>
+                    <span className="hidden sm:inline"> o arrastra el archivo</span>
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    PDF, Imágenes, Word, Excel (máx. 10MB)
+                  <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
+                    PDF, Imágenes, Word, Excel
                   </p>
                 </div>
                 <input
@@ -179,44 +180,46 @@ export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: Docume
               </label>
             </div>
           ) : (
-            <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
-              <FileText className="h-8 w-8 text-primary" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg bg-muted/50">
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="text-xs sm:text-sm font-medium truncate">{file.name}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleRemoveFile}
                 disabled={uploading}
+                className="h-8 w-8 sm:h-10 sm:w-10"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="nombre">Nombre del Documento</Label>
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="nombre" className="text-xs sm:text-sm">Nombre del Documento</Label>
           <Input
             id="nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            placeholder="Ej: Receta médica - Antibiótico"
+            placeholder="Ej: Receta médica"
             disabled={uploading}
+            className="h-9 sm:h-10 text-xs sm:text-sm"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="descripcion">Descripción (Opcional)</Label>
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="descripcion" className="text-xs sm:text-sm">Descripción (Opcional)</Label>
           <textarea
             id="descripcion"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
-            rows={3}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder="Agrega notas o detalles sobre este documento"
+            rows={2}
+            className="flex w-full rounded-md border border-input bg-background px-2 sm:px-3 py-2 text-xs sm:text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+            placeholder="Notas o detalles"
             disabled={uploading}
           />
         </div>
@@ -224,16 +227,16 @@ export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: Docume
         <Button
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full"
+          className="w-full h-9 sm:h-10 text-xs sm:text-sm"
         >
           {uploading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
               Subiendo...
             </>
           ) : (
             <>
-              <Upload className="mr-2 h-4 w-4" />
+              <Upload className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Subir Documento
             </>
           )}
