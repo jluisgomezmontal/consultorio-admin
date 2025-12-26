@@ -31,6 +31,7 @@ interface DocumentListProps {
   documentos: Documento[];
   onDelete?: (id: string) => void;
   showCitaInfo?: boolean;
+  context?: 'cita' | 'paciente';
 }
 
 const TIPO_LABELS: Record<Documento['tipo'], string> = {
@@ -64,7 +65,7 @@ const formatFileSize = (bytes: number) => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
-export function DocumentList({ documentos, onDelete, showCitaInfo = false }: DocumentListProps) {
+export function DocumentList({ documentos, onDelete, showCitaInfo = false, context = 'cita' }: DocumentListProps) {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const handleDownload = async (documento: Documento) => {
@@ -107,7 +108,9 @@ export function DocumentList({ documentos, onDelete, showCitaInfo = false }: Doc
             <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
             Documentos
           </CardTitle>
-          <CardDescription>Documentos adjuntos</CardDescription>
+          <CardDescription>
+            {context === 'paciente' ? 'Documentos adjuntos al paciente' : 'Documentos adjuntos a esta cita'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground text-center py-8">
@@ -125,7 +128,9 @@ export function DocumentList({ documentos, onDelete, showCitaInfo = false }: Doc
           <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           Documentos ({documentos.length})
         </CardTitle>
-        <CardDescription>Documentos adjuntos a esta cita</CardDescription>
+        <CardDescription>
+          {context === 'paciente' ? 'Documentos adjuntos al paciente' : 'Documentos adjuntos a esta cita'}
+        </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-3">

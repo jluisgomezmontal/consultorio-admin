@@ -69,7 +69,7 @@ export default function PacienteDetailPage() {
     }
 
     const expedienteData = historyData.data;
-    
+
     const html = `
       <!DOCTYPE html>
       <html lang="es">
@@ -222,6 +222,93 @@ export default function PacienteDetailPage() {
             margin-bottom: 8px;
           }
           
+          .pago-item {
+            padding: 8px;
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            margin-bottom: 8px;
+            border-radius: 4px;
+          }
+          
+          .pago-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+          }
+          
+          .pago-monto {
+            font-weight: bold;
+            color: #16a34a;
+            font-size: 12pt;
+          }
+          
+          .pago-metodo {
+            font-size: 10pt;
+            color: #666;
+            margin-left: 10px;
+          }
+          
+          .pago-fecha {
+            font-size: 9pt;
+            color: #666;
+          }
+          
+          .pago-notas {
+            font-size: 9pt;
+            color: #555;
+            margin-top: 5px;
+            font-style: italic;
+          }
+          
+          .pago-total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #d1d5db;
+            font-weight: bold;
+            font-size: 11pt;
+            text-align: right;
+          }
+          
+          .subsection-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #4b5563;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          
+          .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
+          }
+          
+          .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+          }
+          
+          .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+          
+          .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+          }
+          
+          .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+          }
+          
           .footer {
             margin-top: 30px;
             padding-top: 15px;
@@ -236,19 +323,27 @@ export default function PacienteDetailPage() {
               print-color-adjust: exact;
               -webkit-print-color-adjust: exact;
             }
+            
+            .section {
+              page-break-inside: avoid;
+            }
+            
+            .cita-card {
+              page-break-inside: avoid;
+            }
           }
         </style>
       </head>
       <body>
         <div class="header">
           <h1>EXPEDIENTE CLÍNICO</h1>
-          <p>Documento generado el ${new Date().toLocaleDateString('es-ES', { 
-            day: '2-digit', 
-            month: 'long', 
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}</p>
+          <p>Documento generado el ${new Date().toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}</p>
         </div>
 
         <!-- Información del Paciente -->
@@ -259,6 +354,12 @@ export default function PacienteDetailPage() {
               <div class="info-label">Nombre Completo:</div>
               <div class="info-value">${expedienteData.fullName}</div>
             </div>
+            ${expedienteData.birthDate ? `
+            <div class="info-item">
+              <div class="info-label">Fecha de Nacimiento:</div>
+              <div class="info-value">${new Date(expedienteData.birthDate).toLocaleDateString('es-ES')}</div>
+            </div>
+            ` : ''}
             <div class="info-item">
               <div class="info-label">Edad:</div>
               <div class="info-value">${expedienteData.age || 'No especificada'} años</div>
@@ -267,6 +368,12 @@ export default function PacienteDetailPage() {
               <div class="info-label">Género:</div>
               <div class="info-value">${expedienteData.gender ? expedienteData.gender.charAt(0).toUpperCase() + expedienteData.gender.slice(1) : 'No especificado'}</div>
             </div>
+            ${expedienteData.bloodType ? `
+            <div class="info-item">
+              <div class="info-label">Tipo de Sangre:</div>
+              <div class="info-value">${expedienteData.bloodType}</div>
+            </div>
+            ` : ''}
             <div class="info-item">
               <div class="info-label">Teléfono:</div>
               <div class="info-value">${expedienteData.phone || 'No especificado'}</div>
@@ -285,6 +392,66 @@ export default function PacienteDetailPage() {
             <div class="info-value">${expedienteData.address || 'No registrada'}</div>
           </div>
         </div>
+
+        <!-- Seguro Médico -->
+        ${expedienteData.medicalInsurance && (expedienteData.medicalInsurance.insurer || expedienteData.medicalInsurance.policyNumber) ? `
+        <div class="section">
+          <div class="section-title">SEGURO MÉDICO</div>
+          <div class="info-grid">
+            ${expedienteData.medicalInsurance.insurer ? `
+            <div class="info-item">
+              <div class="info-label">Aseguradora:</div>
+              <div class="info-value">${expedienteData.medicalInsurance.insurer}</div>
+            </div>
+            ` : ''}
+            ${expedienteData.medicalInsurance.policyNumber ? `
+            <div class="info-item">
+              <div class="info-label">Número de Póliza:</div>
+              <div class="info-value">${expedienteData.medicalInsurance.policyNumber}</div>
+            </div>
+            ` : ''}
+            ${expedienteData.medicalInsurance.holderName ? `
+            <div class="info-item">
+              <div class="info-label">Titular:</div>
+              <div class="info-value">${expedienteData.medicalInsurance.holderName}</div>
+            </div>
+            ` : ''}
+            ${expedienteData.medicalInsurance.relationship ? `
+            <div class="info-item">
+              <div class="info-label">Parentesco:</div>
+              <div class="info-value">${expedienteData.medicalInsurance.relationship}</div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Contacto de Emergencia -->
+        ${expedienteData.emergencyContact && (expedienteData.emergencyContact.name || expedienteData.emergencyContact.phone) ? `
+        <div class="section">
+          <div class="section-title">CONTACTO DE EMERGENCIA</div>
+          <div class="info-grid">
+            ${expedienteData.emergencyContact.name ? `
+            <div class="info-item">
+              <div class="info-label">Nombre:</div>
+              <div class="info-value">${expedienteData.emergencyContact.name}</div>
+            </div>
+            ` : ''}
+            ${expedienteData.emergencyContact.relationship ? `
+            <div class="info-item">
+              <div class="info-label">Parentesco:</div>
+              <div class="info-value">${expedienteData.emergencyContact.relationship}</div>
+            </div>
+            ` : ''}
+            ${expedienteData.emergencyContact.phone ? `
+            <div class="info-item">
+              <div class="info-label">Teléfono:</div>
+              <div class="info-value">${expedienteData.emergencyContact.phone}</div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
 
         <!-- Información Médica Básica -->
         <div class="section">
@@ -409,20 +576,41 @@ export default function PacienteDetailPage() {
         ` : ''}
         ` : ''}
 
+        <!-- Resumen Estadístico -->
+        ${expedienteData.citas && expedienteData.citas.length > 0 ? `
+        <div class="section">
+          <div class="section-title">RESUMEN ESTADÍSTICO</div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Total de Consultas:</div>
+              <div class="info-value">${expedienteData.citas.length}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Consultas Completadas:</div>
+              <div class="info-value">${expedienteData.citas.filter((c: any) => c.estado === 'completada').length}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Última Consulta:</div>
+              <div class="info-value">${new Date(expedienteData.citas[0].date).toLocaleDateString('es-ES')}</div>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Historial de Citas -->
         <div class="section">
           <div class="section-title">HISTORIAL DE CITAS (${expedienteData.citas?.length || 0} consultas)</div>
-          ${expedienteData.citas && expedienteData.citas.length > 0 ? 
-            expedienteData.citas.map((cita: any) => `
+          ${expedienteData.citas && expedienteData.citas.length > 0 ?
+        expedienteData.citas.map((cita: any) => `
               <div class="cita-card">
                 <div class="cita-header">
                   <div class="cita-date">
-                    ${new Date(cita.date).toLocaleDateString('es-ES', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })} - ${cita.time}
+                    ${new Date(cita.date).toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })} - ${cita.time}
                   </div>
                   <span class="cita-estado estado-${cita.estado}">${cita.estado}</span>
                 </div>
@@ -451,6 +639,13 @@ export default function PacienteDetailPage() {
                 </div>
                 ` : ''}
                 
+                ${cita.notas ? `
+                <div class="info-item" style="margin-top: 8px;">
+                  <div class="info-label">Notas:</div>
+                  <div class="info-value">${cita.notas}</div>
+                </div>
+                ` : ''}
+                
                 ${cita.medicamentos && cita.medicamentos.length > 0 ? `
                 <div class="info-item" style="margin-top: 12px;">
                   <div class="info-label">Medicamentos Recetados:</div>
@@ -467,14 +662,48 @@ export default function PacienteDetailPage() {
                   </div>
                 </div>
                 ` : ''}
+                
+                ${cita.pagos && cita.pagos.length > 0 ? `
+                <div class="info-item" style="margin-top: 12px;">
+                  <div class="info-label">Pagos Registrados:</div>
+                  <div style="margin-top: 8px;">
+                    ${cita.pagos.map((pago: any) => `
+                      <div class="pago-item">
+                        <div class="pago-header">
+                          <div>
+                            <span class="pago-monto">$${pago.monto?.toFixed(2) || '0.00'}</span>
+                            ${pago.metodoPago ? `<span class="pago-metodo">Método: ${pago.metodoPago}</span>` : ''}
+                          </div>
+                          ${pago.fecha ? `<span class="pago-fecha">${new Date(pago.fecha).toLocaleDateString('es-ES')}</span>` : ''}
+                        </div>
+                        ${pago.notas ? `<div class="pago-notas">${pago.notas}</div>` : ''}
+                      </div>
+                    `).join('')}
+                    <div class="pago-total">
+                      Total Pagado: $${cita.pagos.reduce((sum: number, p: any) => sum + (p.monto || 0), 0).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+                ` : ''}
               </div>
             `).join('')
-          : '<p style="text-align: center; color: #666; padding: 20px;">No hay citas registradas</p>'}
+        : '<p style="text-align: center; color: #666; padding: 20px;">No hay citas registradas</p>'}
         </div>
 
         <div class="footer">
-          <p>Este documento es confidencial y contiene información médica protegida.</p>
-          <p>Expediente generado automáticamente desde el sistema de gestión clínica.</p>
+          <p style="margin-bottom: 8px;"><strong>CONFIDENCIALIDAD</strong></p>
+          <p style="margin-bottom: 5px;">Este documento es confidencial y contiene información médica protegida bajo las leyes de privacidad aplicables.</p>
+          <p style="margin-bottom: 5px;">El uso no autorizado, divulgación o reproducción de este documento está estrictamente prohibido.</p>
+          <p style="margin-top: 15px; font-size: 8pt; color: #999;">
+            Expediente generado automáticamente el ${new Date().toLocaleString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })}
+          </p>
         </div>
       </body>
       </html>
@@ -889,10 +1118,10 @@ export default function PacienteDetailPage() {
                       <CardDescription>Historia ginecológica y obstétrica</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
-                      {clinicalHistory.ginecoObstetricos && 
-                       (clinicalHistory.ginecoObstetricos.embarazos !== undefined || 
-                        clinicalHistory.ginecoObstetricos.partos !== undefined || 
-                        clinicalHistory.ginecoObstetricos.cesareas !== undefined) ? (
+                      {clinicalHistory.ginecoObstetricos &&
+                        (clinicalHistory.ginecoObstetricos.embarazos !== undefined ||
+                          clinicalHistory.ginecoObstetricos.partos !== undefined ||
+                          clinicalHistory.ginecoObstetricos.cesareas !== undefined) ? (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div>
                             <p className="text-sm font-medium text-muted-foreground mb-2">Embarazos</p>
@@ -952,6 +1181,7 @@ export default function PacienteDetailPage() {
                   </div>
                 )}
               </CardContent>
+
             </Card>
 
             <Card>
@@ -973,21 +1203,21 @@ export default function PacienteDetailPage() {
                 </Button>
               </CardContent>
             </Card>
+            {/* Sección de Documentos del Paciente */}
+            {documentosData?.documentos && documentosData.documentos.length > 0 && (
+              <div className="mt-6">
+                <DocumentList
+                  documentos={documentosData.documentos}
+                  onDelete={() => {
+                    refetchDocumentos();
+                  }}
+                  showCitaInfo={true}
+                  context="paciente"
+                />
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Sección de Documentos del Paciente */}
-        {documentosData?.documentos && documentosData.documentos.length > 0 && (
-          <div className="mt-6">
-            <DocumentList
-              documentos={documentosData.documentos}
-              onDelete={() => {
-                refetchDocumentos();
-              }}
-              showCitaInfo={true}
-            />
-          </div>
-        )}
       </main>
     </div>
   );

@@ -33,7 +33,7 @@ export function Footer() {
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <span>Hecho con</span>
               <Heart className="h-3 w-3 text-red-500 fill-current" />
-              <span>en México</span>
+              <span>en Acapulco, México</span>
             </div>
           </div>
 

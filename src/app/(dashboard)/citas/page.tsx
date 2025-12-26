@@ -411,7 +411,14 @@ function CitasContent() {
                             <span>{cita.time}</span>
                           </div>
                         </div>
-                        <Badge variant={estadoVariants[cita.estado]}>{estadoLabels[cita.estado]}</Badge>
+                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                          cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                          cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                          cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        }`}>
+                          {estadoLabels[cita.estado]}
+                        </span>
                       </div>
 
                       <div className="space-y-2 text-sm">
@@ -534,7 +541,14 @@ function CitasContent() {
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">
-                          <Badge variant={estadoVariants[cita.estado]}>{estadoLabels[cita.estado]}</Badge>
+                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${
+                            cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                            cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                            cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          }`}>
+                            {estadoLabels[cita.estado]}
+                          </span>
                         </td>
                         <td className="px-6 py-4 text-right text-sm">
                           <div className="flex justify-end gap-2">

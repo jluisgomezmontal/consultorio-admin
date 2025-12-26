@@ -234,6 +234,21 @@ const navLinks = [
                   </Link>
                 );
               })}
+              {user?.role === 'doctor' && (
+                <Link
+                  href="/configuracion"
+                  onClick={handleNavClick}
+                  className={cn(
+                    'rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2',
+                    pathname === '/configuracion' || pathname.startsWith('/configuracion/')
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Settings className="h-4 w-4" />
+                  Configuración
+                </Link>
+              )}
             </div>
           </div>
         )}

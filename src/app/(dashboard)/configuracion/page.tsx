@@ -364,13 +364,13 @@ export default function ConfiguracionPage() {
   }
 
   return (
-    <div className="bg-background flex-1 flex flex-col min-h-screen">
+    <div className="bg-background flex-1 flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 flex-1 w-full">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Configuración</h1>
-          <p className="text-muted-foreground mt-2">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8 flex-1 w-full overflow-x-hidden">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">Configuración</h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
             Administra tu consultorio, perfil y equipo de trabajo
           </p>
         </div>
@@ -387,47 +387,51 @@ export default function ConfiguracionPage() {
           </div>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
-            <TabsTrigger value="consultorio" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Consultorio</span>
-            </TabsTrigger>
-            <TabsTrigger value="recetas" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Recetas</span>
-            </TabsTrigger>
-            <TabsTrigger value="historia" className="flex items-center gap-2">
-              <Stethoscope className="h-4 w-4" />
-              <span className="hidden sm:inline">Historia Clínica</span>
-            </TabsTrigger>
-            <TabsTrigger value="perfil" className="flex items-center gap-2">
-              <UserIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Mi Perfil</span>
-            </TabsTrigger>
-            <TabsTrigger value="recepcionistas" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Recepcionistas</span>
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
+            <TabsList className="inline-flex w-auto lg:grid lg:w-full lg:grid-cols-5 h-auto flex-nowrap">
+              <TabsTrigger value="consultorio" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
+                <Building2 className="h-4 w-4 flex-shrink-0" />
+                <span>Consultorio</span>
+              </TabsTrigger>
+              <TabsTrigger value="recetas" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
+                <FileText className="h-4 w-4 flex-shrink-0" />
+                <span>Recetas</span>
+              </TabsTrigger>
+              <TabsTrigger value="historia" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
+                <Stethoscope className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Historia Clínica</span>
+                <span className="sm:hidden">Historia</span>
+              </TabsTrigger>
+              <TabsTrigger value="perfil" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
+                <UserIcon className="h-4 w-4 flex-shrink-0" />
+                <span>Mi Perfil</span>
+              </TabsTrigger>
+              <TabsTrigger value="recepcionistas" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
+                <Users className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Equipo</span>
+                <span className="sm:hidden">Equipo</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="consultorio" className="space-y-6">
+          <TabsContent value="consultorio" className="space-y-4 sm:space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Información del Consultorio</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Información del Consultorio</CardTitle>
+                <CardDescription className="text-sm">
                   Actualiza los datos básicos de tu consultorio
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmitConsultorio(onSubmitConsultorio)} className="space-y-6">
+                <form onSubmit={handleSubmitConsultorio(onSubmitConsultorio)} className="space-y-4 sm:space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="image">Imagen del Consultorio</Label>
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
+                      <Label htmlFor="image" className="text-sm sm:text-base">Imagen del Consultorio</Label>
+                      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                        <div className="flex-shrink-0 mx-auto sm:mx-0">
                           {imagePreview ? (
-                            <div className="relative h-32 w-32 rounded-lg overflow-hidden border-2 border-border">
+                            <div className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-lg overflow-hidden border-2 border-border">
                               <img
                                 src={imagePreview}
                                 alt="Preview"
@@ -435,18 +439,18 @@ export default function ConfiguracionPage() {
                               />
                             </div>
                           ) : (
-                            <div className="h-32 w-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
-                              <Upload className="h-8 w-8 text-muted-foreground" />
+                            <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
+                              <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
                             </div>
                           )}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full">
                           <Input
                             id="image"
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}
-                            className="cursor-pointer"
+                            className="cursor-pointer text-sm"
                           />
                           <p className="text-xs text-muted-foreground mt-2">
                             Si no subes una imagen, se usará el logo de la aplicación
@@ -550,13 +554,13 @@ export default function ConfiguracionPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid gap-4 md:grid-cols-5">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     {/* Template 1 - Green Professional */}
                     <button
                       onClick={() => handleTemplateSelect('template1')}
                       disabled={updateRecetaTemplateMutation.isPending}
-                      className={`relative group rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
+                      className={`relative group rounded-lg border-2 p-3 sm:p-4 transition-all hover:shadow-lg ${
                         selectedTemplate === 'template1'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
@@ -569,8 +573,8 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-green-600 bg-white mb-3 overflow-hidden">
-                        <div className="p-2 text-xs">
+                      <div className="aspect-[3/2] rounded border-2 border-green-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                        <div className="p-1.5 sm:p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-green-600 text-[11px]">CONSULTORIO</div>
                             <div className="text-[9px] text-blue-600 italic">Dr. Nombre</div>
@@ -585,8 +589,8 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Verde Profesional</div>
-                        <div className="text-xs text-muted-foreground">Estilo clásico</div>
+                        <div className="font-semibold text-sm sm:text-base">Verde Profesional</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Estilo clásico</div>
                       </div>
                     </button>
 
@@ -594,7 +598,7 @@ export default function ConfiguracionPage() {
                     <button
                       onClick={() => handleTemplateSelect('template2')}
                       disabled={updateRecetaTemplateMutation.isPending}
-                      className={`relative group rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
+                      className={`relative group rounded-lg border-2 p-3 sm:p-4 transition-all hover:shadow-lg ${
                         selectedTemplate === 'template2'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
@@ -607,8 +611,8 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-blue-600 bg-white mb-3 overflow-hidden">
-                        <div className="p-2 text-xs">
+                      <div className="aspect-[3/2] rounded border-2 border-blue-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                        <div className="p-1.5 sm:p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-blue-600 text-[11px]">CONSULTORIO</div>
                             <div className="text-[9px] text-blue-500 italic">Dr. Nombre</div>
@@ -623,8 +627,8 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Azul Profesional</div>
-                        <div className="text-xs text-muted-foreground">Formal y confiable</div>
+                        <div className="font-semibold text-sm sm:text-base">Azul Profesional</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Formal y confiable</div>
                       </div>
                     </button>
 
@@ -632,7 +636,7 @@ export default function ConfiguracionPage() {
                     <button
                       onClick={() => handleTemplateSelect('template3')}
                       disabled={updateRecetaTemplateMutation.isPending}
-                      className={`relative group rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
+                      className={`relative group rounded-lg border-2 p-3 sm:p-4 transition-all hover:shadow-lg ${
                         selectedTemplate === 'template3'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
@@ -645,8 +649,8 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-gray-800 bg-white mb-3 overflow-hidden">
-                        <div className="p-2 text-xs">
+                      <div className="aspect-[3/2] rounded border-2 border-gray-800 bg-white mb-2 sm:mb-3 overflow-hidden">
+                        <div className="p-1.5 sm:p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-gray-800 text-[11px]">CONSULTORIO</div>
                             <div className="text-[9px] text-gray-600 italic">Dr. Nombre</div>
@@ -661,8 +665,8 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Negro y Gris</div>
-                        <div className="text-xs text-muted-foreground">Elegante profesional</div>
+                        <div className="font-semibold text-sm sm:text-base">Negro y Gris</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Elegante profesional</div>
                       </div>
                     </button>
 
@@ -670,7 +674,7 @@ export default function ConfiguracionPage() {
                     <button
                       onClick={() => handleTemplateSelect('template4')}
                       disabled={updateRecetaTemplateMutation.isPending}
-                      className={`relative group rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
+                      className={`relative group rounded-lg border-2 p-3 sm:p-4 transition-all hover:shadow-lg ${
                         selectedTemplate === 'template4'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
@@ -683,8 +687,8 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-red-600 bg-white mb-3 overflow-hidden">
-                        <div className="p-2 text-xs">
+                      <div className="aspect-[3/2] rounded border-2 border-red-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                        <div className="p-1.5 sm:p-2 text-xs">
                           <div className="text-center mb-1">
                             <div className="font-bold text-red-600 text-[11px]">CONSULTORIO</div>
                             <div className="text-[9px] text-red-500 italic">Dr. Nombre</div>
@@ -699,8 +703,8 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Rojo Profesional</div>
-                        <div className="text-xs text-muted-foreground">Impactante</div>
+                        <div className="font-semibold text-sm sm:text-base">Rojo Profesional</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Impactante</div>
                       </div>
                     </button>
 
@@ -708,7 +712,7 @@ export default function ConfiguracionPage() {
                     <button
                       onClick={() => handleTemplateSelect('template5')}
                       disabled={updateRecetaTemplateMutation.isPending}
-                      className={`relative group rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
+                      className={`relative group rounded-lg border-2 p-3 sm:p-4 transition-all hover:shadow-lg ${
                         selectedTemplate === 'template5'
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
@@ -721,8 +725,8 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded bg-gradient-to-br from-indigo-500 to-purple-600 mb-3 overflow-hidden">
-                        <div className="p-2 text-xs text-white">
+                      <div className="aspect-[3/2] rounded bg-gradient-to-br from-indigo-500 to-purple-600 mb-2 sm:mb-3 overflow-hidden">
+                        <div className="p-1.5 sm:p-2 text-xs text-white">
                           <div className="text-center mb-1">
                             <div className="font-bold text-[11px]">CONSULTORIO</div>
                             <div className="text-[9px] italic">Dr. Nombre</div>
@@ -737,8 +741,8 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold">Gradiente Moderno</div>
-                        <div className="text-xs text-muted-foreground">Contemporáneo</div>
+                        <div className="font-semibold text-sm sm:text-base">Gradiente Moderno</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Contemporáneo</div>
                       </div>
                     </button>
                   </div>
@@ -749,9 +753,9 @@ export default function ConfiguracionPage() {
                     </div>
                   )}
 
-                  <div className="rounded-lg bg-muted p-4">
-                    <h4 className="font-semibold mb-2">💡 Información</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
+                  <div className="rounded-lg bg-muted p-3 sm:p-4">
+                    <h4 className="font-semibold mb-2 text-sm sm:text-base">💡 Información</h4>
+                    <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
                       <li>• La plantilla seleccionada se usará al generar recetas desde las citas</li>
                       <li>• Puedes cambiar la plantilla en cualquier momento</li>
                       <li>• Todas las plantillas incluyen los datos del consultorio, doctor y paciente</li>
@@ -762,23 +766,23 @@ export default function ConfiguracionPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="historia" className="space-y-6">
+          <TabsContent value="historia" className="space-y-4 sm:space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Configuración de Historia Clínica</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Configuración de Historia Clínica</CardTitle>
+                <CardDescription className="text-sm">
                   Activa o desactiva las secciones del historial clínico que deseas utilizar en el registro de pacientes
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={onSubmitClinicalHistoryConfig} className="space-y-6">
+                <form onSubmit={onSubmitClinicalHistoryConfig} className="space-y-4 sm:space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="antecedentesHeredofamiliares" className="text-base font-medium">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="antecedentesHeredofamiliares" className="text-sm sm:text-base font-medium">
                           Antecedentes Heredofamiliares
                         </Label>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Diabetes, Hipertensión, Cáncer, Cardiopatías
                         </p>
                       </div>
@@ -859,11 +863,11 @@ export default function ConfiguracionPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="perfil" className="space-y-6">
+          <TabsContent value="perfil" className="space-y-4 sm:space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Información Personal</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Información Personal</CardTitle>
+                <CardDescription className="text-sm">
                   Actualiza tu nombre y email
                 </CardDescription>
               </CardHeader>
@@ -957,9 +961,9 @@ export default function ConfiguracionPage() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Cambiar Contraseña</CardTitle>
-                <CardDescription>
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Cambiar Contraseña</CardTitle>
+                <CardDescription className="text-sm">
                   Actualiza tu contraseña de acceso
                 </CardDescription>
               </CardHeader>
@@ -1053,12 +1057,12 @@ export default function ConfiguracionPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="recepcionistas" className="space-y-6">
+          <TabsContent value="recepcionistas" className="space-y-4 sm:space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Recepcionistas del Consultorio</CardTitle>
-                <CardDescription>
-                  Gestiona los datos de tus recepcionistas
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Equipo del Consultorio</CardTitle>
+                <CardDescription className="text-sm">
+                  Gestiona los datos de tu Equipo
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1076,9 +1080,9 @@ export default function ConfiguracionPage() {
                 ) : (
                   <div className="text-center py-12">
                     <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">No hay recepcionistas</h3>
+                    <h3 className="mt-4 text-lg font-semibold">No hay datos de Equipo</h3>
                     <p className="text-sm text-muted-foreground mt-2">
-                      No hay recepcionistas asignados a este consultorio
+                      No hay datos de Equipo asignados a este consultorio
                     </p>
                   </div>
                 )}
@@ -1109,11 +1113,11 @@ function ReceptionistForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-lg p-6 space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="border rounded-lg p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">{receptionist.name}</h3>
-          <p className="text-sm text-muted-foreground">{receptionist.email}</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base sm:text-lg font-semibold truncate">{receptionist.name}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{receptionist.email}</p>
         </div>
       </div>
 
