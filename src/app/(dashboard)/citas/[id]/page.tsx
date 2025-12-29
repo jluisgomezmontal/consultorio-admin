@@ -24,6 +24,13 @@ import {
   Trash2,
   Download,
   ExternalLink,
+  Activity,
+  Weight,
+  Heart,
+  Ruler,
+  ChevronDown,
+  ChevronUp,
+  DollarSign,
 } from 'lucide-react';
 import { DocumentUploader } from '@/components/DocumentUploader';
 import { DocumentList } from '@/components/DocumentList';
@@ -48,6 +55,15 @@ export default function CitaDetailPage() {
   const { confirm } = useConfirmDialog();
   const [selectedEstado, setSelectedEstado] = useState<CitaEstado>('pendiente');
   const [estadoError, setEstadoError] = useState('');
+  const [openSections, setOpenSections] = useState({
+    vitalSigns: true,
+    medicalEvaluation: true,
+    diagnosisTreatment: true,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -202,10 +218,10 @@ export default function CitaDetailPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {(user.role === 'doctor' || user.role === 'admin') && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setRecetaDialogOpen(true)} 
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRecetaDialogOpen(true)}
                   className="bg-white dark:bg-gray-800"
                 >
                   <FileText className="mr-2 h-4 w-4" />
@@ -291,7 +307,7 @@ export default function CitaDetailPage() {
               <CardTitle className="flex items-center gap-2 text-xl">
                 <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 Información de la cita
-              </CardTitle>
+              </CardTitle>  
               <CardDescription>
                 Datos generales programados
               </CardDescription>
@@ -313,13 +329,6 @@ export default function CitaDetailPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <Stethoscope className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Doctor</p>
-                  <p className="text-foreground font-semibold">{cita.doctor?.name || 'Sin doctor asignado'}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <UserRound className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Paciente</p>
@@ -333,6 +342,35 @@ export default function CitaDetailPage() {
                   )}
                 </div>
               </div>
+                            {cita.motivo && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Motivo de Consulta</p>
+                    <p className="text-foreground break-words">{cita.motivo}</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          <Card className="shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Información de la consulta
+              </CardTitle>
+              <CardDescription>
+                Detalles de la consulta programada
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5 pt-6">
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <Stethoscope className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Doctor</p>
+                  <p className="text-foreground font-semibold">{cita.doctor?.name || 'Sin doctor asignado'}</p>
+                </div>
+              </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <Building2 className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5" />
                 <div>
@@ -340,38 +378,189 @@ export default function CitaDetailPage() {
                   <p className="text-foreground font-semibold">{cita.consultorio?.name || 'Sin consultorio asignado'}</p>
                 </div>
               </div>
+
+              {cita.costo !== undefined && cita.costo !== null && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800">
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Costo de la Consulta</p>
+                    <p className="text-foreground font-bold text-lg">${cita.costo.toFixed(2)} MXN</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-                Detalles médicos
-              </CardTitle>
-              <CardDescription>
-                Información clínica de la cita
-              </CardDescription>
+
+        </div>
+
+        {/* Sección de Evaluación Médica */}
+        <Card className="shadow-md hover:shadow-lg transition-shadow mt-6">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+            <button
+              type="button"
+              onClick={() => toggleSection('vitalSigns')}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  Signos Vitales
+                </CardTitle>
+                <CardDescription>
+                  Mediciones y datos antropométricos
+                </CardDescription>
+              </div>
+              {openSections.vitalSigns ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              )}
+            </button>
+          </CardHeader>
+          {openSections.vitalSigns && (
+            <CardContent className="space-y-4 pt-6">
+              {(cita.weight || cita.bloodPressure || cita.measurements?.height || cita.measurements?.waist || cita.measurements?.hip) ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {cita.weight && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Weight className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Peso</p>
+                        <p className="text-foreground font-semibold">{cita.weight} kg</p>
+                      </div>
+                    </div>
+                  )}
+                  {cita.bloodPressure && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Heart className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Presión Arterial</p>
+                        <p className="text-foreground font-semibold">{cita.bloodPressure}</p>
+                      </div>
+                    </div>
+                  )}
+                  {cita.measurements?.height && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Ruler className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Altura</p>
+                        <p className="text-foreground font-semibold">{cita.measurements.height} cm</p>
+                      </div>
+                    </div>
+                  )}
+                  {cita.measurements?.waist && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cintura</p>
+                        <p className="text-foreground font-semibold">{cita.measurements.waist} cm</p>
+                      </div>
+                    </div>
+                  )}
+                  {cita.measurements?.hip && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Ruler className="h-5 w-5 text-pink-600 dark:text-pink-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cadera</p>
+                        <p className="text-foreground font-semibold">{cita.measurements.hip} cm</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No se registraron signos vitales</p>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
+        {/* Sección de Evaluación Médica */}
+        {(cita.currentCondition || cita.physicalExam) && (
+          <Card className="shadow-md hover:shadow-lg transition-shadow mt-6">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20">
+              <button
+                type="button"
+                onClick={() => toggleSection('medicalEvaluation')}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Stethoscope className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    Evaluación Médica
+                  </CardTitle>
+                  <CardDescription>
+                    Padecimiento actual y exploración física
+                  </CardDescription>
+                </div>
+                {openSections.medicalEvaluation ? (
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
             </CardHeader>
+            {openSections.medicalEvaluation && (
+              <CardContent className="space-y-4 pt-6">
+                {cita.currentCondition && (
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2 font-semibold">Padecimiento Actual</p>
+                    <p className="text-foreground break-words whitespace-pre-wrap">{cita.currentCondition}</p>
+                  </div>
+                )}
+                {cita.physicalExam && (
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2 font-semibold">Exploración Física</p>
+                    <p className="text-foreground break-words whitespace-pre-wrap">{cita.physicalExam}</p>
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        )}
+
+        {/* Sección de Diagnóstico y Tratamiento */}
+        <Card className="shadow-md hover:shadow-lg transition-shadow mt-6">
+          <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+            <button
+              type="button"
+              onClick={() => toggleSection('diagnosisTreatment')}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  Diagnóstico y Tratamiento
+                </CardTitle>
+                <CardDescription>
+                  Plan terapéutico y medicamentos
+                </CardDescription>
+              </div>
+              {openSections.diagnosisTreatment ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              )}
+            </button>
+          </CardHeader>
+          {openSections.diagnosisTreatment && (
             <CardContent className="space-y-5 pt-6">
               <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Motivo de Consulta</p>
-                <p className="text-foreground break-words">{cita.motivo || 'Sin motivo registrado'}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Diagnóstico</p>
-                <p className="text-foreground break-words">{cita.diagnostico || 'Sin diagnóstico registrado'}</p>
+                <p className="text-foreground break-words whitespace-pre-wrap">{cita.diagnostico || 'Sin diagnóstico registrado'}</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Tratamiento</p>
-                <p className="text-foreground break-words">{cita.tratamiento || 'Sin tratamiento registrado'}</p>
+                <p className="text-foreground break-words whitespace-pre-wrap">{cita.tratamiento || 'Sin tratamiento registrado'}</p>
               </div>
               {cita.medicamentos && cita.medicamentos.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/50">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Medicamentos Prescritos</p>
                   <div className="space-y-3">
                     {cita.medicamentos.map((med, index) => (
-                      <div key={index} className="border-l-2 border-blue-500 pl-3 py-2 bg-background/50 rounded-r">
+                      <div key={index} className="border-l-2 border-amber-500 pl-3 py-2 bg-background/50 rounded-r">
                         <p className="font-semibold text-foreground mb-1 break-words">{index + 1}. {med.nombre}</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
                           {med.dosis && <p className="break-words"><span className="font-medium">Dosis:</span> {med.dosis}</p>}
@@ -389,8 +578,8 @@ export default function CitaDetailPage() {
                 </div>
               )}
             </CardContent>
-          </Card>
-        </div>
+          )}
+        </Card>
 
         <div className="grid gap-6 lg:grid-cols-2 mt-6">
           <Card className="shadow-md hover:shadow-lg transition-shadow">
