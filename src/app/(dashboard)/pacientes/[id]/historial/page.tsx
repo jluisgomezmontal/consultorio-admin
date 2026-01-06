@@ -11,6 +11,7 @@ import { ArrowLeft, Calendar, DollarSign, User, MapPin, Clock, Stethoscope, File
 import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatLocalDate } from '@/lib/dateUtils';
 
 const estadoLabels = {
   pendiente: 'Pendiente',
@@ -171,7 +172,7 @@ export default function PacienteHistorialPage() {
                             </div>
                             <div>
                               <CardTitle className="text-xl font-bold">
-                                {new Date(cita.date).toLocaleDateString('es-MX', {
+                                {formatLocalDate(cita.date, {
                                   weekday: 'long',
                                   year: 'numeric',
                                   month: 'long',

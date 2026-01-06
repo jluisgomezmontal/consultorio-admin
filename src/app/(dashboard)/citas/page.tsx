@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { formatLocalDate } from '@/lib/dateUtils';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -192,7 +193,7 @@ function CitasContent() {
 
     const confirmed = await confirm({
       title: '¿Cancelar esta cita?',
-      text: `Cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}`,
+      text: `Cita del ${formatLocalDate(cita.date)} a las ${cita.time}`,
       confirmButtonText: 'Sí, cancelar',
       confirmButtonColor: '#f59e0b',
     });
@@ -209,7 +210,7 @@ function CitasContent() {
   const handleDelete = async (cita: Cita) => {
     const confirmed = await confirm({
       title: '¿Eliminar esta cita?',
-      text: `Cita del ${new Date(cita.date).toLocaleDateString()} a las ${cita.time}. Esta acción no se puede deshacer.`,
+      text: `Cita del ${formatLocalDate(cita.date)} a las ${cita.time}. Esta acción no se puede deshacer.`,
       confirmButtonText: 'Sí, eliminar',
     });
 
@@ -401,7 +402,7 @@ function CitasContent() {
                           <div className="flex items-center gap-2 text-sm font-medium">
                             <Clock className="h-4 w-4 text-green-600" />
                             <span>
-                              {new Date(cita.date).toLocaleDateString('es-MX', {
+                              {formatLocalDate(cita.date, {
                                 day: '2-digit',
                                 month: 'short',
                                 year: 'numeric',
@@ -505,7 +506,7 @@ function CitasContent() {
                             <Clock className="h-4 w-4" />
                             <div className="flex flex-col">
                               <span className="font-medium text-foreground">
-                                {new Date(cita.date).toLocaleDateString('es-MX', {
+                                {formatLocalDate(cita.date, {
                                   day: '2-digit',
                                   month: 'short',
                                   year: 'numeric',

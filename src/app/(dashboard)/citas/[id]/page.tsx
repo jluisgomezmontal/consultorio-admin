@@ -32,6 +32,8 @@ import {
   ChevronUp,
   DollarSign,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatLocalDate } from '@/lib/dateUtils';
 import { DocumentUploader } from '@/components/DocumentUploader';
 import { DocumentList } from '@/components/DocumentList';
 import { GenerarRecetaDialog } from '@/components/GenerarRecetaDialog';
@@ -225,7 +227,7 @@ export default function CitaDetailPage() {
               </div>
               <h1 className="text-2xl font-bold text-foreground break-words">Detalle de Cita</h1>
               <p className="text-sm text-muted-foreground mt-1 break-words">
-                {cita.paciente?.fullName} • {new Date(cita.date).toLocaleDateString('es-MX')}
+                {cita.paciente?.fullName} • {formatLocalDate(cita.date)}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -330,7 +332,7 @@ export default function CitaDetailPage() {
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Fecha y Hora</p>
                   <p className="text-foreground font-semibold">
-                    {new Date(cita.date).toLocaleDateString('es-MX', {
+                    {formatLocalDate(cita.date, {
                       weekday: 'long',
                       day: '2-digit',
                       month: 'long',

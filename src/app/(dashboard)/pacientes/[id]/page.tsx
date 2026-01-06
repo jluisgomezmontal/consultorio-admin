@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
+import { formatLocalDate, parseLocalDate } from '@/lib/dateUtils';
 import { ArrowLeft, Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check, User, Phone, Mail, MapPin, Cake, Users, Droplet, Shield, AlertCircle, ClipboardList } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { documentoService } from '@/services/documento.service';
@@ -357,7 +358,7 @@ export default function PacienteDetailPage() {
             ${expedienteData.birthDate ? `
             <div class="info-item">
               <div class="info-label">Fecha de Nacimiento:</div>
-              <div class="info-value">${new Date(expedienteData.birthDate).toLocaleDateString('es-ES')}</div>
+              <div class="info-value">${formatLocalDate(expedienteData.birthDate)}</div>
             </div>
             ` : ''}
             <div class="info-item">
@@ -591,7 +592,7 @@ export default function PacienteDetailPage() {
             </div>
             <div class="info-item">
               <div class="info-label">Última Consulta:</div>
-              <div class="info-value">${new Date(expedienteData.citas[0].date).toLocaleDateString('es-ES')}</div>
+              <div class="info-value">${formatLocalDate(expedienteData.citas[0].date)}</div>
             </div>
           </div>
         </div>
@@ -605,7 +606,7 @@ export default function PacienteDetailPage() {
               <div class="cita-card">
                 <div class="cita-header">
                   <div class="cita-date">
-                    ${new Date(cita.date).toLocaleDateString('es-ES', {
+                    ${formatLocalDate(cita.date, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -774,7 +775,7 @@ export default function PacienteDetailPage() {
                       <Cake className="h-5 w-5 text-pink-600 dark:text-pink-400 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Fecha de Nacimiento</p>
-                        <p className="text-base font-medium">{new Date(paciente.birthDate).toLocaleDateString()}</p>
+                        <p className="text-base font-medium">{formatLocalDate(paciente.birthDate)}</p>
                       </div>
                     </div>
                   )}
@@ -1180,7 +1181,7 @@ export default function PacienteDetailPage() {
                     {citas.slice(0, 5).map((cita: any) => (
                       <div key={cita.id} className="border-l-2 border-primary pl-3 py-2">
                         <p className="text-sm font-medium">
-                          {new Date(cita.date).toLocaleDateString()}
+                          {formatLocalDate(cita.date)}
                         </p>
                         <p className="text-xs text-muted-foreground">{cita.time}</p>
                         <p className="text-xs text-muted-foreground capitalize">{cita.estado}</p>

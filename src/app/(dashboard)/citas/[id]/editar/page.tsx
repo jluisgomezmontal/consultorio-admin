@@ -622,7 +622,7 @@ export default function EditarCitaPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="tratamiento">Tratamiento</Label>
+                      <Label htmlFor="tratamiento">Tratamiento <span className="text-xs text-muted-foreground">(No farmacológico)</span></Label>
                       <textarea
                         id="tratamiento"
                         {...register('tratamiento')}
