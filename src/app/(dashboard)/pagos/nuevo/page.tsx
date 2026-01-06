@@ -119,8 +119,13 @@ function NuevoPagoContent() {
 
   const createMutation = useMutation({
     mutationFn: (data: CreatePagoRequest) => pagoService.createPago(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['pagos'] });
+      queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (response?.data?.citaId) {
+        queryClient.invalidateQueries({ queryKey: ['cita', response.data.citaId] });
+      }
       router.push('/pagos');
     },
     onError: (error: any) => {

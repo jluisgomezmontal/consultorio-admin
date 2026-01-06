@@ -184,8 +184,12 @@ function NuevaCitaContent() {
 
   const createMutation = useMutation({
     mutationFn: (payload: CreateCitaRequest) => citaService.createCita(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (pacienteIdFromQuery) {
+        queryClient.invalidateQueries({ queryKey: ['paciente', pacienteIdFromQuery] });
+      }
       router.push('/citas');
     },
     onError: (err: any) => {

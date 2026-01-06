@@ -420,7 +420,7 @@ function PagosContent() {
                                     </Link>
                                   </Button>
                                 )}
-                              {(user.role === 'admin' || user.role === 'doctor') && (
+                              {/* {(user.role === 'admin' || user.role === 'doctor') && (
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -430,7 +430,7 @@ function PagosContent() {
                                     <Trash2 className="mr-2 h-4 w-4 text-destructive" />
                                     Eliminar
                                   </Button>
-                                )}
+                                )} */}
                             </div>
                           </td>
                         </tr>

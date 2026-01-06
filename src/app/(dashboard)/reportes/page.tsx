@@ -142,6 +142,16 @@ export default function ReportesPage() {
     ? allDoctores.filter((doctor: User) => doctor.consultoriosIds?.includes(filters.consultorioId))
     : allDoctores;
 
+  // Auto-select doctor if only one is available
+  useEffect(() => {
+    if (doctores.length === 1 && !filters.doctorId) {
+      setFilters(prev => ({
+        ...prev,
+        doctorId: doctores[0].id,
+      }));
+    }
+  }, [doctores.length, filters.doctorId]);
+
   // Get actual total pacientes count
   const totalPacientes = pacientesData?.data?.length || 0;
 

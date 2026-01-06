@@ -741,7 +741,7 @@ export default function PacienteDetailPage() {
             }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Pacientes
+            Volver
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">

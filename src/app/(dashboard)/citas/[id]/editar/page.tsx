@@ -184,6 +184,10 @@ export default function EditarCitaPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['citas'] });
       queryClient.invalidateQueries({ queryKey: ['cita', id] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (citaData?.data?.pacienteId) {
+        queryClient.invalidateQueries({ queryKey: ['paciente', citaData.data.pacienteId] });
+      }
       router.push(`/citas/${id}`);
     },
     onError: (err: any) => {

@@ -334,7 +334,7 @@ export default function PacientesPage() {
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button
+                              {/* <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDelete(paciente.id, paciente.fullName)}
@@ -342,7 +342,7 @@ export default function PacientesPage() {
                                 title="Eliminar paciente"
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
+                              </Button> */}
                             </div>
                           </td>
                         </tr>

@@ -104,6 +104,10 @@ export default function CitaDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['citas'] });
       queryClient.invalidateQueries({ queryKey: ['cita', id] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (data?.data?.paciente?.id) {
+        queryClient.invalidateQueries({ queryKey: ['paciente', data.data.paciente.id] });
+      }
     },
   });
 
@@ -111,6 +115,10 @@ export default function CitaDetailPage() {
     mutationFn: () => citaService.deleteCita(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (data?.data?.paciente?.id) {
+        queryClient.invalidateQueries({ queryKey: ['paciente', data.data.paciente.id] });
+      }
       router.push('/citas');
     },
   });
@@ -120,6 +128,10 @@ export default function CitaDetailPage() {
     onSuccess: (_, nuevoEstado) => {
       queryClient.invalidateQueries({ queryKey: ['citas'] });
       queryClient.invalidateQueries({ queryKey: ['cita', id] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (data?.data?.paciente?.id) {
+        queryClient.invalidateQueries({ queryKey: ['paciente', data.data.paciente.id] });
+      }
       setEstadoError('');
       setSelectedEstado(nuevoEstado);
     },

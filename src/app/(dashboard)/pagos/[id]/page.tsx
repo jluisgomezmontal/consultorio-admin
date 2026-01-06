@@ -65,6 +65,11 @@ export default function PagoDetailPage() {
     mutationFn: () => pagoService.deletePago(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pagos'] });
+      queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (data?.data?.citaId) {
+        queryClient.invalidateQueries({ queryKey: ['cita', data.data.citaId] });
+      }
       router.push('/pagos');
     },
   });

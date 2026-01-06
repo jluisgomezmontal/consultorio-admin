@@ -94,6 +94,11 @@ export default function EditarPagoPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pagos'] });
       queryClient.invalidateQueries({ queryKey: ['pago', id] });
+      queryClient.invalidateQueries({ queryKey: ['citas'] });
+      queryClient.invalidateQueries({ queryKey: ['paciente-history'] });
+      if (pagoData?.data?.citaId) {
+        queryClient.invalidateQueries({ queryKey: ['cita', pagoData.data.citaId] });
+      }
       router.push(`/pagos/${id}`);
     },
     onError: (error: any) => {

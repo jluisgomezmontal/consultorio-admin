@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Navbar } from '@/components/Navbar';
-import { ArrowLeft, Calendar, DollarSign, User, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, DollarSign, User, MapPin, Clock, Stethoscope, FileText, TrendingUp, Activity, CheckCircle2, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -78,46 +78,60 @@ export default function PacienteHistorialPage() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between">
+        {/* Header profesional */}
+        <div className="mb-8 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8 border shadow-sm">
           <Button
             variant="ghost"
             onClick={() => router.push(`/pacientes/${id}`)}
+            className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver a Paciente
           </Button>
+          
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+                <Activity className="h-8 w-8 text-primary" />
+                Historial Médico Completo
+              </h1>
+              <p className="text-muted-foreground text-base flex items-center gap-2">
+                <User className="h-4 w-4" />
+                {paciente.fullName}
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="bg-card rounded-lg px-5 py-3 text-center border shadow-sm">
+                <p className="text-muted-foreground text-xs font-medium mb-1">Total de Citas</p>
+                <p className="text-2xl font-bold">{citas.length}</p>
+              </div>
+              <div className="bg-card rounded-lg px-5 py-3 text-center border shadow-sm">
+                <p className="text-muted-foreground text-xs font-medium mb-1">Completadas</p>
+                <p className="text-2xl font-bold">
+                  {citas.filter((c: any) => c.estado === 'completada').length}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Historial Completo</h1>
-          <p className="mt-2 text-muted-foreground">
-            <User className="inline h-4 w-4 mr-1" />
-            {paciente.fullName}
-          </p>
-        </div>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Resumen de Citas
-            </CardTitle>
-            <CardDescription>
-              Total de {citas.length} cita{citas.length !== 1 ? 's' : ''} registrada{citas.length !== 1 ? 's' : ''}
-            </CardDescription>
-          </CardHeader>
-        </Card>
 
         {citas.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Calendar className="mx-auto h-12 w-12 mb-4 opacity-20" />
-              <p>No hay citas registradas para este paciente</p>
+          <Card className="border-2 border-dashed">
+            <CardContent className="py-16 text-center">
+              <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
+                <Calendar className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No hay citas registradas</h3>
+              <p className="text-muted-foreground">Este paciente aún no tiene citas en el historial</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {citas.map((cita: any) => {
+          <div className="space-y-6 relative">
+            {/* Timeline vertical */}
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
+            
+            {citas.map((cita: any, index: number) => {
               const totalPagado = cita.pagos?.reduce(
                 (sum: number, pago: any) => sum + (pago.estatus === 'pagado' ? pago.monto : 0),
                 0
@@ -128,122 +142,182 @@ export default function PacienteHistorialPage() {
               ) || 0;
 
               return (
-                <Card key={cita.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">
-                          {new Date(cita.date).toLocaleDateString('es-MX', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-4">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {cita.time}
-                          </span>
-                          {cita.consultorio && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {cita.consultorio.name}
-                            </span>
-                          )}
-                        </CardDescription>
-                      </div>
-                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                        cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                        cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-                        cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      }`}>
-                        {estadoLabels[cita.estado as keyof typeof estadoLabels] || cita.estado}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Doctor</p>
-                        <p className="text-sm">{cita.doctor?.name || 'No especificado'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Tipo de Cita</p>
-                        <p className="text-sm capitalize">{cita.tipo || 'No especificado'}</p>
-                      </div>
-                    </div>
-
-                    {cita.motivo && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Motivo</p>
-                        <p className="text-sm whitespace-pre-wrap">{cita.motivo}</p>
-                      </div>
-                    )}
-
-                    {cita.notas && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Notas</p>
-                        <p className="text-sm whitespace-pre-wrap">{cita.notas}</p>
-                      </div>
-                    )}
-
-                    {cita.pagos && cita.pagos.length > 0 && (
-                      <div className="border-t pt-4">
-                        <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
-                          Información de Pagos
-                        </p>
-                        <div className="space-y-2">
-                          {cita.pagos.map((pago: any) => (
-                            <div
-                              key={pago.id}
-                              className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
-                            >
-                              <div className="space-y-1">
-                                <p className="font-medium">
-                                  ${pago.monto.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-muted-foreground capitalize">
-                                  {pago.metodo}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {new Date(pago.fechaPago).toLocaleDateString('es-MX')}
-                                </p>
-                              </div>
-                              <Badge
-                                variant={pago.estatus === 'pagado' ? 'default' : 'secondary'}
-                              >
-                                {estatusPagoLabels[pago.estatus as keyof typeof estatusPagoLabels]}
-                              </Badge>
+                <div key={cita.id} className="relative md:ml-16 group">
+                  {/* Timeline dot */}
+                  <div className="absolute -left-8 top-8 hidden md:flex items-center justify-center">
+                    <div className={`w-4 h-4 rounded-full border-4 border-background ${
+                      cita.estado === 'completada' ? 'bg-green-500' :
+                      cita.estado === 'confirmada' ? 'bg-blue-500' :
+                      cita.estado === 'cancelada' ? 'bg-red-500' :
+                      'bg-yellow-500'
+                    } shadow-lg`} />
+                  </div>
+                  
+                  <Card className="overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+                    <CardHeader className="bg-muted/50 border-b">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              cita.estado === 'completada' ? 'bg-green-100 dark:bg-green-900/30' :
+                              cita.estado === 'confirmada' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                              cita.estado === 'cancelada' ? 'bg-red-100 dark:bg-red-900/30' :
+                              'bg-yellow-100 dark:bg-yellow-900/30'
+                            }`}>
+                              {cita.estado === 'completada' ? <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" /> :
+                               cita.estado === 'confirmada' ? <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" /> :
+                               cita.estado === 'cancelada' ? <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" /> :
+                               <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />}
                             </div>
-                          ))}
-                          <div className="flex justify-between pt-2 border-t text-sm font-medium">
-                            <span>Total Pagado:</span>
-                            <span className="text-green-600">${totalPagado.toFixed(2)}</span>
+                            <div>
+                              <CardTitle className="text-xl font-bold">
+                                {new Date(cita.date).toLocaleDateString('es-MX', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })}
+                              </CardTitle>
+                              <CardDescription className="flex flex-wrap items-center gap-3 mt-1">
+                                <span className="flex items-center gap-1.5 font-medium">
+                                  <Clock className="h-4 w-4" />
+                                  {cita.time}
+                                </span>
+                                {cita.consultorio && (
+                                  <span className="flex items-center gap-1.5">
+                                    <MapPin className="h-4 w-4" />
+                                    {cita.consultorio.name}
+                                  </span>
+                                )}
+                              </CardDescription>
+                            </div>
                           </div>
-                          {totalPendiente > 0 && (
-                            <div className="flex justify-between text-sm font-medium">
-                              <span>Total Pendiente:</span>
-                              <span className="text-orange-600">${totalPendiente.toFixed(2)}</span>
-                            </div>
-                          )}
                         </div>
+                        <Badge className={`shrink-0 px-3 py-1 text-xs font-medium ${
+                          cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                          cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                          cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        }`}>
+                          {estadoLabels[cita.estado as keyof typeof estadoLabels] || cita.estado}
+                        </Badge>
                       </div>
-                    )}
+                    </CardHeader>
+                    <CardContent className="space-y-5 pt-6">
+                      {/* Información principal con iconos */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted border">
+                          <Stethoscope className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Doctor</p>
+                            <p className="text-sm font-medium">{cita.doctor?.name || 'No especificado'}</p>
+                          </div>
+                        </div>
+                        {cita.costo !== undefined && cita.costo !== null && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted border">
+                            <DollarSign className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Costo</p>
+                              <p className="text-sm font-bold">${cita.costo.toFixed(2)} MXN</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/citas/${cita.id}`)}
-                      >
-                        Ver Detalles
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      {cita.motivo && (
+                        <div className="p-4 rounded-lg bg-muted border">
+                          <div className="flex items-start gap-3">
+                            <FileText className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Motivo de Consulta</p>
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{cita.motivo}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {(cita.diagnostico || cita.tratamiento) && (
+                        <div className="p-4 rounded-lg bg-muted border">
+                          <div className="space-y-3">
+                            {cita.diagnostico && (
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Diagnóstico</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{cita.diagnostico}</p>
+                              </div>
+                            )}
+                            {cita.tratamiento && (
+                              <div className={cita.diagnostico ? 'pt-3 border-t' : ''}>
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Tratamiento</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{cita.tratamiento}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {cita.notas && (
+                        <div className="p-4 rounded-lg bg-muted border">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Notas Adicionales</p>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{cita.notas}</p>
+                        </div>
+                      )}
+
+                      {cita.pagos && cita.pagos.length > 0 && (
+                        <div className="p-4 rounded-lg bg-muted border">
+                          <div className="flex items-center gap-2 mb-4">
+                            <TrendingUp className="h-5 w-5 text-primary" />
+                            <p className="text-sm font-semibold">Información de Pagos</p>
+                          </div>
+                          <div className="space-y-3">
+                            {cita.pagos.map((pago: any) => (
+                              <div
+                                key={pago.id}
+                                className="flex items-center justify-between rounded-lg bg-card border p-3"
+                              >
+                                <div className="space-y-1">
+                                  <p className="font-bold text-base">
+                                    ${pago.monto.toFixed(2)} MXN
+                                  </p>
+                                  <p className="text-xs text-muted-foreground capitalize">
+                                    {pago.metodo}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {new Date(pago.fechaPago).toLocaleDateString('es-MX')}
+                                  </p>
+                                </div>
+                                <Badge
+                                  variant={pago.estatus === 'pagado' ? 'default' : 'secondary'}
+                                >
+                                  {estatusPagoLabels[pago.estatus as keyof typeof estatusPagoLabels]}
+                                </Badge>
+                              </div>
+                            ))}
+                            <div className="flex justify-between pt-3 border-t text-sm font-semibold">
+                              <span>Total Pagado:</span>
+                              <span className="text-green-600 dark:text-green-400">${totalPagado.toFixed(2)}</span>
+                            </div>
+                            {totalPendiente > 0 && (
+                              <div className="flex justify-between text-sm font-semibold">
+                                <span>Total Pendiente:</span>
+                                <span className="text-orange-600 dark:text-orange-400">${totalPendiente.toFixed(2)}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 pt-4 border-t">
+                        <Button
+                          onClick={() => router.push(`/citas/${cita.id}`)}
+                          className="flex-1"
+                        >
+                          Ver Detalles Completos
+                          <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               );
             })}
           </div>
