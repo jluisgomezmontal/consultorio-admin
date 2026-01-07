@@ -46,9 +46,13 @@ apiClient.interceptors.request.use(
             cancelError.offlineResponse = offlineResponse;
             return Promise.reject(cancelError);
           }
+          
+          // If no offline response, it means data is not cached
+          // Allow the request to fail naturally (will show network error)
+          console.warn('[API Client] Data not available offline, request will fail');
         } catch (error) {
           console.error('[API Client] Offline error:', error);
-          return Promise.reject(createOfflineError('No se puede realizar esta operación offline'));
+          // Don't reject here, let it try the network request which will fail naturally
         }
       }
     }
@@ -59,7 +63,80 @@ apiClient.interceptors.request.use(
 
 // Response interceptor for error handling and token refresh
 apiClient.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    // Cache successful GET requests to IndexedDB for offline access
+    if (response.config.method?.toUpperCase() === 'GET' && response.status === 200) {
+      try {
+        const url = response.config.url || '';
+        
+        // Cache pacientes
+        if (url.includes('/pacientes/') && !url.includes('/historial')) {
+          const idMatch = url.match(/\/pacientes\/([^/?]+)/);
+          if (idMatch && response.data?.data) {
+            const { pacienteRepository } = await import('./db/repositories/paciente-repository');
+            const paciente = response.data.data;
+            await pacienteRepository.upsert({
+              ...paciente,
+              id: paciente.id,
+              syncStatus: 'synced',
+              localOnly: false,
+            });
+            console.log('[Cache] Paciente cached:', paciente.id);
+          }
+        }
+        
+        // Cache citas
+        if (url.includes('/citas/')) {
+          const idMatch = url.match(/\/citas\/([^/?]+)/);
+          if (idMatch && response.data?.data) {
+            const { citaRepository } = await import('./db/repositories/cita-repository');
+            const cita = response.data.data;
+            await citaRepository.upsert({
+              ...cita,
+              id: cita.id,
+              syncStatus: 'synced',
+              localOnly: false,
+            });
+            console.log('[Cache] Cita cached:', cita.id);
+          }
+        }
+        
+        // Cache list responses
+        if (url.includes('/pacientes') && !url.includes('/pacientes/')) {
+          if (response.data?.data && Array.isArray(response.data.data)) {
+            const { pacienteRepository } = await import('./db/repositories/paciente-repository');
+            const pacientes = response.data.data.map((p: any) => ({
+              ...p,
+              id: p.id,
+              syncStatus: 'synced' as const,
+              localOnly: false,
+            }));
+            await pacienteRepository.bulkUpsert(pacientes);
+            console.log('[Cache] Pacientes list cached:', pacientes.length);
+          }
+        }
+        
+        if (url.includes('/citas') && !url.includes('/citas/')) {
+          if (response.data?.data && Array.isArray(response.data.data)) {
+            const { citaRepository } = await import('./db/repositories/cita-repository');
+            const citas = response.data.data.map((c: any) => ({
+              ...c,
+              id: c.id,
+              syncStatus: 'synced' as const,
+              localOnly: false,
+            }));
+            await citaRepository.bulkUpsert(citas);
+            console.log('[Cache] Citas list cached:', citas.length);
+          }
+        }
+      } catch (cacheError) {
+        // Don't fail the request if caching fails
+        console.warn('[Cache] Error caching response:', cacheError);
+      }
+    }
+    
+    return response;
+  },
   async (error: any) => {
     // Handle offline responses
     if (error.isOfflineResponse && error.offlineResponse) {

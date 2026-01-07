@@ -79,10 +79,18 @@ export class SyncManager {
       if (action === 'CREATE') {
         const response = await apiClient.post('/pacientes', data);
         const remoteId = response.data.data.id;
+        const remoteData = response.data.data;
 
-        await pacienteRepository.updateRemoteId(localId, remoteId);
-        await syncQueueRepository.updateRemoteId(item.id, remoteId);
+        // Replace local record with remote one
+        await pacienteRepository.delete(localId);
+        await pacienteRepository.upsert({
+          ...remoteData,
+          id: remoteId,
+          syncStatus: 'synced',
+          localOnly: false,
+        });
         
+        await syncQueueRepository.updateStatus(item.id, 'completed');
         console.log(`✅ Paciente creado: ${localId} → ${remoteId}`);
       } else if (action === 'UPDATE') {
         const remoteId = item.remoteId || localId;
@@ -114,8 +122,20 @@ export class SyncManager {
           }
         } catch (error: any) {
           if (error.response?.status === 404) {
-            await apiClient.post('/pacientes', data);
-            console.log(`⚠️ Paciente no encontrado, creado nuevamente`);
+            // If not found, create it
+            const createResponse = await apiClient.post('/pacientes', data);
+            const newRemoteId = createResponse.data.data.id;
+            
+            // Update local record with new remote ID
+            await pacienteRepository.delete(localId);
+            await pacienteRepository.upsert({
+              ...createResponse.data.data,
+              id: newRemoteId,
+              syncStatus: 'synced',
+              localOnly: false,
+            });
+            
+            console.log(`⚠️ Paciente no encontrado, creado nuevamente: ${newRemoteId}`);
           } else {
             throw error;
           }
@@ -151,10 +171,18 @@ export class SyncManager {
       if (action === 'CREATE') {
         const response = await apiClient.post('/citas', data);
         const remoteId = response.data.data.id;
+        const remoteData = response.data.data;
 
-        await citaRepository.updateRemoteId(localId, remoteId);
-        await syncQueueRepository.updateRemoteId(item.id, remoteId);
+        // Replace local record with remote one
+        await citaRepository.delete(localId);
+        await citaRepository.upsert({
+          ...remoteData,
+          id: remoteId,
+          syncStatus: 'synced',
+          localOnly: false,
+        });
         
+        await syncQueueRepository.updateStatus(item.id, 'completed');
         console.log(`✅ Cita creada: ${localId} → ${remoteId}`);
       } else if (action === 'UPDATE') {
         const remoteId = item.remoteId || localId;
@@ -186,8 +214,20 @@ export class SyncManager {
           }
         } catch (error: any) {
           if (error.response?.status === 404) {
-            await apiClient.post('/citas', data);
-            console.log(`⚠️ Cita no encontrada, creada nuevamente`);
+            // If not found, create it
+            const createResponse = await apiClient.post('/citas', data);
+            const newRemoteId = createResponse.data.data.id;
+            
+            // Update local record with new remote ID
+            await citaRepository.delete(localId);
+            await citaRepository.upsert({
+              ...createResponse.data.data,
+              id: newRemoteId,
+              syncStatus: 'synced',
+              localOnly: false,
+            });
+            
+            console.log(`⚠️ Cita no encontrada, creada nuevamente: ${newRemoteId}`);
           } else {
             throw error;
           }

@@ -26,6 +26,13 @@ export class OfflineDataSync {
       
       if (response.data?.data && response.data.data.length > 0) {
         const pacientes = response.data.data;
+        
+        // Get existing local-only records (created offline, not yet synced)
+        const existingLocal = await pacienteRepository.getAll(consultorioId);
+        const localOnlyRecords = existingLocal.filter(p => p.localOnly && p.id.startsWith('local_'));
+        
+        console.log(`[Offline Data Sync] Found ${localOnlyRecords.length} local-only records`);
+        
         // Convert to LocalPaciente format
         const localPacientes: LocalPaciente[] = pacientes.map((p: any) => ({
           id: p.id,
@@ -50,9 +57,14 @@ export class OfflineDataSync {
           localOnly: false,
         }));
 
-        // Bulk upsert to IndexedDB
+        // Bulk upsert to IndexedDB (will overwrite existing non-local records)
         await pacienteRepository.bulkUpsert(localPacientes);
         console.log(`[Offline Data Sync] Preloaded ${localPacientes.length} pacientes to IndexedDB`);
+        
+        // Keep local-only records (they'll sync later)
+        if (localOnlyRecords.length > 0) {
+          console.log(`[Offline Data Sync] Preserving ${localOnlyRecords.length} local-only records for sync`);
+        }
       }
     } catch (error) {
       console.error('[Offline Data Sync] Error preloading pacientes:', error);
@@ -76,6 +88,13 @@ export class OfflineDataSync {
       
       if (response.data?.data && response.data.data.length > 0) {
         const citas = response.data.data;
+        
+        // Get existing local-only records (created offline, not yet synced)
+        const existingLocal = await citaRepository.getAll(consultorioId);
+        const localOnlyRecords = existingLocal.filter(c => c.localOnly && c.id.startsWith('local_'));
+        
+        console.log(`[Offline Data Sync] Found ${localOnlyRecords.length} local-only citas`);
+        
         // Convert to LocalCita format
         const localCitas: LocalCita[] = citas.map((c: any) => ({
           id: c.id,
@@ -102,9 +121,14 @@ export class OfflineDataSync {
           localOnly: false,
         }));
 
-        // Bulk upsert to IndexedDB
+        // Bulk upsert to IndexedDB (will overwrite existing non-local records)
         await citaRepository.bulkUpsert(localCitas);
         console.log(`[Offline Data Sync] Preloaded ${localCitas.length} citas to IndexedDB`);
+        
+        // Keep local-only records (they'll sync later)
+        if (localOnlyRecords.length > 0) {
+          console.log(`[Offline Data Sync] Preserving ${localOnlyRecords.length} local-only citas for sync`);
+        }
       }
     } catch (error) {
       console.error('[Offline Data Sync] Error preloading citas:', error);

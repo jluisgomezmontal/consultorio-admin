@@ -39,6 +39,7 @@ import { DocumentList } from '@/components/DocumentList';
 import { GenerarRecetaDialog } from '@/components/GenerarRecetaDialog';
 import { documentoService } from '@/services/documento.service';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { OfflineNotice } from '@/components/offline/OfflineNotice';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -83,10 +84,11 @@ export default function CitaDetailPage() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [id, queryClient]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['cita', id],
     queryFn: () => citaService.getCitaById(id),
     enabled: !!user && !!id,
+    retry: false, // Don't retry on offline errors
   });
 
   const { data: documentosData, refetch: refetchDocumentos } = useQuery({
@@ -187,7 +189,21 @@ export default function CitaDetailPage() {
     );
   }
 
-  if (!user || !data?.data) {
+  if (!user) {
+    return null;
+  }
+
+  // Show offline notice if data not available offline
+  if (error && !navigator.onLine) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <OfflineNotice message="Esta cita no está disponible sin conexión. Necesitas acceder a ella al menos una vez mientras estás en línea para que se guarde en tu dispositivo." />
+      </div>
+    );
+  }
+
+  if (!data?.data) {
     return null;
   }
 

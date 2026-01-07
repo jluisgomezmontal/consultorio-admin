@@ -13,6 +13,7 @@ import { documentoService } from '@/services/documento.service';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { DocumentList } from '@/components/DocumentList';
+import { OfflineNotice } from '@/components/offline/OfflineNotice';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -26,10 +27,11 @@ export default function PacienteDetailPage() {
     }
   }, [user, authLoading, router]);
 
-  const { data: pacienteData, isLoading } = useQuery({
+  const { data: pacienteData, isLoading, error } = useQuery({
     queryKey: ['paciente', id],
     queryFn: () => pacienteService.getPacienteById(id),
     enabled: !!user && !!id,
+    retry: false, // Don't retry on offline errors
   });
 
   const { data: historyData } = useQuery({
@@ -55,7 +57,21 @@ export default function PacienteDetailPage() {
     );
   }
 
-  if (!user || !pacienteData) {
+  if (!user) {
+    return null;
+  }
+
+  // Show offline notice if data not available offline
+  if (error && !navigator.onLine) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <OfflineNotice message="Este paciente no está disponible sin conexión. Necesitas acceder a él al menos una vez mientras estás en línea para que se guarde en tu dispositivo." />
+      </div>
+    );
+  }
+
+  if (!pacienteData) {
     return null;
   }
 

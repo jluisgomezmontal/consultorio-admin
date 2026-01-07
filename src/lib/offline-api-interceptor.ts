@@ -81,8 +81,11 @@ export async function handleOfflineRequest(
         console.log('[Offline Interceptor] Getting paciente by id:', pacienteId);
         const paciente = await pacienteRepository.getById(pacienteId);
         console.log('[Offline Interceptor] Found paciente:', !!paciente);
+        
         if (!paciente) {
-          throw new Error('Paciente no encontrado en modo offline');
+          console.warn('[Offline Interceptor] Paciente not found in local DB. You need to access it while online first.');
+          // Return null instead of error to allow graceful handling
+          return null;
         }
         return {
           data: {
@@ -125,14 +128,18 @@ export async function handleOfflineRequest(
 
       // PUT /pacientes/:id (update)
       if (method?.toUpperCase() === 'PUT' && pacienteId) {
-        const updated = await pacienteRepository.update(pacienteId, requestData);
+        const consultorioId = getConsultorioId();
+        const updateData = { ...requestData, consultorioId };
+        const updated = await pacienteRepository.update(pacienteId, updateData);
+        
+        console.log('[Offline Interceptor] Updating paciente:', { pacienteId, consultorioId });
         
         await syncQueueRepository.add({
           entity: 'paciente',
           action: 'UPDATE',
           localId: pacienteId,
           remoteId: pacienteId.startsWith('local_') ? undefined : pacienteId,
-          data: requestData,
+          data: updateData,
           priority: 'medium',
         });
 
@@ -198,9 +205,14 @@ export async function handleOfflineRequest(
 
       // GET /citas/:id
       if (method?.toUpperCase() === 'GET' && citaId) {
+        console.log('[Offline Interceptor] Getting cita by id:', citaId);
         const cita = await citaRepository.getById(citaId);
+        console.log('[Offline Interceptor] Found cita:', !!cita);
+        
         if (!cita) {
-          throw new Error('Cita no encontrada en modo offline');
+          console.warn('[Offline Interceptor] Cita not found in local DB. You need to access it while online first.');
+          // Return null instead of error to allow graceful handling
+          return null;
         }
         return {
           data: {
@@ -243,14 +255,18 @@ export async function handleOfflineRequest(
 
       // PUT /citas/:id (update)
       if (method?.toUpperCase() === 'PUT' && citaId) {
-        const updated = await citaRepository.update(citaId, requestData);
+        const consultorioId = getConsultorioId();
+        const updateData = { ...requestData, consultorioId };
+        const updated = await citaRepository.update(citaId, updateData);
+        
+        console.log('[Offline Interceptor] Updating cita:', { citaId, consultorioId });
         
         await syncQueueRepository.add({
           entity: 'cita',
           action: 'UPDATE',
           localId: citaId,
           remoteId: citaId.startsWith('local_') ? undefined : citaId,
-          data: requestData,
+          data: updateData,
           priority: 'medium',
         });
 
