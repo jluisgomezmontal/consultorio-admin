@@ -1,7 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { handleOfflineRequest, createOfflineError } from './offline-api-interceptor';
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,11 +27,29 @@ const processQueue = (error: any = null) => {
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Check if offline and handle request locally
+      const isOnline = navigator.onLine;
+      if (!isOnline) {
+        try {
+          const offlineResponse = await handleOfflineRequest(config, false);
+          if (offlineResponse) {
+            // Cancel the request and return offline response
+            const cancelError: any = new Error('Offline mode - using local data');
+            cancelError.isOfflineResponse = true;
+            cancelError.offlineResponse = offlineResponse;
+            return Promise.reject(cancelError);
+          }
+        } catch (error) {
+          console.error('[API Client] Offline error:', error);
+          return Promise.reject(createOfflineError('No se puede realizar esta operación offline'));
+        }
       }
     }
     return config;
@@ -41,25 +60,31 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling and token refresh
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
+  async (error: any) => {
+    // Handle offline responses
+    if (error.isOfflineResponse && error.offlineResponse) {
+      return Promise.resolve(error.offlineResponse);
+    }
+
+    const axiosError = error as AxiosError;
+    const originalRequest = axiosError.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
 
     // Check if account is deactivated
-    if (error.response?.status === 401) {
-      const errorMessage = (error.response?.data as any)?.message || '';
+    if (axiosError.response?.status === 401) {
+      const errorMessage = (axiosError.response?.data as any)?.message || '';
       if (errorMessage.includes('deactivated') || errorMessage.includes('desactivada')) {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         if (typeof window !== 'undefined') {
           window.location.href = '/login?deactivated=true';
         }
-        return Promise.reject(error);
+        return Promise.reject(axiosError);
       }
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (axiosError.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -111,7 +136,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(axiosError);
   }
 );
 
