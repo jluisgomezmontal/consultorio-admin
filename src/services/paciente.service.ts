@@ -64,6 +64,7 @@ export interface Paciente {
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;
+  photoS3Key?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -85,6 +86,7 @@ export interface CreatePacienteRequest {
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;
+  photoS3Key?: string;
 }
 
 export interface UpdatePacienteRequest {
@@ -103,6 +105,7 @@ export interface UpdatePacienteRequest {
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;
+  photoS3Key?: string;
 }
 
 export interface PacientesResponse {
@@ -164,6 +167,25 @@ class PacienteService {
 
   async deletePaciente(id: string): Promise<{ success: boolean; message: string }> {
     const response = await apiClient.delete(`/pacientes/${id}`);
+    return response.data;
+  }
+
+  async uploadPhoto(file: File): Promise<{ success: boolean; data: { photoUrl: string; s3Key: string } }> {
+    const formData = new FormData();
+    formData.append('photo', file);
+    
+    const response = await apiClient.post('/pacientes-photo/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  async deletePhoto(s3Key: string): Promise<{ success: boolean; message: string }> {
+    const response = await apiClient.delete('/pacientes-photo/delete', {
+      data: { s3Key },
+    });
     return response.data;
   }
 }

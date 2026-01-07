@@ -50,6 +50,7 @@ export default function EditarPacientePage() {
   const [error, setError] = useState('');
   const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoS3Key, setPhotoS3Key] = useState('');
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
     contactInfo: true,
@@ -136,6 +137,7 @@ export default function EditarPacientePage() {
       });
       setClinicalHistory(pacienteData.data.clinicalHistory || {});
       setPhotoUrl(pacienteData.data.photoUrl || '');
+      setPhotoS3Key(pacienteData.data.photoS3Key || '');
     }
   }, [pacienteData, reset]);
 
@@ -178,6 +180,7 @@ export default function EditarPacientePage() {
       notes: data.notes || undefined,
       clinicalHistory,
       photoUrl: photoUrl || undefined,
+      photoS3Key: photoS3Key || undefined,
     };
     updateMutation.mutate(payload);
   };
@@ -249,7 +252,11 @@ export default function EditarPacientePage() {
                       <Label>Foto del Paciente</Label>
                       <PatientPhotoUpload
                         currentPhotoUrl={photoUrl}
-                        onPhotoChange={setPhotoUrl}
+                        currentS3Key={photoS3Key}
+                        onPhotoChange={(url, key) => {
+                          setPhotoUrl(url);
+                          setPhotoS3Key(key);
+                        }}
                       />
                     </div>
 

@@ -50,6 +50,7 @@ export default function NuevoPacientePage() {
   const [error, setError] = useState('');
   const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoS3Key, setPhotoS3Key] = useState('');
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
     contactInfo: true,
@@ -154,6 +155,7 @@ export default function NuevoPacientePage() {
       notes: data.notes || undefined,
       clinicalHistory,
       photoUrl: photoUrl || undefined,
+      photoS3Key: photoS3Key || undefined,
     };
     createMutation.mutate(payload);
   };
@@ -225,7 +227,11 @@ export default function NuevoPacientePage() {
                       <Label>Foto del Paciente</Label>
                       <PatientPhotoUpload
                         currentPhotoUrl={photoUrl}
-                        onPhotoChange={setPhotoUrl}
+                        currentS3Key={photoS3Key}
+                        onPhotoChange={(url, key) => {
+                          setPhotoUrl(url);
+                          setPhotoS3Key(key);
+                        }}
                       />
                     </div>
 

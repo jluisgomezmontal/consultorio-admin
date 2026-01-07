@@ -1,24 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { pacienteService } from '@/services/paciente.service';
 
 interface PatientPhotoUploadProps {
   currentPhotoUrl?: string;
-  onPhotoChange: (photoUrl: string) => void;
+  currentS3Key?: string;
+  onPhotoChange: (photoUrl: string, s3Key: string) => void;
   disabled?: boolean;
 }
 
 export function PatientPhotoUpload({ 
   currentPhotoUrl, 
+  currentS3Key,
   onPhotoChange,
   disabled = false 
 }: PatientPhotoUploadProps) {
   const [photoUrl, setPhotoUrl] = useState(currentPhotoUrl || '');
+  const [s3Key, setS3Key] = useState(currentS3Key || '');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (currentPhotoUrl !== undefined) {
+      setPhotoUrl(currentPhotoUrl);
+    }
+    if (currentS3Key !== undefined) {
+      setS3Key(currentS3Key);
+    }
+  }, [currentPhotoUrl, currentS3Key]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,18 +50,17 @@ export function PatientPhotoUpload({
     setIsUploading(true);
 
     try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPhotoUrl(base64String);
-        onPhotoChange(base64String);
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        alert('Error al leer la imagen');
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      // Subir a S3
+      const response = await pacienteService.uploadPhoto(file);
+      
+      if (response.success) {
+        setPhotoUrl(response.data.photoUrl);
+        setS3Key(response.data.s3Key);
+        onPhotoChange(response.data.photoUrl, response.data.s3Key);
+      } else {
+        alert('Error al subir la imagen');
+      }
+      setIsUploading(false);
     } catch (error) {
       console.error('Error uploading photo:', error);
       alert('Error al cargar la imagen');
@@ -56,11 +68,22 @@ export function PatientPhotoUpload({
     }
   };
 
-  const handleRemovePhoto = () => {
-    setPhotoUrl('');
-    onPhotoChange('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleRemovePhoto = async () => {
+    try {
+      // Si hay una foto en S3, eliminarla
+      if (s3Key) {
+        await pacienteService.deletePhoto(s3Key);
+      }
+      
+      setPhotoUrl('');
+      setS3Key('');
+      onPhotoChange('', '');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Error al eliminar la foto');
     }
   };
 
