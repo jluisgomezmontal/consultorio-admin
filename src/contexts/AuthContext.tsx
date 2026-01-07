@@ -62,9 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setUser(response.data);
+      localStorage.setItem('user', JSON.stringify(response.data));
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
       setUser(null);
     } finally {
       setLoading(false);
@@ -75,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authService.login({ email, password });
     localStorage.setItem('token', response.data.accessToken);
     localStorage.setItem('refreshToken', response.data.refreshToken);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
     setUser(response.data.user);
     
     await offlineAuth.saveAuthData(
@@ -92,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
       setUser(null);
       
       await offlineAuth.clearAuthData();

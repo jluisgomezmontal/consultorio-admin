@@ -5,6 +5,21 @@ import { citaRepository } from './db/repositories/cita-repository';
 import { syncQueueRepository } from './db/repositories/sync-queue-repository';
 import { v4 as uuidv4 } from 'uuid';
 
+// Get consultorioId from localStorage (set by auth)
+function getConsultorioId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return user.consultorio?._id || user.consultorioId || '';
+    }
+  } catch (e) {
+    console.error('Error getting consultorioId:', e);
+  }
+  return '';
+}
+
 interface OfflineResponse {
   data: {
     success: boolean;
@@ -23,6 +38,8 @@ export async function handleOfflineRequest(
 
   const { method, url, data: requestData } = config;
   const urlPath = url?.split('?')[0] || '';
+  
+  console.log('[Offline Interceptor] Handling offline request:', { method, urlPath });
 
   try {
     // PACIENTES
@@ -32,21 +49,28 @@ export async function handleOfflineRequest(
 
       // GET /pacientes (list)
       if (method?.toUpperCase() === 'GET' && !pacienteId) {
-        const consultorioIdParam = config.params?.consultorioId || 'all';
-        const pacientes = await pacienteRepository.getAll(consultorioIdParam);
+        const consultorioId = getConsultorioId();
+        console.log('[Offline Interceptor] Getting all pacientes:', { consultorioId });
+        const pacientes = await pacienteRepository.getAll(consultorioId);
+        console.log('[Offline Interceptor] Found pacientes:', pacientes.length);
         return {
           data: {
             success: true,
             data: pacientes,
-          } as any,
+            page: 1,
+            limit: pacientes.length,
+            total: pacientes.length,
+          },
           status: 200,
           statusText: 'OK',
-        };
+        } as any;
       }
 
       // GET /pacientes/:id
       if (method?.toUpperCase() === 'GET' && pacienteId) {
+        console.log('[Offline Interceptor] Getting paciente by id:', pacienteId);
         const paciente = await pacienteRepository.getById(pacienteId);
+        console.log('[Offline Interceptor] Found paciente:', !!paciente);
         if (!paciente) {
           throw new Error('Paciente no encontrado en modo offline');
         }
@@ -62,17 +86,19 @@ export async function handleOfflineRequest(
 
       // POST /pacientes (create)
       if (method?.toUpperCase() === 'POST') {
-        const localId = `local_${uuidv4()}`;
+        const consultorioId = getConsultorioId();
+        console.log('[Offline Interceptor] Creating paciente offline:', { consultorioId, requestData });
         const newPaciente = await pacienteRepository.create({
           ...requestData,
-          id: localId,
+          consultorioId,
         });
+        console.log('[Offline Interceptor] Paciente created:', newPaciente);
 
         await syncQueueRepository.add({
           entity: 'paciente',
           action: 'CREATE',
-          localId,
-          data: requestData,
+          localId: newPaciente.id,
+          data: { ...requestData, consultorioId },
           priority: 'medium',
         });
 
@@ -145,16 +171,19 @@ export async function handleOfflineRequest(
 
       // GET /citas (list)
       if (method?.toUpperCase() === 'GET' && !citaId) {
-        const consultorioIdParam = config.params?.consultorioId || 'all';
-        const citas = await citaRepository.getAll(consultorioIdParam);
+        const consultorioId = getConsultorioId();
+        const citas = await citaRepository.getAll(consultorioId);
         return {
           data: {
             success: true,
             data: citas,
-          } as any,
+            page: 1,
+            limit: citas.length,
+            total: citas.length,
+          },
           status: 200,
           statusText: 'OK',
-        };
+        } as any;
       }
 
       // GET /citas/:id
@@ -175,21 +204,19 @@ export async function handleOfflineRequest(
 
       // POST /citas (create)
       if (method?.toUpperCase() === 'POST') {
-        const localId = `local_${uuidv4()}`;
+        const consultorioId = getConsultorioId();
         const citaData = {
           ...requestData,
+          consultorioId,
           estado: requestData.estado || 'pendiente',
         };
-        const newCita = await citaRepository.create({
-          ...citaData,
-          id: localId,
-        });
+        const newCita = await citaRepository.create(citaData);
 
         await syncQueueRepository.add({
           entity: 'cita',
           action: 'CREATE',
-          localId,
-          data: requestData,
+          localId: newCita.id,
+          data: citaData,
           priority: 'medium',
         });
 
