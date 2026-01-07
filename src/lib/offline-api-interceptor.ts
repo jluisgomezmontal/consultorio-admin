@@ -9,13 +9,23 @@ import { v4 as uuidv4 } from 'uuid';
 function getConsultorioId(): string {
   if (typeof window === 'undefined') return '';
   try {
+    // First try to get from selectedConsultorioId in localStorage
+    const selectedId = localStorage.getItem('selectedConsultorioId');
+    if (selectedId) {
+      console.log('[Offline Interceptor] Using selectedConsultorioId:', selectedId);
+      return selectedId;
+    }
+    
+    // Fallback to user object
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      return user.consultorio?._id || user.consultorioId || '';
+      const consultorioId = user.consultorio?._id || user.consultorioId || '';
+      console.log('[Offline Interceptor] Using consultorioId from user:', consultorioId);
+      return consultorioId;
     }
   } catch (e) {
-    console.error('Error getting consultorioId:', e);
+    console.error('[Offline Interceptor] Error getting consultorioId:', e);
   }
   return '';
 }
