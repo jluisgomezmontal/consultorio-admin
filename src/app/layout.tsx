@@ -5,6 +5,8 @@ import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ConsultorioProvider } from "@/contexts/ConsultorioContext";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { OfflineProvider } from "@/contexts/OfflineContext";
+import { ServiceWorkerRegister } from "./sw-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +20,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Consultorio - Sistema de Gestión",
-  description: "Sistema de gestión para consultorios médicos",
+  description: "Sistema de gestión para consultorios médicos con capacidades offline",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/miconsultorio.svg", type: "image/svg+xml" },
@@ -29,6 +32,11 @@ export const metadata: Metadata = {
     apple: [
       { url: "/miconsultorio.svg", type: "image/svg+xml" },
     ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Consultorio",
   },
 };
 
@@ -56,7 +64,10 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <ConsultorioProvider>
-                {children}
+                <OfflineProvider>
+                  <ServiceWorkerRegister />
+                  {children}
+                </OfflineProvider>
               </ConsultorioProvider>
             </AuthProvider>
           </QueryProvider>

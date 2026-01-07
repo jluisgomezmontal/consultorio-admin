@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, User } from '@/services/auth.service';
+import { offlineAuth } from '@/lib/offline-auth';
 
 interface AuthContextType {
   user: User | null;
@@ -24,10 +25,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         fetchUser();
       } else {
-        setLoading(false);
+        checkOfflineAuth();
       }
     }
   }, []);
+
+  const checkOfflineAuth = async () => {
+    try {
+      if (!navigator.onLine) {
+        const offlineUser = await offlineAuth.getOfflineUser();
+        if (offlineUser) {
+          setUser(offlineUser as User);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking offline auth:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -60,6 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', response.data.accessToken);
     localStorage.setItem('refreshToken', response.data.refreshToken);
     setUser(response.data.user);
+    
+    await offlineAuth.saveAuthData(
+      response.data.accessToken,
+      response.data.refreshToken,
+      response.data.user
+    );
   };
 
   const logout = async () => {
@@ -71,6 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       setUser(null);
+      
+      await offlineAuth.clearAuthData();
+      
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
