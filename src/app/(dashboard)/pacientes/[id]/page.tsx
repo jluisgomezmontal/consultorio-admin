@@ -13,6 +13,7 @@ import { documentoService } from '@/services/documento.service';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { DocumentList } from '@/components/DocumentList';
+import { PatientAvatar } from '@/components/PatientAvatar';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -760,13 +761,21 @@ export default function PacienteDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  {paciente.fullName}
-                </CardTitle>
-                <CardDescription>
-                  Paciente registrado el {new Date(paciente.createdAt).toLocaleDateString()}
-                </CardDescription>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <PatientAvatar 
+                    photoUrl={paciente.photoUrl} 
+                    fullName={paciente.fullName}
+                    size="xl"
+                  />
+                  <div className="flex-1">
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      {paciente.fullName}
+                    </CardTitle>
+                    <CardDescription>
+                      Paciente registrado el {new Date(paciente.createdAt).toLocaleDateString()}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

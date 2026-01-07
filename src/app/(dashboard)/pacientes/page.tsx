@@ -14,6 +14,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { PatientAvatar } from '@/components/PatientAvatar';
 
 export default function PacientesPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -215,14 +216,20 @@ export default function PacientesPage() {
                     <Card key={paciente.id} className="border-l-4 border-l-purple-500">
                       <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-base font-semibold">
-                            <User className="h-5 w-5 text-purple-600" />
-                            <span>{paciente.fullName}</span>
+                        <div className="flex items-start gap-3 flex-1">
+                          <PatientAvatar 
+                            photoUrl={paciente.photoUrl} 
+                            fullName={paciente.fullName}
+                            size="sm"
+                          />
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-base font-semibold">
+                              <span>{paciente.fullName}</span>
+                            </div>
+                            {calculateAge(paciente.birthDate) !== null && (
+                              <p className="text-sm text-muted-foreground">{calculateAge(paciente.birthDate)} años</p>
+                            )}
                           </div>
-                          {calculateAge(paciente.birthDate) !== null && (
-                            <p className="text-sm text-muted-foreground">{calculateAge(paciente.birthDate)} años</p>
-                          )}
                         </div>
                       </div>
 
@@ -269,7 +276,7 @@ export default function PacientesPage() {
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="destructive"
                           size="sm"
                           className="flex-1"
@@ -278,7 +285,7 @@ export default function PacientesPage() {
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Eliminar
-                        </Button>
+                        </Button> */}
                       </div>
                       </CardContent>
                     </Card>

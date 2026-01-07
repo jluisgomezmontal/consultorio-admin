@@ -63,6 +63,7 @@ export interface Paciente {
   allergies?: string;
   notes?: string;
   clinicalHistory?: ClinicalHistory;
+  photoUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,6 +84,7 @@ export interface CreatePacienteRequest {
   allergies?: string;
   notes?: string;
   clinicalHistory?: ClinicalHistory;
+  photoUrl?: string;
 }
 
 export interface UpdatePacienteRequest {
@@ -100,6 +102,7 @@ export interface UpdatePacienteRequest {
   allergies?: string;
   notes?: string;
   clinicalHistory?: ClinicalHistory;
+  photoUrl?: string;
 }
 
 export interface PacientesResponse {

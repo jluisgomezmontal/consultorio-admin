@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
+import { PatientPhotoUpload } from '@/components/PatientPhotoUpload';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -48,6 +49,7 @@ export default function NuevoPacientePage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
+  const [photoUrl, setPhotoUrl] = useState('');
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
     contactInfo: true,
@@ -151,6 +153,7 @@ export default function NuevoPacientePage() {
       allergies: data.allergies || undefined,
       notes: data.notes || undefined,
       clinicalHistory,
+      photoUrl: photoUrl || undefined,
     };
     createMutation.mutate(payload);
   };
@@ -218,6 +221,14 @@ export default function NuevoPacientePage() {
                 </button>
                 {openSections.personalInfo && (
                   <div className="space-y-4 p-4 pt-0">
+                    <div className="space-y-2">
+                      <Label>Foto del Paciente</Label>
+                      <PatientPhotoUpload
+                        currentPhotoUrl={photoUrl}
+                        onPhotoChange={setPhotoUrl}
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="fullName">Nombre Completo *</Label>
                       <Input
