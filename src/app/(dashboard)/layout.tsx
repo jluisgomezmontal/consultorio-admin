@@ -1,4 +1,6 @@
 import { Footer } from "@/components/ui/footer";
+import { Navbar } from "@/components/Navbar";
+import { PlanGuard } from "@/components/PlanGuard";
 
 export default function DashboardLayout({
   children,
@@ -6,9 +8,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col w-full">
-      {children}
-      <Footer />
-    </div>
+    <PlanGuard>
+      <div className="min-h-screen bg-background flex flex-col w-full">
+        <Navbar />
+        {children}
+        <Footer />
+      </div>
+    </PlanGuard>
   );
 }

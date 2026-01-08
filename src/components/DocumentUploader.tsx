@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, X, FileText, Loader2 } from 'lucide-react';
 import { documentoService, type Documento } from '@/services/documento.service';
+import { usePaquete } from '@/hooks/usePaquete';
+import { UpgradeAlert } from '@/components/UpgradeAlert';
 
 interface DocumentUploaderProps {
   citaId: string;
@@ -25,6 +27,7 @@ const TIPO_OPTIONS = [
 ] as const;
 
 export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: DocumentUploaderProps) {
+  const { tieneFeature } = usePaquete();
   const [file, setFile] = useState<File | null>(null);
   const [tipo, setTipo] = useState<Documento['tipo']>('otro');
   const [nombre, setNombre] = useState('');
@@ -110,6 +113,17 @@ export function DocumentUploader({ citaId, pacienteId, onUploadSuccess }: Docume
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
+
+  // Verificar si tiene acceso a la feature
+  if (!tieneFeature('uploadDocumentos')) {
+    return (
+      <UpgradeAlert 
+        titulo="Función no disponible"
+        mensaje="La subida de documentos médicos requiere el plan Profesional o superior."
+        tipo="feature"
+      />
+    );
+  }
 
   return (
     <Card className="overflow-hidden">

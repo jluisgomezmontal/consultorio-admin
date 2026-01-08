@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { reporteService, ReporteFilters } from '@/services/reporte.service';
 import { consultorioService, Consultorio } from '@/services/consultorio.service';
 import { userService, User } from '@/services/user.service';
@@ -192,7 +191,6 @@ export default function ReportesPage() {
   if (authLoading || isLoadingCitas || isLoadingIngresos || isLoadingPacientes) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h2 className="text-2xl font-bold">Reportes y Estadísticas</h2>
@@ -218,8 +216,6 @@ export default function ReportesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold flex items-center gap-3">

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConsultorio } from '@/contexts/ConsultorioContext';
-import { Navbar } from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -365,8 +364,6 @@ export default function ConfiguracionPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col min-h-screen overflow-x-hidden">
-      <Navbar />
-
       <main className="mx-auto max-w-6xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8 flex-1 w-full overflow-x-hidden">
         <div className="mb-4 sm:mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold">Configuración</h1>

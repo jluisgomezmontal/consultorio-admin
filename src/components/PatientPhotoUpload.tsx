@@ -5,6 +5,8 @@ import { Camera, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { pacienteService } from '@/services/paciente.service';
+import { usePaquete } from '@/hooks/usePaquete';
+import { UpgradeAlert } from '@/components/UpgradeAlert';
 
 interface PatientPhotoUploadProps {
   currentPhotoUrl?: string;
@@ -23,6 +25,7 @@ export function PatientPhotoUpload({
   const [s3Key, setS3Key] = useState(currentS3Key || '');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { tieneFeature } = usePaquete();
 
   useEffect(() => {
     if (currentPhotoUrl !== undefined) {
@@ -90,6 +93,17 @@ export function PatientPhotoUpload({
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
+
+  // Verificar si tiene acceso a la feature
+  if (!tieneFeature('uploadImagenes')) {
+    return (
+      <UpgradeAlert 
+        titulo="Función no disponible"
+        mensaje="La subida de fotos de pacientes requiere el plan Profesional o superior."
+        tipo="feature"
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Calendar, DollarSign, User, MapPin, Clock, Stethoscope, FileText, TrendingUp, Activity, CheckCircle2, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
@@ -53,7 +52,6 @@ export default function PacienteHistorialPage() {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center py-24">
             <LoadingSpinner
@@ -76,8 +74,6 @@ export default function PacienteHistorialPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header profesional */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8 border shadow-sm">

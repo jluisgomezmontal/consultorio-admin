@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { citaService, Cita, CitaEstado, CitasFilters } from '@/services/cita.service';
 import { userService } from '@/services/user.service';
 import { consultorioService } from '@/services/consultorio.service';
@@ -253,8 +252,6 @@ function CitasContent() {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
-
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 ">
           <Card className="flex items-center justify-center py-24">
             <LoadingSpinner
@@ -274,8 +271,6 @@ function CitasContent() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         {/* Header con gradiente */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 p-6 shadow-lg border border-green-100 dark:border-green-900">

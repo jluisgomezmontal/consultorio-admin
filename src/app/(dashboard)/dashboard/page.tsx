@@ -8,7 +8,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { Users, Calendar, Building2, Clock, DollarSign, FileText } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { reporteService } from '@/services/reporte.service';
@@ -61,8 +60,6 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 flex-1">
         {/* Hero Section */}
         <div className="mb-4 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-2xl">

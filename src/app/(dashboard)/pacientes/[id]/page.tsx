@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { formatLocalDate, parseLocalDate } from '@/lib/dateUtils';
 import { ArrowLeft, Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check, User, Phone, Mail, MapPin, Cake, Users, Droplet, Shield, AlertCircle, ClipboardList } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
@@ -726,8 +725,6 @@ export default function PacienteDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <Button

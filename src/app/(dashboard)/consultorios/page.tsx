@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { consultorioService, Consultorio } from '@/services/consultorio.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Edit, Eye, Plus, Search, Trash2, Clock, Phone, MapPin, Users, Calendar } from 'lucide-react';
@@ -76,8 +75,6 @@ export default function ConsultoriosPage() {
 
   if (authLoading || isLoading) {
     return <div className="min-h-screen bg-background">
-        <Navbar />
-
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -128,8 +125,6 @@ export default function ConsultoriosPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -267,9 +262,6 @@ export default function ConsultoriosPage() {
                           Nombre
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Ubicación
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                           Contacto
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -293,12 +285,6 @@ export default function ConsultoriosPage() {
                                 {consultorio.description}
                               </div>
                             )}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              {consultorio.address || 'Sin dirección registrada'}
-                            </div>
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-2">

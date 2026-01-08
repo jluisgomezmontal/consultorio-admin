@@ -23,6 +23,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConsultorio } from '@/contexts/ConsultorioContext';
+import { usePaquete } from '@/hooks/usePaquete';
 import { cn } from '@/lib/utils';
 import { 
   Menu, 
@@ -38,14 +39,22 @@ import {
   DollarSign,
   BarChart3,
   UserCog,
-  Stethoscope
+  Stethoscope,
+  Sparkles,
+  Package
 } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const { consultorios, selectedConsultorio, setSelectedConsultorio } = useConsultorio();
+  const { paqueteInfo, esPaquete } = usePaquete();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Early return if no user
+  if (!user) {
+    return null;
+  }
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -54,12 +63,6 @@ const navLinks = [
   { href: '/pagos', label: 'Pagos', icon: DollarSign },
   ...(user && user.role !== 'recepcionista'
     ? [{ href: '/reportes', label: 'Reportes', icon: BarChart3 }]
-    : []),
-  ...(user && user.role === 'admin'
-    ? [{ href: '/users', label: 'Usuarios', icon: UserCog }]
-    : []),
-  ...(user && user.role === 'admin'
-    ? [{ href: '/consultorios', label: 'Consultorios', icon: Building2 }]
     : []),
 ];
 
@@ -77,7 +80,7 @@ const navLinks = [
               </div>
               <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Mi Consultorio</span>
             </Link>
-            <div className="hidden lg:ml-6 lg:flex lg:space-x-2">
+            <div className="hidden lg:ml-6 lg:flex lg:space-x-0.5">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 const Icon = link.icon;
@@ -140,14 +143,18 @@ const navLinks = [
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hidden lg:flex items-center gap-2 h-10">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-sm">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="hidden md:block">
+                      <p className="text-sm font-medium text-foreground">{user.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                      </div>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium leading-none">{user?.name || 'Usuario'}</p>
-                    <p className="text-xs text-muted-foreground capitalize mt-1">{user?.role || 'Rol'}</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -158,6 +165,14 @@ const navLinks = [
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  {
+                    !esPaquete("clinica") && <Link href="/configuracion/paquetes" className="cursor-pointer">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    <span>Mi Plan</span>
+                  </Link>
+                  }
+                </DropdownMenuItem>
                 {user?.role === 'doctor' && (
                   <>
                     <DropdownMenuItem asChild>
@@ -166,9 +181,38 @@ const navLinks = [
                         <span>Configuración</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
+                {user?.role === 'admin' && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/users" className="cursor-pointer">
+                        <UserCog className="mr-2 h-4 w-4" />
+                        <span>Usuarios</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/consultorios" className="cursor-pointer">
+                        <Building2 className="mr-2 h-4 w-4" />
+                        <span>Consultorios</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/paquetes" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Administrar Paquetes</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/paquetes/gestion" className="cursor-pointer">
+                        <Package className="mr-2 h-4 w-4" />
+                        <span>Gestión de Paquetes</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 focus:text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>

@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { consultorioService } from '@/services/consultorio.service';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Edit, MapPin, Phone, Clock, Users, BarChart3, CalendarDays, Stethoscope, Settings } from 'lucide-react';
@@ -56,8 +55,6 @@ export default function ConsultorioDetailPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>

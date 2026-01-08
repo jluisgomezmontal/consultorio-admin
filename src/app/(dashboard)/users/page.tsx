@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Users as UsersIcon, UserPlus, Trash2, Edit, ArrowLeft, Mail, Shield, Building2 } from 'lucide-react';
 import { userService, User } from '@/services/user.service';
@@ -78,8 +77,6 @@ export default function UsersPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-violet-950/20 p-4 sm:p-6 shadow-lg border border-blue-100 dark:border-blue-900">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

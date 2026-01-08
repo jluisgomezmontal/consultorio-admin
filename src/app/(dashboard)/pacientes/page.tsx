@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Phone, Mail, User } from 'lucide-react';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -88,8 +87,6 @@ export default function PacientesPage() {
 
   if (authLoading || isLoading) {
     return <div className="min-h-screen bg-background">
-        <Navbar />
-
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Card className="flex items-center justify-center py-24">
             <LoadingSpinner
@@ -130,8 +127,6 @@ export default function PacientesPage() {
 
   return (
     <div className="bg-background flex-1 flex flex-col">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 w-full">
         {/* Header con gradiente */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-4 sm:p-6 shadow-lg border border-purple-100 dark:border-purple-900">
