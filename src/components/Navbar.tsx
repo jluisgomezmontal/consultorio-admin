@@ -305,6 +305,21 @@ const navLinks = [
                   </Link>
                 );
               })}
+              {!esPaquete("clinica") && user?.role !== 'recepcionista' && (
+                <Link
+                  href="/configuracion/paquetes"
+                  onClick={handleNavClick}
+                  className={cn(
+                    'rounded-lg px-3 py-3 text-sm font-medium flex items-center gap-3 transition-colors',
+                    pathname === '/configuracion/paquetes' || pathname.startsWith('/configuracion/paquetes')
+                      ? 'bg-primary/10 text-primary shadow-sm'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Sparkles className="h-5 w-5" />
+                  <span>Mi Plan</span>
+                </Link>
+              )}
               {user?.role === 'doctor' && (
                 <Link
                   href="/configuracion"
@@ -319,6 +334,62 @@ const navLinks = [
                   <Settings className="h-5 w-5" />
                   <span>Configuración</span>
                 </Link>
+              )}
+              {user?.role === 'admin' && (
+                <>
+                  <Link
+                    href="/users"
+                    onClick={handleNavClick}
+                    className={cn(
+                      'rounded-lg px-3 py-3 text-sm font-medium flex items-center gap-3 transition-colors',
+                      pathname === '/users' || pathname.startsWith('/users/')
+                        ? 'bg-primary/10 text-primary shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <UserCog className="h-5 w-5" />
+                    <span>Usuarios</span>
+                  </Link>
+                  <Link
+                    href="/consultorios"
+                    onClick={handleNavClick}
+                    className={cn(
+                      'rounded-lg px-3 py-3 text-sm font-medium flex items-center gap-3 transition-colors',
+                      pathname === '/consultorios' || pathname.startsWith('/consultorios/')
+                        ? 'bg-primary/10 text-primary shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <Building2 className="h-5 w-5" />
+                    <span>Consultorios</span>
+                  </Link>
+                  <Link
+                    href="/admin/paquetes"
+                    onClick={handleNavClick}
+                    className={cn(
+                      'rounded-lg px-3 py-3 text-sm font-medium flex items-center gap-3 transition-colors',
+                      pathname === '/admin/paquetes' || pathname.startsWith('/admin/paquetes')
+                        ? 'bg-primary/10 text-primary shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <Settings className="h-5 w-5" />
+                    <span>Administrar Paquetes</span>
+                  </Link>
+                  <Link
+                    href="/admin/paquetes/gestion"
+                    onClick={handleNavClick}
+                    className={cn(
+                      'rounded-lg px-3 py-3 text-sm font-medium flex items-center gap-3 transition-colors',
+                      pathname === '/admin/paquetes/gestion' || pathname.startsWith('/admin/paquetes/gestion')
+                        ? 'bg-primary/10 text-primary shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <Package className="h-5 w-5" />
+                    <span>Gestión de Paquetes</span>
+                  </Link>
+                </>
               )}
             </div>
           </div>

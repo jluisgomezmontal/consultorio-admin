@@ -743,10 +743,12 @@ export default function PacienteDetailPage() {
             Volver
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Expediente
-            </Button>
+            {user.role !== 'recepcionista' && (
+              <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Expediente
+              </Button>
+            )}
             <Button onClick={() => router.push(`/pacientes/${id}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />
               Editar
