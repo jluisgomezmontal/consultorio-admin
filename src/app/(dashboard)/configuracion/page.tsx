@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -107,6 +107,10 @@ export default function ConfiguracionPage() {
     antecedentesPersonalesPatologicos: true,
     antecedentesPersonalesNoPatologicos: true,
     ginecoObstetricos: true,
+  });
+
+  const [permissions, setPermissions] = useState({
+    allowReceptionistViewClinicalSummary: false,
   });
 
   useEffect(() => {
@@ -220,6 +224,12 @@ export default function ConfiguracionPage() {
     }
   }, [consultorioData]);
 
+  useEffect(() => {
+    if (consultorioData?.data?.permissions) {
+      setPermissions(consultorioData.data.permissions);
+    }
+  }, [consultorioData]);
+
   const updateConsultorioMutation = useMutation({
     mutationFn: (data: { formData: ConsultorioFormData; file?: File }) =>
       consultorioService.updateConsultorioBasicInfo(consultorioId || '', data.formData, data.file),
@@ -313,6 +323,20 @@ export default function ConfiguracionPage() {
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Error al actualizar plantilla');
+      setSuccess('');
+    },
+  });
+
+  const updatePermissionsMutation = useMutation({
+    mutationFn: () => consultorioService.updatePermissions(consultorioId || '', permissions),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultorio', consultorioId] });
+      setSuccess('Permisos actualizados exitosamente');
+      setError('');
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al actualizar permisos');
       setSuccess('');
     },
   });
@@ -547,8 +571,8 @@ export default function ConfiguracionPage() {
               </TabsTrigger>
               <TabsTrigger value="historia" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
                 <Stethoscope className="h-4 w-4 flex-shrink-0" />
-                <span className="hidden sm:inline">Historia Clínica</span>
-                <span className="sm:hidden">Historia</span>
+                <span className="hidden sm:inline">Clínica y Permisos</span>
+                <span className="sm:hidden">Clínica</span>
               </TabsTrigger>
               <TabsTrigger value="perfil" className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4">
                 <UserIcon className="h-4 w-4 flex-shrink-0" />
@@ -916,20 +940,27 @@ export default function ConfiguracionPage() {
           <TabsContent value="historia" className="space-y-4 sm:space-y-6">
             <Card>
               <CardHeader className="space-y-1 sm:space-y-1.5">
-                <CardTitle className="text-xl sm:text-2xl">Configuración de Historia Clínica</CardTitle>
-                <CardDescription className="text-sm">
-                  Activa o desactiva las secciones del historial clínico que deseas utilizar en el registro de pacientes
-                </CardDescription>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl sm:text-2xl">Secciones de Historia Clínica</CardTitle>
+                    <CardDescription className="text-sm mt-1">
+                      Personaliza qué información deseas capturar en el registro de pacientes
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={onSubmitClinicalHistoryConfig} className="space-y-4 sm:space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3">
+                <form onSubmit={onSubmitClinicalHistoryConfig} className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
                       <div className="space-y-0.5 flex-1 min-w-0">
-                        <Label htmlFor="antecedentesHeredofamiliares" className="text-sm sm:text-base font-medium">
+                        <Label htmlFor="antecedentesHeredofamiliares" className="text-sm font-medium cursor-pointer">
                           Antecedentes Heredofamiliares
                         </Label>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           Diabetes, Hipertensión, Cáncer, Cardiopatías
                         </p>
                       </div>
@@ -942,13 +973,13 @@ export default function ConfiguracionPage() {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="antecedentesPersonalesPatologicos" className="text-base font-medium">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="antecedentesPersonalesPatologicos" className="text-sm font-medium cursor-pointer">
                           Antecedentes Personales Patológicos
                         </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Cirugías, Hospitalizaciones
+                        <p className="text-xs text-muted-foreground">
+                          Cirugías, Hospitalizaciones, Enfermedades Previas
                         </p>
                       </div>
                       <Switch
@@ -960,12 +991,12 @@ export default function ConfiguracionPage() {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="antecedentesPersonalesNoPatologicos" className="text-base font-medium">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="antecedentesPersonalesNoPatologicos" className="text-sm font-medium cursor-pointer">
                           Antecedentes Personales No Patológicos
                         </Label>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           Tabaquismo, Alcoholismo, Actividad Física, Vacunas
                         </p>
                       </div>
@@ -978,13 +1009,13 @@ export default function ConfiguracionPage() {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="ginecoObstetricos" className="text-base font-medium">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="ginecoObstetricos" className="text-sm font-medium cursor-pointer">
                           Gineco-obstétricos
                         </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Embarazos, Partos, Cesáreas
+                        <p className="text-xs text-muted-foreground">
+                          Embarazos, Partos, Cesáreas, Menstruación
                         </p>
                       </div>
                       <Switch
@@ -997,15 +1028,88 @@ export default function ConfiguracionPage() {
                     </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={updateClinicalHistoryConfigMutation.isPending}
-                    className="w-full md:w-auto"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {updateClinicalHistoryConfigMutation.isPending ? 'Guardando...' : 'Guardar Configuración'}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Los cambios se aplicarán al registro de nuevos pacientes
+                    </p>
+                    <Button
+                      type="submit"
+                      disabled={updateClinicalHistoryConfigMutation.isPending}
+                      className="w-full sm:w-auto"
+                    >
+                      {updateClinicalHistoryConfigMutation.isPending ? (
+                        <>
+                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Guardar Configuración
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10">
+                    <ShieldAlert className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg sm:text-xl">Permisos de Visualización</CardTitle>
+                    <CardDescription className="text-sm mt-1">
+                      Controla qué información médica puede ver tu equipo de recepción
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4">
+                  <div className="flex items-start gap-3 mb-4">
+                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                        Información importante sobre privacidad
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                        Por defecto, solo los doctores pueden ver y editar información médica sensible. Activa esta opción solo si confías en tu equipo de recepción.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-amber-200 dark:border-amber-800">
+                    <div className="flex-1 min-w-0">
+                      <Label htmlFor="allowReceptionistViewClinicalSummary" className="text-sm font-medium cursor-pointer">
+                        Permitir a recepción ver resumen clínico
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Los recepcionistas podrán <strong>ver</strong> (no editar): evaluación médica, diagnóstico y tratamiento
+                      </p>
+                    </div>
+                    <Switch
+                      id="allowReceptionistViewClinicalSummary"
+                      checked={permissions.allowReceptionistViewClinicalSummary}
+                      onCheckedChange={(checked) => {
+                        setPermissions((prev) => ({ ...prev, allowReceptionistViewClinicalSummary: checked }));
+                        updatePermissionsMutation.mutate();
+                      }}
+                      disabled={updatePermissionsMutation.isPending}
+                      className="flex-shrink-0"
+                    />
+                  </div>
+                  
+                  {updatePermissionsMutation.isPending && (
+                    <div className="flex items-center gap-2 mt-3 text-xs text-amber-600 dark:text-amber-400">
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Actualizando permisos...
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

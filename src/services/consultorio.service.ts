@@ -7,6 +7,10 @@ export interface ClinicalHistoryConfig {
   ginecoObstetricos: boolean;
 }
 
+export interface ConsultorioPermissions {
+  allowReceptionistViewClinicalSummary: boolean;
+}
+
 export interface Consultorio {
   id: string;
   _id?: string; // MongoDB ID for compatibility
@@ -20,6 +24,7 @@ export interface Consultorio {
   s3ImageKey?: string;
   recetaTemplate?: 'template1' | 'template2' | 'template3' | 'template4' | 'template5';
   clinicalHistoryConfig?: ClinicalHistoryConfig;
+  permissions?: ConsultorioPermissions;
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -161,6 +166,13 @@ class ConsultorioService {
   async updateRecetaTemplate(id: string, template: 'template1' | 'template2' | 'template3' | 'template4' | 'template5'): Promise<ConsultorioResponse> {
     const response = await apiClient.put<ConsultorioResponse>(`/consultorios/${id}/receta-template`, {
       recetaTemplate: template,
+    });
+    return response.data;
+  }
+
+  async updatePermissions(id: string, permissions: ConsultorioPermissions): Promise<ConsultorioResponse> {
+    const response = await apiClient.put<ConsultorioResponse>(`/consultorios/${id}/permissions`, {
+      permissions,
     });
     return response.data;
   }

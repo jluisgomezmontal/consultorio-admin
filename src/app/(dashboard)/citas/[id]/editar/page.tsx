@@ -16,6 +16,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -84,7 +85,7 @@ export default function EditarCitaPage() {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const isDoctor = user?.role === 'doctor' || user?.role === 'admin';
+  const { canViewClinicalInfo, canEditClinicalInfo, isDoctor } = useConsultorioPermissions();
 
   useEffect(() => {
     if (!authLoading) {
@@ -534,161 +535,175 @@ export default function EditarCitaPage() {
                 )}
               </div>
 
-              {/* Sección: Evaluación Médica */}
-              <div className="border rounded-lg overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('medicalEvaluation')}
-                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-950/30 dark:hover:to-violet-950/30 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <Stethoscope className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    <span className="font-semibold">Evaluación Médica</span>
-                    <span className="text-xs text-muted-foreground">(Opcional)</span>
-                  </div>
-                  {openSections.medicalEvaluation ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-                {openSections.medicalEvaluation && (
-                  <div className="p-4 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="currentCondition">Padecimiento Actual</Label>
-                      <textarea
-                        id="currentCondition"
-                        {...register('currentCondition')}
-                        rows={3}
-                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Descripción detallada del padecimiento actual del paciente..."
-                      />
+              {/* Sección: Evaluación Médica - SOLO DOCTOR O CON PERMISO */}
+              {canViewClinicalInfo && (
+                <div className="border rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('medicalEvaluation')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-950/30 dark:hover:to-violet-950/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Stethoscope className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <span className="font-semibold">Evaluación Médica</span>
+                      {!canEditClinicalInfo && <span className="text-xs text-purple-600 dark:text-purple-400">(Solo Lectura)</span>}
+                      <span className="text-xs text-muted-foreground">(Opcional)</span>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="physicalExam">Exploración Física</Label>
-                      <textarea
-                        id="physicalExam"
-                        {...register('physicalExam')}
-                        rows={3}
-                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        placeholder="Hallazgos de la exploración física..."
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Sección: Diagnóstico y Tratamiento - SOLO DOCTOR */}
-              <div className="border rounded-lg overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('diagnosisTreatment')}
-                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-950/30 dark:hover:to-orange-950/30 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    <span className="font-semibold">Diagnóstico y Tratamiento</span>
-                    {!isDoctor && <span className="text-xs text-amber-600 dark:text-amber-400">(Solo Doctor)</span>}
-                    <span className="text-xs text-muted-foreground">(Opcional)</span>
-                  </div>
-                  {openSections.diagnosisTreatment ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-                {openSections.diagnosisTreatment && (
-                  <div className="p-4 space-y-4">
-                    {!isDoctor && (
-                      <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
-                        <p className="font-medium">⚠️ Acceso Restringido</p>
-                        <p className="text-xs mt-1">Solo los doctores pueden editar el diagnóstico y tratamiento. Puedes visualizar esta información pero no modificarla.</p>
-                      </div>
+                    {openSections.medicalEvaluation ? (
+                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
                     )}
-                    <div className="space-y-2">
-                      <Label htmlFor="diagnostico">Diagnóstico</Label>
-                      <textarea
-                        id="diagnostico"
-                        {...register('diagnostico')}
-                        rows={3}
-                        disabled={!isDoctor}
-                        className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!isDoctor ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        placeholder={isDoctor ? "Diagnóstico médico del paciente..." : "Solo el doctor puede ingresar el diagnóstico"}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="tratamiento">Tratamiento <span className="text-xs text-muted-foreground">(No farmacológico)</span></Label>
-                      <textarea
-                        id="tratamiento"
-                        {...register('tratamiento')}
-                        rows={3}
-                        disabled={!isDoctor}
-                        className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!isDoctor ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        placeholder={isDoctor ? "Plan de tratamiento recomendado..." : "Solo el doctor puede ingresar el tratamiento"}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Sección: Medicamentos - SOLO DOCTOR */}
-              <div className="border rounded-lg overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('medications')}
-                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20 hover:from-pink-100 hover:to-rose-100 dark:hover:from-pink-950/30 dark:hover:to-rose-950/30 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-                    <span className="font-semibold">Medicamentos</span>
-                    {!isDoctor && <span className="text-xs text-pink-600 dark:text-pink-400">(Solo Doctor)</span>}
-                    <span className="text-xs text-muted-foreground">(Opcional)</span>
-                  </div>
-                  {openSections.medications ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-                {openSections.medications && (
-                  <div className="p-4 space-y-4">
-                    {!isDoctor && (
-                      <div className="rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-800 p-3 text-sm text-pink-800 dark:text-pink-200">
-                        <p className="font-medium">⚠️ Acceso Restringido</p>
-                        <p className="text-xs mt-1">Solo los doctores pueden gestionar los medicamentos.</p>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <Label className="text-base">Lista de Medicamentos</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => append({ nombre: '', dosis: '', frecuencia: '', duracion: '', indicaciones: '' })}
-                        disabled={!isDoctor}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Agregar Medicamento
-                      </Button>
-                    </div>
-
-                    {fields.map((field, index) => (
-                      <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
-                        <div className="flex items-start justify-between">
-                          <span className="text-sm font-medium">Medicamento #{index + 1}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => remove(index)}
-                            disabled={!isDoctor}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                  </button>
+                  {openSections.medicalEvaluation && (
+                    <div className="p-4 space-y-4">
+                      {!canEditClinicalInfo && (
+                        <div className="rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 p-3 text-sm text-purple-800 dark:text-purple-200">
+                          <p className="font-medium">⚠️ Acceso de Solo Lectura</p>
+                          <p className="text-xs mt-1">Solo los doctores pueden editar la evaluación médica. Puedes visualizar esta información pero no modificarla.</p>
                         </div>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="currentCondition">Padecimiento Actual</Label>
+                        <textarea
+                          id="currentCondition"
+                          {...register('currentCondition')}
+                          rows={3}
+                          disabled={!canEditClinicalInfo}
+                          className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!canEditClinicalInfo ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          placeholder={canEditClinicalInfo ? "Descripción detallada del padecimiento actual del paciente..." : "Solo el doctor puede ingresar el padecimiento actual"}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="physicalExam">Exploración Física</Label>
+                        <textarea
+                          id="physicalExam"
+                          {...register('physicalExam')}
+                          rows={3}
+                          disabled={!canEditClinicalInfo}
+                          className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!canEditClinicalInfo ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          placeholder={canEditClinicalInfo ? "Hallazgos de la exploración física..." : "Solo el doctor puede ingresar la exploración física"}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Sección: Diagnóstico y Tratamiento - SOLO DOCTOR O CON PERMISO */}
+              {canViewClinicalInfo && (
+                <div className="border rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('diagnosisTreatment')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-950/30 dark:hover:to-orange-950/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                      <span className="font-semibold">Diagnóstico y Tratamiento</span>
+                      {!canEditClinicalInfo && <span className="text-xs text-amber-600 dark:text-amber-400">(Solo Lectura)</span>}
+                      <span className="text-xs text-muted-foreground">(Opcional)</span>
+                    </div>
+                    {openSections.diagnosisTreatment ? (
+                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </button>
+                  {openSections.diagnosisTreatment && (
+                    <div className="p-4 space-y-4">
+                      {!canEditClinicalInfo && (
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
+                          <p className="font-medium">⚠️ Acceso de Solo Lectura</p>
+                          <p className="text-xs mt-1">Solo los doctores pueden editar el diagnóstico y tratamiento. Puedes visualizar esta información pero no modificarla.</p>
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="diagnostico">Diagnóstico</Label>
+                        <textarea
+                          id="diagnostico"
+                          {...register('diagnostico')}
+                          rows={3}
+                          disabled={!canEditClinicalInfo}
+                          className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!canEditClinicalInfo ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          placeholder={canEditClinicalInfo ? "Diagnóstico médico del paciente..." : "Solo el doctor puede ingresar el diagnóstico"}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="tratamiento">Tratamiento <span className="text-xs text-muted-foreground">(No farmacológico)</span></Label>
+                        <textarea
+                          id="tratamiento"
+                          {...register('tratamiento')}
+                          rows={3}
+                          disabled={!canEditClinicalInfo}
+                          className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!canEditClinicalInfo ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          placeholder={canEditClinicalInfo ? "Plan de tratamiento recomendado..." : "Solo el doctor puede ingresar el tratamiento"}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Sección: Medicamentos - SOLO DOCTOR O CON PERMISO */}
+              {canViewClinicalInfo && (
+                <div className="border rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('medications')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20 hover:from-pink-100 hover:to-rose-100 dark:hover:from-pink-950/30 dark:hover:to-rose-950/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                      <span className="font-semibold">Medicamentos</span>
+                      {!canEditClinicalInfo && <span className="text-xs text-pink-600 dark:text-pink-400">(Solo Lectura)</span>}
+                      <span className="text-xs text-muted-foreground">(Opcional)</span>
+                    </div>
+                    {openSections.medications ? (
+                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </button>
+                  {openSections.medications && (
+                    <div className="p-4 space-y-4">
+                      {!canEditClinicalInfo && (
+                        <div className="rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-800 p-3 text-sm text-pink-800 dark:text-pink-200">
+                          <p className="font-medium">⚠️ Acceso de Solo Lectura</p>
+                          <p className="text-xs mt-1">Solo los doctores pueden gestionar los medicamentos.</p>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base">Lista de Medicamentos</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => append({ nombre: '', dosis: '', frecuencia: '', duracion: '', indicaciones: '' })}
+                          disabled={!canEditClinicalInfo}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Agregar Medicamento
+                        </Button>
+                      </div>
+
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                          <div className="flex items-start justify-between">
+                            <span className="text-sm font-medium">Medicamento #{index + 1}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => remove(index)}
+                              disabled={!canEditClinicalInfo}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
 
                         <div className="grid gap-3 md:grid-cols-2">
                           <div className="space-y-2 md:col-span-2">
@@ -699,7 +714,7 @@ export default function EditarCitaPage() {
                               {...register(`medicamentos.${index}.nombre`)}
                               id={`medicamentos.${index}.nombre`}
                               placeholder="Ej: Amoxicilina 500mg"
-                              disabled={!isDoctor}
+                              disabled={!canEditClinicalInfo}
                             />
                             {errors.medicamentos?.[index]?.nombre && (
                               <p className="text-sm text-destructive">
@@ -714,7 +729,7 @@ export default function EditarCitaPage() {
                               {...register(`medicamentos.${index}.dosis`)}
                               id={`medicamentos.${index}.dosis`}
                               placeholder="Ej: 1 tableta"
-                              disabled={!isDoctor}
+                              disabled={!canEditClinicalInfo}
                             />
                           </div>
 
@@ -724,7 +739,7 @@ export default function EditarCitaPage() {
                               {...register(`medicamentos.${index}.frecuencia`)}
                               id={`medicamentos.${index}.frecuencia`}
                               placeholder="Ej: Cada 8 horas"
-                              disabled={!isDoctor}
+                              disabled={!canEditClinicalInfo}
                             />
                           </div>
 
@@ -734,7 +749,7 @@ export default function EditarCitaPage() {
                               {...register(`medicamentos.${index}.duracion`)}
                               id={`medicamentos.${index}.duracion`}
                               placeholder="Ej: 7 días"
-                              disabled={!isDoctor}
+                              disabled={!canEditClinicalInfo}
                             />
                           </div>
 
@@ -746,7 +761,7 @@ export default function EditarCitaPage() {
                               {...register(`medicamentos.${index}.indicaciones`)}
                               id={`medicamentos.${index}.indicaciones`}
                               placeholder="Ej: Tomar con alimentos"
-                              disabled={!isDoctor}
+                              disabled={!canEditClinicalInfo}
                             />
                           </div>
                         </div>
@@ -755,6 +770,7 @@ export default function EditarCitaPage() {
                   </div>
                 )}
               </div>
+              )}
 
               {/* Sección: Notas Adicionales */}
               <div className="border rounded-lg overflow-hidden">

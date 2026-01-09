@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { citaService, CitaEstado } from '@/services/cita.service';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
 import {
   ArrowLeft,
   Edit,
@@ -65,6 +66,8 @@ export default function CitaDetailPage() {
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
+
+  const { canViewClinicalInfo } = useConsultorioPermissions();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -489,7 +492,7 @@ export default function CitaDetailPage() {
           )}
         </Card>
         {/* Sección de Evaluación Médica */}
-        {(cita.currentCondition || cita.physicalExam) && (
+        {canViewClinicalInfo && (cita.currentCondition || cita.physicalExam) && (
           <Card className="shadow-md hover:shadow-lg transition-shadow mt-6">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20">
               <button
@@ -533,6 +536,7 @@ export default function CitaDetailPage() {
         )}
 
         {/* Sección de Diagnóstico y Tratamiento */}
+        {canViewClinicalInfo && (
         <Card className="shadow-md hover:shadow-lg transition-shadow mt-6">
           <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
             <button
@@ -591,6 +595,7 @@ export default function CitaDetailPage() {
             </CardContent>
           )}
         </Card>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-2 mt-6">
           <Card className="shadow-md hover:shadow-lg transition-shadow">
