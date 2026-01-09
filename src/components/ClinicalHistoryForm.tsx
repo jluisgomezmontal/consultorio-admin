@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { ClinicalHistory } from '@/services/paciente.service';
 import { ClinicalHistoryConfig } from '@/services/consultorio.service';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ClinicalHistoryFormProps {
   clinicalHistory: ClinicalHistory;
@@ -23,6 +24,9 @@ export function ClinicalHistoryForm({
     ginecoObstetricos: true,
   },
 }: ClinicalHistoryFormProps) {
+
+  const { user } = useAuth();
+  console.log(user.role)
   const [openSections, setOpenSections] = useState({
     antecedentesHeredofamiliares: false,
     antecedentesPersonalesPatologicos: false,
@@ -73,7 +77,7 @@ export function ClinicalHistoryForm({
       },
     });
   };
-
+  if (user.role !== 'recepcionista') {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Historia Clínica</h3>
@@ -316,4 +320,6 @@ export function ClinicalHistoryForm({
       )}
     </div>
   );
+  }
+
 }

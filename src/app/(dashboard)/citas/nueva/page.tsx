@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Save, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { citaService, CreateCitaRequest, CitaEstado } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
@@ -241,8 +240,6 @@ function NuevaCitaContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <Button
           variant="ghost"

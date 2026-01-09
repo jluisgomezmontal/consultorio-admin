@@ -167,7 +167,7 @@ const navLinks = [
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   {
-                    !esPaquete("clinica") && <Link href="/configuracion/paquetes" className="cursor-pointer">
+                    !esPaquete("clinica") && user?.role !== 'recepcionista' && <Link href="/configuracion/paquetes" className="cursor-pointer">
                     <Sparkles className="mr-2 h-4 w-4" />
                     <span>Mi Plan</span>
                   </Link>

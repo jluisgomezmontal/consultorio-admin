@@ -133,6 +133,44 @@ class UserService {
     const response = await apiClient.patch<UserResponse>(`/users/${id}/status`, { isActive });
     return response.data;
   }
+
+  async createReceptionist(data: { name: string; email: string; password: string; consultoriosIds: string[] }): Promise<UserResponse> {
+    const response = await apiClient.post<UserResponse>('/users/consultorio/users', {
+      ...data,
+      role: 'recepcionista',
+    });
+    return response.data;
+  }
+
+  async deleteReceptionist(id: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.delete<ApiResponse<{ message: string }>>(`/users/consultorio/users/${id}`);
+    return response.data;
+  }
+
+  async createDoctor(data: { name: string; email: string; password: string; consultoriosIds: string[] }): Promise<UserResponse> {
+    const response = await apiClient.post<UserResponse>('/users/consultorio/users', {
+      ...data,
+      role: 'doctor',
+    });
+    return response.data;
+  }
+
+  async deleteDoctor(id: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.delete<ApiResponse<{ message: string }>>(`/users/consultorio/users/${id}`);
+    return response.data;
+  }
+
+  async updateDoctor(id: string, data: UpdateReceptionistRequest): Promise<ApiResponse<User>> {
+    const response = await apiClient.put<ApiResponse<User>>(`/users/consultorio/users/${id}`, data);
+    return response.data;
+  }
+
+  async getDoctorsByConsultorio(consultorioId: string): Promise<ApiResponse<User[]>> {
+    const response = await apiClient.get<ApiResponse<User[]>>('/users/doctors', {
+      params: { consultorioId },
+    });
+    return response.data;
+  }
 }
 
 export const userService = new UserService();

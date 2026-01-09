@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
 import { ArrowLeft, Save, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
@@ -192,8 +191,6 @@ export default function EditUserPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
         <Button variant="ghost" onClick={() => router.push('/users')} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" /> 

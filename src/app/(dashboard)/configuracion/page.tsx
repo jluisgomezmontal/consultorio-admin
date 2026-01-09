@@ -11,14 +11,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2 } from 'lucide-react';
+import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { consultorioService } from '@/services/consultorio.service';
 import { userService } from '@/services/user.service';
+import { usePaquete } from '@/hooks/usePaquete';
 import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const consultorioSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -50,14 +70,22 @@ const receptionistSchema = z.object({
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional().or(z.literal('')),
 });
 
+const createReceptionistSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+});
+
 type ConsultorioFormData = z.infer<typeof consultorioSchema>;
 type ProfileFormData = z.infer<typeof profileSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 type ReceptionistFormData = z.infer<typeof receptionistSchema>;
+type CreateReceptionistFormData = z.infer<typeof createReceptionistSchema>;
 
 export default function ConfiguracionPage() {
   const { user, loading: authLoading } = useAuth();
   const { selectedConsultorio } = useConsultorio();
+  const { paqueteInfo, refetch: refetchPaquete } = usePaquete();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('consultorio');
@@ -68,6 +96,11 @@ export default function ConfiguracionPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<'template1' | 'template2' | 'template3' | 'template4' | 'template5'>('template1');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [deleteReceptionistId, setDeleteReceptionistId] = useState<string | null>(null);
+  const [equipoSubTab, setEquipoSubTab] = useState<'doctores' | 'recepcionistas'>('doctores');
+  const [isCreateDoctorDialogOpen, setIsCreateDoctorDialogOpen] = useState(false);
+  const [deleteDoctorId, setDeleteDoctorId] = useState<string | null>(null);
 
   const [clinicalHistoryConfig, setClinicalHistoryConfig] = useState({
     antecedentesHeredofamiliares: true,
@@ -93,6 +126,12 @@ export default function ConfiguracionPage() {
   const { data: receptionistsData } = useQuery({
     queryKey: ['receptionists', consultorioId],
     queryFn: () => userService.getReceptionistsByConsultorio(consultorioId || ''),
+    enabled: !!consultorioId,
+  });
+
+  const { data: doctorsData } = useQuery({
+    queryKey: ['doctors', consultorioId],
+    queryFn: () => userService.getDoctorsByConsultorio(consultorioId || ''),
     enabled: !!consultorioId,
   });
 
@@ -278,6 +317,99 @@ export default function ConfiguracionPage() {
     },
   });
 
+  const createReceptionistMutation = useMutation({
+    mutationFn: (data: CreateReceptionistFormData) =>
+      userService.createReceptionist({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        consultoriosIds: [consultorioId || ''],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receptionists', consultorioId] });
+      refetchPaquete();
+      setSuccess('Miembro del equipo creado exitosamente');
+      setError('');
+      setIsCreateDialogOpen(false);
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al crear miembro del equipo');
+      setSuccess('');
+    },
+  });
+
+  const deleteReceptionistMutation = useMutation({
+    mutationFn: (id: string) => userService.deleteReceptionist(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receptionists', consultorioId] });
+      refetchPaquete();
+      setSuccess('Miembro del equipo eliminado exitosamente');
+      setError('');
+      setDeleteReceptionistId(null);
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al eliminar miembro del equipo');
+      setSuccess('');
+      setDeleteReceptionistId(null);
+    },
+  });
+
+  const createDoctorMutation = useMutation({
+    mutationFn: (data: CreateReceptionistFormData) =>
+      userService.createDoctor({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        consultoriosIds: [consultorioId || ''],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doctors', consultorioId] });
+      refetchPaquete();
+      setSuccess('Doctor creado exitosamente');
+      setError('');
+      setIsCreateDoctorDialogOpen(false);
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al crear doctor');
+      setSuccess('');
+    },
+  });
+
+  const updateDoctorMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ReceptionistFormData }) =>
+      userService.updateDoctor(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doctors', consultorioId] });
+      setSuccess('Doctor actualizado exitosamente');
+      setError('');
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al actualizar doctor');
+      setSuccess('');
+    },
+  });
+
+  const deleteDoctorMutation = useMutation({
+    mutationFn: (id: string) => userService.deleteDoctor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doctors', consultorioId] });
+      refetchPaquete();
+      setSuccess('Doctor eliminado exitosamente');
+      setError('');
+      setDeleteDoctorId(null);
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al eliminar doctor');
+      setSuccess('');
+      setDeleteDoctorId(null);
+    },
+  });
+
   const onSubmitConsultorio = (data: ConsultorioFormData) => {
     setError('');
     setSuccess('');
@@ -330,6 +462,24 @@ export default function ConfiguracionPage() {
       setError('');
       setSuccess('');
       updateReceptionistMutation.mutate({ id: receptionist.id, data: cleanData });
+    };
+  };
+
+  const handleDoctorSubmit = (doctor: any) => {
+    return (data: ReceptionistFormData) => {
+      const cleanData: any = {};
+      if (data.name) cleanData.name = data.name;
+      if (data.email) cleanData.email = data.email;
+      if (data.password) cleanData.password = data.password;
+
+      if (Object.keys(cleanData).length === 0) {
+        setError('Debes modificar al menos un campo');
+        return;
+      }
+
+      setError('');
+      setSuccess('');
+      updateDoctorMutation.mutate({ id: doctor.id, data: cleanData });
     };
   };
 
@@ -1058,33 +1208,201 @@ export default function ConfiguracionPage() {
             <Card>
               <CardHeader className="space-y-1 sm:space-y-1.5">
                 <CardTitle className="text-xl sm:text-2xl">Equipo del Consultorio</CardTitle>
-                <CardDescription className="text-sm">
-                  Gestiona los datos de tu Equipo
+                <CardDescription className="text-sm mt-1">
+                  Gestiona los doctores y recepcionistas de tu consultorio
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {receptionistsData?.data && receptionistsData.data.length > 0 ? (
-                  <div className="space-y-6">
-                    {receptionistsData.data.map((receptionist: any) => (
-                      <ReceptionistForm
-                        key={receptionist.id}
-                        receptionist={receptionist}
-                        onSubmit={handleReceptionistSubmit(receptionist)}
-                        isLoading={updateReceptionistMutation.isPending}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">No hay datos de Equipo</h3>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      No hay datos de Equipo asignados a este consultorio
-                    </p>
-                  </div>
-                )}
+                <Tabs value={equipoSubTab} onValueChange={(value) => setEquipoSubTab(value as 'doctores' | 'recepcionistas')} className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="doctores">Doctores</TabsTrigger>
+                    <TabsTrigger value="recepcionistas">Recepcionistas</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="doctores" className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex-1">
+                        {paqueteInfo && (
+                          <div className="rounded-lg border bg-muted/50 p-3">
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 space-y-1">
+                                <p className="text-sm font-medium">
+                                  Límite de doctores: {paqueteInfo.uso.doctores.actual} / {paqueteInfo.uso.doctores.limite}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {paqueteInfo.uso.doctores.disponible > 0
+                                    ? `Puedes agregar ${paqueteInfo.uso.doctores.disponible} doctor(es) más`
+                                    : 'Has alcanzado el límite de tu plan. Actualiza tu suscripción para agregar más doctores.'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <Dialog open={isCreateDoctorDialogOpen} onOpenChange={setIsCreateDoctorDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            disabled={!paqueteInfo || paqueteInfo.uso.doctores.disponible <= 0}
+                            className="w-full sm:w-auto"
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Agregar Doctor
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px]">
+                          <DialogHeader>
+                            <DialogTitle>Agregar Doctor</DialogTitle>
+                            <DialogDescription>
+                              Crea un nuevo doctor para tu consultorio
+                            </DialogDescription>
+                          </DialogHeader>
+                          <CreateReceptionistForm
+                            onSubmit={(data) => createDoctorMutation.mutate(data)}
+                            isLoading={createDoctorMutation.isPending}
+                            onCancel={() => setIsCreateDoctorDialogOpen(false)}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+
+                    {doctorsData?.data && doctorsData.data.length > 0 ? (
+                      <div className="space-y-4">
+                        {doctorsData.data.map((doctor: any) => (
+                          <TeamMemberForm
+                            key={doctor.id}
+                            member={doctor}
+                            memberType="doctor"
+                            onSubmit={handleDoctorSubmit(doctor)}
+                            onDelete={() => setDeleteDoctorId(doctor.id)}
+                            isLoading={updateDoctorMutation.isPending}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Stethoscope className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-semibold">No hay doctores</h3>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Agrega doctores a tu consultorio para que puedan atender pacientes
+                        </p>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="recepcionistas" className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex-1">
+                        {paqueteInfo && (
+                          <div className="rounded-lg border bg-muted/50 p-3">
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 space-y-1">
+                                <p className="text-sm font-medium">
+                                  Límite de recepcionistas: {paqueteInfo.uso.recepcionistas.actual} / {paqueteInfo.uso.recepcionistas.limite}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {paqueteInfo.uso.recepcionistas.disponible > 0
+                                    ? `Puedes agregar ${paqueteInfo.uso.recepcionistas.disponible} recepcionista(s) más`
+                                    : 'Has alcanzado el límite de tu plan. Actualiza tu suscripción para agregar más recepcionistas.'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            disabled={!paqueteInfo || paqueteInfo.uso.recepcionistas.disponible <= 0}
+                            className="w-full sm:w-auto"
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Agregar Recepcionista
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px]">
+                          <DialogHeader>
+                            <DialogTitle>Agregar Recepcionista</DialogTitle>
+                            <DialogDescription>
+                              Crea un nuevo recepcionista para tu consultorio
+                            </DialogDescription>
+                          </DialogHeader>
+                          <CreateReceptionistForm
+                            onSubmit={(data) => createReceptionistMutation.mutate(data)}
+                            isLoading={createReceptionistMutation.isPending}
+                            onCancel={() => setIsCreateDialogOpen(false)}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+
+                    {receptionistsData?.data && receptionistsData.data.length > 0 ? (
+                      <div className="space-y-4">
+                        {receptionistsData.data.map((receptionist: any) => (
+                          <TeamMemberForm
+                            key={receptionist.id}
+                            member={receptionist}
+                            memberType="recepcionista"
+                            onSubmit={handleReceptionistSubmit(receptionist)}
+                            onDelete={() => setDeleteReceptionistId(receptionist.id)}
+                            isLoading={updateReceptionistMutation.isPending}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-semibold">No hay recepcionistas</h3>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Agrega recepcionistas a tu consultorio para que te ayuden con la gestión
+                        </p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
+
+            <AlertDialog open={!!deleteReceptionistId} onOpenChange={(open) => !open && setDeleteReceptionistId(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se eliminará permanentemente este recepcionista y perderá acceso al sistema.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteReceptionistId && deleteReceptionistMutation.mutate(deleteReceptionistId)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={!!deleteDoctorId} onOpenChange={(open) => !open && setDeleteDoctorId(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se eliminará permanentemente este doctor y perderá acceso al sistema.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteDoctorId && deleteDoctorMutation.mutate(deleteDoctorId)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </TabsContent>
         </Tabs>
       </main>
@@ -1092,13 +1410,17 @@ export default function ConfiguracionPage() {
   );
 }
 
-function ReceptionistForm({
-  receptionist,
+function TeamMemberForm({
+  member,
+  memberType,
   onSubmit,
+  onDelete,
   isLoading,
 }: {
-  receptionist: any;
+  member: any;
+  memberType: 'doctor' | 'recepcionista';
   onSubmit: (data: ReceptionistFormData) => void;
+  onDelete: () => void;
   isLoading: boolean;
 }) {
   const {
@@ -1113,18 +1435,32 @@ function ReceptionistForm({
     <form onSubmit={handleSubmit(onSubmit)} className="border rounded-lg p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between mb-4">
         <div className="min-w-0 flex-1">
-          <h3 className="text-base sm:text-lg font-semibold truncate">{receptionist.name}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground truncate">{receptionist.email}</p>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-semibold truncate">{member.name}</h3>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              {memberType === 'doctor' ? 'Doctor' : 'Recepcionista'}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{member.email}</p>
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onDelete}
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`name-${receptionist.id}`}>Nombre</Label>
+          <Label htmlFor={`name-${member.id}`}>Nombre</Label>
           <Input
             {...register('name')}
-            id={`name-${receptionist.id}`}
-            placeholder={receptionist.name}
+            id={`name-${member.id}`}
+            placeholder={member.name}
           />
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -1132,12 +1468,12 @@ function ReceptionistForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`email-${receptionist.id}`}>Email</Label>
+          <Label htmlFor={`email-${member.id}`}>Email</Label>
           <Input
             {...register('email')}
-            id={`email-${receptionist.id}`}
+            id={`email-${member.id}`}
             type="email"
-            placeholder={receptionist.email}
+            placeholder={member.email}
           />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -1146,10 +1482,10 @@ function ReceptionistForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`password-${receptionist.id}`}>Nueva Contraseña</Label>
+        <Label htmlFor={`password-${member.id}`}>Nueva Contraseña</Label>
         <Input
           {...register('password')}
-          id={`password-${receptionist.id}`}
+          id={`password-${member.id}`}
           type="password"
           placeholder="Dejar en blanco para no cambiar"
         />
@@ -1165,6 +1501,81 @@ function ReceptionistForm({
         <Save className="mr-2 h-4 w-4" />
         {isLoading ? 'Guardando...' : 'Actualizar'}
       </Button>
+    </form>
+  );
+}
+
+function CreateReceptionistForm({
+  onSubmit,
+  onCancel,
+  isLoading,
+}: {
+  onSubmit: (data: CreateReceptionistFormData) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateReceptionistFormData>({
+    resolver: zodResolver(createReceptionistSchema),
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="create-name">
+          Nombre <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          {...register('name')}
+          id="create-name"
+          placeholder="Ej: María González"
+        />
+        {errors.name && (
+          <p className="text-sm text-destructive">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="create-email">
+          Email <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          {...register('email')}
+          id="create-email"
+          type="email"
+          placeholder="maria@ejemplo.com"
+        />
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="create-password">
+          Contraseña <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          {...register('password')}
+          id="create-password"
+          type="password"
+          placeholder="Mínimo 6 caracteres"
+        />
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
+        )}
+      </div>
+
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Creando...' : 'Crear Miembro'}
+        </Button>
+      </DialogFooter>
     </form>
   );
 }
