@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 import { PatientPhotoUpload } from '@/components/PatientPhotoUpload';
+import { MedicationAllergySelector } from '@/components/MedicationAllergySelector';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -50,6 +51,7 @@ export default function EditarPacientePage() {
   const [clinicalHistory, setClinicalHistory] = useState<ClinicalHistory>({});
   const [photoUrl, setPhotoUrl] = useState('');
   const [photoS3Key, setPhotoS3Key] = useState('');
+  const [medicationAllergies, setMedicationAllergies] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
     contactInfo: true,
@@ -137,6 +139,7 @@ export default function EditarPacientePage() {
       setClinicalHistory(pacienteData.data.clinicalHistory || {});
       setPhotoUrl(pacienteData.data.photoUrl || '');
       setPhotoS3Key(pacienteData.data.photoS3Key || '');
+      setMedicationAllergies(pacienteData.data.medicationAllergies?.map(m => m.id || (m as any)._id) || []);
     }
   }, [pacienteData, reset]);
 
@@ -176,6 +179,7 @@ export default function EditarPacientePage() {
       } : undefined,
       medicalHistory: data.medicalHistory || undefined,
       allergies: data.allergies || undefined,
+      medicationAllergies: medicationAllergies.length > 0 ? medicationAllergies : undefined,
       notes: data.notes || undefined,
       clinicalHistory,
       photoUrl: photoUrl || undefined,
@@ -470,13 +474,20 @@ export default function EditarPacientePage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="allergies">Alergias</Label>
+                      <Label htmlFor="allergies">Alergias (Otras)</Label>
                       <textarea
                         {...register('allergies')}
                         id="allergies"
                         rows={2}
-                        placeholder="Alergias conocidas..."
+                        placeholder="Otras alergias (alimentos, ambientales, etc.)..."
                         className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+
+                    <div className="pt-4 border-t">
+                      <MedicationAllergySelector
+                        selectedAllergies={medicationAllergies}
+                        onChange={setMedicationAllergies}
                       />
                     </div>
                   </div>

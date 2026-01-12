@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { DocumentList } from '@/components/DocumentList';
 import { PatientAvatar } from '@/components/PatientAvatar';
+import { MedicationAllergyDisplay } from '@/components/MedicationAllergyDisplay';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -959,7 +960,7 @@ export default function PacienteDetailPage() {
                   <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border-l-4 border-red-500">
                     <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-muted-foreground mb-2">Alergias</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Alergias (Otras)</p>
                       <p className="text-base whitespace-pre-wrap">{paciente.allergies}</p>
                     </div>
                   </div>
@@ -973,11 +974,15 @@ export default function PacienteDetailPage() {
                     </div>
                   </div>
                 )}
-                {!paciente.medicalHistory && !paciente.allergies && !paciente.notes && (
+                {!paciente.medicalHistory && !paciente.allergies && !paciente.notes && !paciente.medicationAllergies?.length && (
                   <p className="text-sm text-muted-foreground text-center py-4">Sin información médica registrada</p>
                 )}
               </CardContent>
             </Card>
+
+            {paciente.medicationAllergies && paciente.medicationAllergies.length > 0 && (
+              <MedicationAllergyDisplay allergies={paciente.medicationAllergies} />
+            )}
 
             {clinicalHistory && (
               <>

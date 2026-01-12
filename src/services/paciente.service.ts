@@ -1,4 +1,5 @@
 import apiClient from '@/lib/api-client';
+import { MedicationAllergy } from './medicationAllergy.service';
 
 export interface AntecedentesHeredofamiliares {
   diabetes?: boolean;
@@ -61,6 +62,7 @@ export interface Paciente {
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
+  medicationAllergies?: MedicationAllergy[];
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;
@@ -83,6 +85,7 @@ export interface CreatePacienteRequest {
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
+  medicationAllergies?: string[];
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;
@@ -102,6 +105,7 @@ export interface UpdatePacienteRequest {
   emergencyContact?: EmergencyContact;
   medicalHistory?: string;
   allergies?: string;
+  medicationAllergies?: string[];
   notes?: string;
   clinicalHistory?: ClinicalHistory;
   photoUrl?: string;

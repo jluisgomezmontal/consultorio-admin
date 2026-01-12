@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
+import { MedicationAllergyAlert } from '@/components/MedicationAllergyAlert';
+import { MedicationAllergy } from '@/services/medicationAllergy.service';
 import { userService, User } from '@/services/user.service';
 import { consultorioService, Consultorio } from '@/services/consultorio.service';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -72,6 +74,7 @@ export default function EditarCitaPage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
+  const [medicationAlerts, setMedicationAlerts] = useState<Record<number, MedicationAllergy[]>>({});
   const [openSections, setOpenSections] = useState({
     appointmentInfo: true,
     vitalSigns: false,
@@ -167,6 +170,14 @@ export default function EditarCitaPage() {
     enabled: !!user,
   });
 
+  const pacienteId = watch('pacienteId');
+
+  const { data: pacienteData } = useQuery({
+    queryKey: ['paciente', pacienteId],
+    queryFn: () => pacienteService.getPacienteById(pacienteId),
+    enabled: !!user && !!pacienteId,
+  });
+
   const { data: doctoresData, isLoading: isLoadingDoctores } = useQuery({
     queryKey: ['doctores', 'options'],
     queryFn: () => userService.getDoctors(),
@@ -195,8 +206,89 @@ export default function EditarCitaPage() {
     },
   });
 
+  // Function to check if a medication matches any patient allergies
+  const checkMedicationAllergy = useCallback((medicationName: string): MedicationAllergy[] => {
+    if (!medicationName || !pacienteData?.data?.medicationAllergies) return [];
+    
+    const allergies = pacienteData.data.medicationAllergies;
+    const medNameLower = medicationName.toLowerCase().trim();
+    
+    return allergies.filter((allergy) => {
+      const allergyNameLower = allergy.name.toLowerCase();
+      const activeIngredientLower = allergy.activeIngredient?.toLowerCase() || '';
+      const brandsLower = allergy.commonBrands?.map(b => b.toLowerCase()) || [];
+      
+      // Check if medication name contains allergy name or vice versa
+      if (medNameLower.includes(allergyNameLower) || allergyNameLower.includes(medNameLower)) {
+        return true;
+      }
+      
+      // Check active ingredient
+      if (activeIngredientLower && (medNameLower.includes(activeIngredientLower) || activeIngredientLower.includes(medNameLower))) {
+        return true;
+      }
+      
+      // Check common brands
+      return brandsLower.some(brand => medNameLower.includes(brand) || brand.includes(medNameLower));
+    });
+  }, [pacienteData?.data?.medicationAllergies]);
+
+  // Monitor medication changes and check for allergies
+  const medicamentos = watch('medicamentos');
+  useEffect(() => {
+    if (!pacienteData?.data?.medicationAllergies) {
+      setMedicationAlerts({});
+      return;
+    }
+    
+    if (!medicamentos || medicamentos.length === 0) {
+      setMedicationAlerts({});
+      return;
+    }
+    
+    const newAlerts: Record<number, MedicationAllergy[]> = {};
+    medicamentos.forEach((med, index) => {
+      if (med?.nombre && med.nombre.trim() !== '') {
+        const matches = checkMedicationAllergy(med.nombre);
+        if (matches.length > 0) {
+          newAlerts[index] = matches;
+        }
+      }
+    });
+    
+    setMedicationAlerts(newAlerts);
+    
+    // Auto-open medications section if there are alerts
+    if (Object.keys(newAlerts).length > 0) {
+      setOpenSections(prev => ({ ...prev, medications: true }));
+    }
+  }, [medicamentos, pacienteData?.data?.medicationAllergies, checkMedicationAllergy]);
+
   const onSubmit = (data: CitaFormData) => {
     setError('');
+    
+    // Check if there are any active medication allergy alerts
+    if (Object.keys(medicationAlerts).length > 0) {
+      const alertCount = Object.keys(medicationAlerts).length;
+      const medicationNames = Object.entries(medicationAlerts)
+        .map(([index, _]) => data.medicamentos?.[parseInt(index)]?.nombre)
+        .filter(Boolean)
+        .join(', ');
+      
+      setError(
+        `⚠️ ALERTA: No se puede guardar la cita. Hay ${alertCount} medicamento(s) con alergias detectadas: ${medicationNames}. ` +
+        `Por favor, elimina los medicamentos con alergias o confirma cada uno usando el botón "Confirmar de Todas Formas" en la alerta correspondiente.`
+      );
+      
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Ensure medications section is open
+      setOpenSections(prev => ({ ...prev, medications: true }));
+      
+      return;
+    }
+    
     const payload: UpdateCitaRequest = {
       pacienteId: data.pacienteId,
       doctorId: data.doctorId,
@@ -675,6 +767,40 @@ export default function EditarCitaPage() {
                           <p className="text-xs mt-1">Solo los doctores pueden gestionar los medicamentos.</p>
                         </div>
                       )}
+                      
+                      {pacienteData?.data?.medicationAllergies && pacienteData.data.medicationAllergies.length > 0 && (
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-400 dark:border-amber-600 p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <div className="rounded-full bg-amber-500 p-1.5">
+                                <FileText className="h-4 w-4 text-white" />
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                                ⚕️ Alergias a Medicamentos del Paciente
+                              </h4>
+                              <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">
+                                Este paciente tiene {pacienteData.data.medicationAllergies.length} alergia(s) registrada(s). 
+                                El sistema verificará automáticamente cada medicamento que agregues.
+                              </p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {pacienteData.data.medicationAllergies.map((allergy) => (
+                                  <div
+                                    key={allergy.id || (allergy as any)._id}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700"
+                                  >
+                                    <span className="text-xs font-semibold text-red-800 dark:text-red-200">
+                                      {allergy.name}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center justify-between">
                         <Label className="text-base">Lista de Medicamentos</Label>
                         <Button
@@ -715,11 +841,27 @@ export default function EditarCitaPage() {
                               id={`medicamentos.${index}.nombre`}
                               placeholder="Ej: Amoxicilina 500mg"
                               disabled={!canEditClinicalInfo}
+                              className={medicationAlerts[index] ? 'border-red-500 focus-visible:ring-red-500' : ''}
                             />
                             {errors.medicamentos?.[index]?.nombre && (
                               <p className="text-sm text-destructive">
                                 {errors.medicamentos[index]?.nombre?.message}
                               </p>
+                            )}
+                            {medicationAlerts[index] && medicationAlerts[index].length > 0 && (
+                              <div className="mt-3">
+                                <MedicationAllergyAlert
+                                  medicationName={watch(`medicamentos.${index}.nombre`) || ''}
+                                  matchedAllergies={medicationAlerts[index]}
+                                  showActions={true}
+                                  onCancel={() => remove(index)}
+                                  onConfirm={() => {
+                                    const newAlerts = { ...medicationAlerts };
+                                    delete newAlerts[index];
+                                    setMedicationAlerts(newAlerts);
+                                  }}
+                                />
+                              </div>
                             )}
                           </div>
 
