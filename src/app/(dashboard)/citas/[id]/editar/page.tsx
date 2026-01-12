@@ -2,12 +2,12 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { MedicationAllergyAlert } from '@/components/MedicationAllergyAlert';
@@ -75,6 +75,8 @@ export default function EditarCitaPage() {
   const [error, setError] = useState('');
   const [selectedConsultorioId, setSelectedConsultorioId] = useState<string>('');
   const [medicationAlerts, setMedicationAlerts] = useState<Record<number, MedicationAllergy[]>>({});
+  const confirmedMedicationsRef = useRef<Set<string>>(new Set());
+  const [confirmationTrigger, setConfirmationTrigger] = useState(0);
   const [openSections, setOpenSections] = useState({
     appointmentInfo: true,
     vitalSigns: false,
@@ -243,15 +245,39 @@ export default function EditarCitaPage() {
     
     if (!medicamentos || medicamentos.length === 0) {
       setMedicationAlerts({});
+      confirmedMedicationsRef.current = new Set(); // Clear confirmations when no medications
       return;
     }
     
+    // Build current medication keys
+    const currentMedicationKeys = new Set<string>();
+    medicamentos.forEach((med, index) => {
+      if (med?.nombre && med.nombre.trim() !== '') {
+        currentMedicationKeys.add(`${index}-${med.nombre.toLowerCase().trim()}`);
+      }
+    });
+    
+    // Clean up confirmed medications that no longer exist
+    const updatedConfirmed = new Set<string>();
+    confirmedMedicationsRef.current.forEach(key => {
+      if (currentMedicationKeys.has(key)) {
+        updatedConfirmed.add(key);
+      }
+    });
+    confirmedMedicationsRef.current = updatedConfirmed;
+    
+    // Check for allergies
     const newAlerts: Record<number, MedicationAllergy[]> = {};
     medicamentos.forEach((med, index) => {
       if (med?.nombre && med.nombre.trim() !== '') {
-        const matches = checkMedicationAllergy(med.nombre);
-        if (matches.length > 0) {
-          newAlerts[index] = matches;
+        const medicationKey = `${index}-${med.nombre.toLowerCase().trim()}`;
+        
+        // Only show alert if this medication hasn't been confirmed
+        if (!confirmedMedicationsRef.current.has(medicationKey)) {
+          const matches = checkMedicationAllergy(med.nombre);
+          if (matches.length > 0) {
+            newAlerts[index] = matches;
+          }
         }
       }
     });
@@ -262,31 +288,55 @@ export default function EditarCitaPage() {
     if (Object.keys(newAlerts).length > 0) {
       setOpenSections(prev => ({ ...prev, medications: true }));
     }
-  }, [medicamentos, pacienteData?.data?.medicationAllergies, checkMedicationAllergy]);
+  }, [medicamentos, pacienteData?.data?.medicationAllergies, checkMedicationAllergy, confirmationTrigger]);
 
   const onSubmit = (data: CitaFormData) => {
     setError('');
     
-    // Check if there are any active medication allergy alerts
-    if (Object.keys(medicationAlerts).length > 0) {
-      const alertCount = Object.keys(medicationAlerts).length;
-      const medicationNames = Object.entries(medicationAlerts)
-        .map(([index, _]) => data.medicamentos?.[parseInt(index)]?.nombre)
-        .filter(Boolean)
-        .join(', ');
+    // Validate medications against patient allergies directly
+    if (data.medicamentos && pacienteData?.data?.medicationAllergies) {
+      const unconfirmedAllergicMedications: { index: number; name: string; allergies: MedicationAllergy[] }[] = [];
       
-      setError(
-        `⚠️ ALERTA: No se puede guardar la cita. Hay ${alertCount} medicamento(s) con alergias detectadas: ${medicationNames}. ` +
-        `Por favor, elimina los medicamentos con alergias o confirma cada uno usando el botón "Confirmar de Todas Formas" en la alerta correspondiente.`
-      );
+      data.medicamentos.forEach((med, index) => {
+        if (!med?.nombre || !med.nombre.trim()) return;
+        
+        const medicationKey = `${index}-${med.nombre.toLowerCase().trim()}`;
+        
+        // Skip if this medication has been confirmed by the doctor
+        if (confirmedMedicationsRef.current.has(medicationKey)) {
+          return;
+        }
+        
+        // Check if this medication matches any patient allergies
+        const matches = checkMedicationAllergy(med.nombre);
+        if (matches.length > 0) {
+          unconfirmedAllergicMedications.push({
+            index,
+            name: med.nombre,
+            allergies: matches
+          });
+        }
+      });
       
-      // Scroll to top to show error
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Ensure medications section is open
-      setOpenSections(prev => ({ ...prev, medications: true }));
-      
-      return;
+      if (unconfirmedAllergicMedications.length > 0) {
+        const medicationNames = unconfirmedAllergicMedications.map(m => m.name).join(', ');
+        
+        setError(
+          `⚠️ ALERTA CRÍTICA: No se puede guardar la cita. Hay ${unconfirmedAllergicMedications.length} medicamento(s) con alergias detectadas sin confirmar: ${medicationNames}. ` +
+          `Por favor, elimina los medicamentos con alergias o confirma cada uno usando el botón "Confirmar de Todas Formas" en la alerta correspondiente.`
+        );
+        
+        // Scroll to top to show error
+        // window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Ensure medications section is open
+        setOpenSections(prev => ({ ...prev, medications: true }));
+        
+        // Force re-check to show alerts
+        setConfirmationTrigger(prev => prev + 1);
+        
+        return;
+      }
     }
     
     const payload: UpdateCitaRequest = {
@@ -379,12 +429,6 @@ export default function EditarCitaPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {error && (
-                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
-
               {/* Sección: Información de la Cita */}
               <div className="border rounded-lg overflow-hidden">
                 <button
@@ -833,9 +877,28 @@ export default function EditarCitaPage() {
 
                         <div className="grid gap-3 md:grid-cols-2">
                           <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor={`medicamentos.${index}.nombre`}>
-                              Nombre del Medicamento <span className="text-destructive">*</span>
-                            </Label>
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor={`medicamentos.${index}.nombre`}>
+                                Nombre del Medicamento <span className="text-destructive">*</span>
+                              </Label>
+                              {(() => {
+                                const medName = watch(`medicamentos.${index}.nombre`);
+                                const medicationKey = medName ? `${index}-${medName.toLowerCase().trim()}` : '';
+                                const isConfirmed = medicationKey && confirmedMedicationsRef.current.has(medicationKey);
+                                
+                                if (isConfirmed) {
+                                  return (
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 border border-amber-400 dark:border-amber-600">
+                                      <AlertCircle className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                                      <span className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                                        Alergia Confirmada por Doctor
+                                      </span>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
                             <Input
                               {...register(`medicamentos.${index}.nombre`)}
                               id={`medicamentos.${index}.nombre`}
@@ -856,9 +919,12 @@ export default function EditarCitaPage() {
                                   showActions={true}
                                   onCancel={() => remove(index)}
                                   onConfirm={() => {
-                                    const newAlerts = { ...medicationAlerts };
-                                    delete newAlerts[index];
-                                    setMedicationAlerts(newAlerts);
+                                    const medName = watch(`medicamentos.${index}.nombre`);
+                                    if (medName) {
+                                      const medicationKey = `${index}-${medName.toLowerCase().trim()}`;
+                                      confirmedMedicationsRef.current.add(medicationKey);
+                                      setConfirmationTrigger(prev => prev + 1); // Trigger useEffect re-run
+                                    }
                                   }}
                                 />
                               </div>
@@ -947,7 +1013,11 @@ export default function EditarCitaPage() {
                   </div>
                 )}
               </div>
-
+              {error && (
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
               <div className="flex gap-4">
                 <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
                   <Save className="mr-2 h-4 w-4" />
