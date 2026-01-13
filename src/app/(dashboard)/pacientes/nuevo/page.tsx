@@ -11,13 +11,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft, Save, User, Phone, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { pacienteService, CreatePacienteRequest, ClinicalHistory } from '@/services/paciente.service';
 import { consultorioService } from '@/services/consultorio.service';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 import { PatientPhotoUpload } from '@/components/PatientPhotoUpload';
 import { MedicationAllergySelector } from '@/components/MedicationAllergySelector';
+import { PhoneInput } from '@/components/PhoneInput';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -67,6 +68,7 @@ export default function NuevoPacientePage() {
   const {
     register,
     handleSubmit,
+    control,
     watch,
     setValue,
     formState: { errors },
@@ -315,11 +317,16 @@ export default function NuevoPacientePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="phone">Teléfono</Label>
-                        <Input
-                          {...register('phone')}
-                          id="phone"
-                          type="tel"
-                          placeholder="+52 555 1234567"
+                        <Controller
+                          name="phone"
+                          control={control}
+                          render={({ field }) => (
+                            <PhoneInput
+                              id="phone"
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          )}
                         />
                       </div>
 
@@ -510,11 +517,16 @@ export default function NuevoPacientePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="emergencyContactPhone">Teléfono de Emergencia</Label>
-                      <Input
-                        {...register('emergencyContactPhone')}
-                        id="emergencyContactPhone"
-                        type="tel"
-                        placeholder="+52 555 9876543"
+                      <Controller
+                        name="emergencyContactPhone"
+                        control={control}
+                        render={({ field }) => (
+                          <PhoneInput
+                            id="emergencyContactPhone"
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
                       />
                     </div>
                   </div>

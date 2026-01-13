@@ -126,7 +126,7 @@ export default function DashboardPage() {
               <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{summary?.citasPendientes ?? 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Por confirmar
+                  Todas las pendientes
                 </p>
               </CardContent>
             </Card>

@@ -17,6 +17,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { formatLocalDate } from '@/lib/dateUtils';
+import { PhoneDisplay } from '@/components/PhoneDisplay';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -69,7 +70,7 @@ function CitasContent() {
   const initialDoctorId = searchParams.get('doctorId') ?? '';
   const initialConsultorioId = searchParams.get('consultorioId') ?? '';
   const initialDateFrom = searchParams.get('dateFrom') ?? todayDate;
-  const initialDateTo = searchParams.get('dateTo') ?? todayDate;
+  const initialDateTo = searchParams.get('dateTo') ?? '';
   const initialSearch = searchParams.get('search') ?? '';
   const initialPageValue = Number(searchParams.get('page') ?? '1');
   const initialPage = Number.isNaN(initialPageValue) || initialPageValue < 1 ? 1 : initialPageValue;
@@ -100,7 +101,7 @@ function CitasContent() {
       !doctorFilter &&
       !consultorioFilter &&
       dateFrom === todayDate &&
-      dateTo === todayDate
+      !dateTo
     );
   }, [searchValue, estadoFilter, doctorFilter, consultorioFilter, dateFrom, dateTo, todayDate]);
 
@@ -244,8 +245,8 @@ function CitasContent() {
     setDoctorFilter('');
     setConsultorioFilter('');
     setDateFrom(todayDate);
-    setDateTo(todayDate);
-    setAppliedFilters({ dateFrom: todayDate, dateTo: todayDate });
+    setDateTo('');
+    setAppliedFilters({ dateFrom: todayDate });
     setPage(1);
   };
 
@@ -423,9 +424,8 @@ function CitasContent() {
                           <span className="font-medium">{cita.paciente?.fullName || 'Sin paciente'}</span>
                         </div>
                         {cita.paciente?.phone && (
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Phone className="h-4 w-4" />
-                            <span>{cita.paciente.phone}</span>
+                          <div className="flex items-center gap-2">
+                            <PhoneDisplay phone={cita.paciente.phone} className="text-sm" />
                           </div>
                         )}
                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -519,7 +519,9 @@ function CitasContent() {
                                 {cita.paciente?.fullName || 'Sin paciente'}
                               </span>
                               {cita.paciente?.phone && (
-                                <span className="text-xs">{cita.paciente.phone}</span>
+                                <div className="text-xs">
+                                  <PhoneDisplay phone={cita.paciente.phone} className="text-xs" />
+                                </div>
                               )}
                             </div>
                           </div>

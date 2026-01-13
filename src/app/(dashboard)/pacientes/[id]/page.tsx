@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { DocumentList } from '@/components/DocumentList';
 import { PatientAvatar } from '@/components/PatientAvatar';
 import { MedicationAllergyDisplay } from '@/components/MedicationAllergyDisplay';
+import { PhoneDisplay } from '@/components/PhoneDisplay';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -820,7 +821,7 @@ export default function PacienteDetailPage() {
                       <Phone className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                        <p className="text-base font-medium">{paciente.phone}</p>
+                        <PhoneDisplay phone={paciente.phone} />
                       </div>
                     </div>
                   )}
@@ -930,7 +931,7 @@ export default function PacienteDetailPage() {
                         <Phone className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                          <p className="text-base font-medium">{paciente.emergencyContact.phone}</p>
+                          <PhoneDisplay phone={paciente.emergencyContact.phone} />
                         </div>
                       </div>
                     )}
