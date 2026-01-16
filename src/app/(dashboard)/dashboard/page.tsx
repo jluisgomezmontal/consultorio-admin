@@ -79,15 +79,15 @@ export default function DashboardPage() {
                 Gestiona citas, pacientes y consultorios de manera eficiente desde un solo lugar
               </p>
             </div>
-            <div className="relative hidden h-48 sm:h-64 md:block">
+            <div className="relative hidden md:block">
               <Image
                 src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=1200&auto=format&fit=crop"
+                // src="https://images.unsplash.com/photo-1758691462858-f1286e5daf40?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Equipo médico"
                 fill
-                className="object-cover opacity-90"
+                className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-indigo-600/20"></div>
             </div>
           </div>
         </div>
