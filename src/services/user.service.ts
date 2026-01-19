@@ -35,7 +35,10 @@ export interface UpdateUserRequest {
   name?: string;
   email?: string;
   role?: string;
+  password?: string;
   consultoriosIds?: string[];
+  photoUrl?: string;
+  photoS3Key?: string;
 }
 
 export interface UpdateProfileRequest {
@@ -163,6 +166,11 @@ class UserService {
   }
 
   async updateDoctor(id: string, data: UpdateReceptionistRequest): Promise<ApiResponse<User>> {
+    const response = await apiClient.put<ApiResponse<User>>(`/users/consultorio/users/${id}`, data);
+    return response.data;
+  }
+
+  async updateConsultorioUser(id: string, data: UpdateUserRequest): Promise<ApiResponse<User>> {
     const response = await apiClient.put<ApiResponse<User>>(`/users/consultorio/users/${id}`, data);
     return response.data;
   }
