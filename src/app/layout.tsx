@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   description: "Sistema de gestión para consultorios médicos",
   icons: {
     icon: [
-      { url: "/miconsultorio.svg", type: "image/svg+xml" },
+      { url: "/iconwhite.jpg", type: "image/jpeg" },
     ],
     shortcut: [
-      { url: "/miconsultorio.svg", type: "image/svg+xml" },
+      { url: "/iconwhite.jpg", type: "image/jpeg" },
     ],
     apple: [
-      { url: "/miconsultorio.svg", type: "image/svg+xml" },
+      { url: "/iconwhite.jpg", type: "image/jpeg", sizes: "180x180" },
     ],
   },
 };
@@ -40,9 +40,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/miconsultorio.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/miconsultorio.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/miconsultorio.svg" />
+        <link rel="icon" href="/iconwhite.jpg" type="image/jpeg" />
+        <link rel="shortcut icon" href="/iconwhite.jpg" type="image/jpeg" />
+        <link rel="apple-touch-icon" href="/iconwhite.jpg" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

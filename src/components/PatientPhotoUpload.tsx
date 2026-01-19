@@ -108,9 +108,9 @@ export function PatientPhotoUpload({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="relative">
+        <div className="relative group">
           {photoUrl ? (
-            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
+            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-border shadow-sm">
               <Image
                 src={photoUrl}
                 alt="Foto del paciente"
@@ -118,19 +118,23 @@ export function PatientPhotoUpload({
                 className="object-cover"
               />
               {!disabled && (
-                <button
-                  type="button"
-                  onClick={handleRemovePhoto}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  title="Eliminar foto"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={handleRemovePhoto}
+                    className="h-10 w-10 rounded-full shadow-lg"
+                    title="Eliminar foto"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
               )}
             </div>
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center border-4 border-gray-200">
-              <Camera className="h-12 w-12 text-gray-400" />
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center border-4 border-border shadow-sm">
+              <Camera className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
         </div>

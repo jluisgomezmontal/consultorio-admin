@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 import {
   Select,
   SelectContent,
@@ -74,13 +75,11 @@ const navLinks = [
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex flex-shrink-0 items-center gap-2 group">
-              <div className="relative">
-                <img src="/miconsultorio.svg" alt="Consultorio" className="h-8 w-8 md:h-9 md:w-9 transition-transform group-hover:scale-110" />
-              </div>
-              <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Mi Consultorio</span>
+            <Link href="/dashboard" className="flex flex-shrink-0 items-center group">
+              <Logo size="sm" className="md:hidden" />
+              <Logo size="lg" className="hidden md:flex" />
             </Link>
-            <div className="hidden lg:ml-6 lg:flex lg:space-x-0.5">
+            <div className="hidden lg:ml-6 lg:flex lg:items-center lg:space-x-0.5">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 const Icon = link.icon;

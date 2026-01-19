@@ -178,7 +178,7 @@ class PacienteService {
     const formData = new FormData();
     formData.append('photo', file);
     
-    const response = await apiClient.post('/pacientes-photo/upload', formData, {
+    const response = await apiClient.post('/paciente-photos/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -187,7 +187,7 @@ class PacienteService {
   }
 
   async deletePhoto(s3Key: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.delete('/pacientes-photo/delete', {
+    const response = await apiClient.delete('/paciente-photos/delete', {
       data: { s3Key },
     });
     return response.data;

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { citaService, CitaEstado } from '@/services/cita.service';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
+import { COLORS } from '@/lib/colors';
 import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
 import {
   ArrowLeft,
@@ -202,7 +203,7 @@ export default function CitaDetailPage() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header con gradiente */}
-        <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 border border-blue-100 dark:border-blue-900 overflow-hidden">
+        <div className={`mb-8 rounded-lg bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20 p-6 border ${COLORS.primary.border} overflow-hidden`}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -253,7 +254,7 @@ export default function CitaDetailPage() {
                 </Button>
               )}
               {(cita.estado === 'completada') && (
-                <Button variant="default" size="sm" asChild className="bg-green-600 hover:bg-green-700">
+                <Button variant="default" size="sm" asChild className={`${COLORS.success.bg} hover:opacity-90`}>
                   <Link href={`/pagos/nuevo?citaId=${id}`}>
                     <Coins className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Registrar pago</span>
@@ -281,8 +282,8 @@ export default function CitaDetailPage() {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-muted-foreground">Estado:</span>
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${cita.estado === 'completada' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-              cita.estado === 'confirmada' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${cita.estado === 'completada' ? `${COLORS.success.bg} ${COLORS.success.text}` :
+              cita.estado === 'confirmada' ? `${COLORS.primary.bg} ${COLORS.primary.text}` :
                 cita.estado === 'cancelada' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
                   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
               }`}>
@@ -331,7 +332,7 @@ export default function CitaDetailPage() {
             </CardHeader>
             <CardContent className="space-y-5 pt-6">
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <Clock className={`h-5 w-5 ${COLORS.primary.icon} mt-0.5`} />
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Fecha y Hora</p>
                   <p className="text-foreground font-semibold">
@@ -346,13 +347,13 @@ export default function CitaDetailPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <UserRound className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                <UserRound className={`h-5 w-5 ${COLORS.secondary.icon} mt-0.5`} />
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Paciente</p>
                   <p className="text-foreground font-semibold">{cita.paciente?.fullName || 'Sin paciente registrado'}</p>
                   {cita.paciente?.phone && <p className="text-sm text-muted-foreground mt-1">{cita.paciente.phone}</p>}
                   {cita.paciente?.id && (
-                    <Link href={`/pacientes/${cita.paciente.id}`} className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mt-1 inline-flex items-center gap-1">
+                    <Link href={`/pacientes/${cita.paciente.id}`} className={`text-xs ${COLORS.primary.text} hover:opacity-80 mt-1 inline-flex items-center gap-1`}>
                       Ver perfil completo
                       <ExternalLink className="h-3 w-3" />
                     </Link>
@@ -371,9 +372,9 @@ export default function CitaDetailPage() {
             </CardContent>
           </Card>
           <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+            <CardHeader className="bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20">
               <CardTitle className="flex items-center gap-2 text-xl">
-                <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <CalendarDays className={`h-5 w-5 ${COLORS.primary.icon}`} />
                 Información de la consulta
               </CardTitle>
               <CardDescription>
@@ -382,7 +383,7 @@ export default function CitaDetailPage() {
             </CardHeader>
             <CardContent className="space-y-5 pt-6">
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <Stethoscope className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <Stethoscope className={`h-5 w-5 ${COLORS.success.icon} mt-0.5`} />
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Doctor</p>
                   <p className="text-foreground font-semibold">{cita.doctor?.name || 'Sin doctor asignado'}</p>
@@ -397,8 +398,8 @@ export default function CitaDetailPage() {
               </div>
 
               {cita.costo !== undefined && cita.costo !== null && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800">
-                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                <div className={`flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border ${COLORS.success.border}`}>
+                  <DollarSign className={`h-5 w-5 ${COLORS.success.icon} mt-0.5`} />
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Costo de la Consulta</p>
                     <p className="text-foreground font-bold text-lg">${cita.costo.toFixed(2)} MXN</p>
@@ -421,7 +422,7 @@ export default function CitaDetailPage() {
             >
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
-                  <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <Activity className={`h-5 w-5 ${COLORS.success.icon}`} />
                   Signos Vitales
                 </CardTitle>
                 <CardDescription>
@@ -473,7 +474,7 @@ export default function CitaDetailPage() {
                         )}
                         {cita.oxygenSaturation && (
                           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                            <Droplet className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                            <Droplet className={`h-5 w-5 ${COLORS.primary.icon} mt-0.5`} />
                             <div>
                               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Saturación de Oxígeno</p>
                               <p className="text-foreground font-semibold">{cita.oxygenSaturation}% SpO₂</p>
@@ -491,7 +492,7 @@ export default function CitaDetailPage() {
                       <div className="grid grid-cols-2 gap-4">
                         {cita.weight && (
                           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                            <Weight className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                            <Weight className={`h-5 w-5 ${COLORS.success.icon} mt-0.5`} />
                             <div>
                               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Peso</p>
                               <p className="text-foreground font-semibold">{cita.weight} kg</p>
@@ -500,7 +501,7 @@ export default function CitaDetailPage() {
                         )}
                         {cita.measurements?.height && (
                           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                            <Ruler className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                            <Ruler className={`h-5 w-5 ${COLORS.primary.icon} mt-0.5`} />
                             <div>
                               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Altura</p>
                               <p className="text-foreground font-semibold">{cita.measurements.height} cm</p>
@@ -509,7 +510,7 @@ export default function CitaDetailPage() {
                         )}
                         {cita.measurements?.waist && (
                           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                            <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                            <Ruler className={`h-5 w-5 ${COLORS.secondary.icon} mt-0.5`} />
                             <div>
                               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cintura</p>
                               <p className="text-foreground font-semibold">{cita.measurements.waist} cm</p>
