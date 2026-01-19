@@ -11,6 +11,14 @@ export interface ConsultorioPermissions {
   allowReceptionistViewClinicalSummary: boolean;
 }
 
+export interface AppointmentSectionsConfig {
+  signosVitales: boolean;
+  evaluacionMedica: boolean;
+  diagnosticoTratamiento: boolean;
+  medicamentos: boolean;
+  notasAdicionales: boolean;
+}
+
 export interface Consultorio {
   id: string;
   _id?: string; // MongoDB ID for compatibility
@@ -25,6 +33,7 @@ export interface Consultorio {
   recetaTemplate?: 'template1' | 'template2' | 'template3' | 'template4' | 'template5';
   clinicalHistoryConfig?: ClinicalHistoryConfig;
   permissions?: ConsultorioPermissions;
+  appointmentSectionsConfig?: AppointmentSectionsConfig;
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -174,6 +183,16 @@ class ConsultorioService {
     const response = await apiClient.put<ConsultorioResponse>(`/consultorios/${id}/permissions`, {
       permissions,
     });
+    return response.data;
+  }
+
+  async getAppointmentSectionsConfig(id: string): Promise<{ success: boolean; data: AppointmentSectionsConfig }> {
+    const response = await apiClient.get<{ success: boolean; data: AppointmentSectionsConfig }>(`/consultorios/${id}/appointment-sections-config`);
+    return response.data;
+  }
+
+  async updateAppointmentSectionsConfig(id: string, config: AppointmentSectionsConfig): Promise<ConsultorioResponse> {
+    const response = await apiClient.put<ConsultorioResponse>(`/consultorios/${id}/appointment-sections-config`, config);
     return response.data;
   }
 }

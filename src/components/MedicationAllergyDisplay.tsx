@@ -55,9 +55,9 @@ export function MedicationAllergyDisplay({ allergies, className = '' }: Medicati
                     className="px-3 py-1.5 text-sm flex flex-col items-start"
                   >
                     <span className="font-medium">{med.name}</span>
-                    {med.activeIngredient && (
+                    {/* {med.activeIngredient && (
                       <span className="text-xs opacity-90 mt-0.5">{med.activeIngredient}</span>
-                    )}
+                    )} */}
                   </Badge>
                 </div>
               ))}

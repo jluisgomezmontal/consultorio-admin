@@ -29,6 +29,9 @@ import {
   Heart,
   Ruler,
   ChevronDown,
+  Thermometer,
+  Droplet,
+  Calculator,
   ChevronUp,
   DollarSign,
 } from 'lucide-react';
@@ -434,55 +437,147 @@ export default function CitaDetailPage() {
           </CardHeader>
           {openSections.vitalSigns && (
             <CardContent className="space-y-4 pt-6">
-              {(cita.weight || cita.bloodPressure || cita.measurements?.height || cita.measurements?.waist || cita.measurements?.hip) ? (
-                <div className="grid grid-cols-2 gap-4">
-                  {cita.weight && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      <Weight className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Peso</p>
-                        <p className="text-foreground font-semibold">{cita.weight} kg</p>
+              {(cita.weight || cita.bloodPressure || cita.heartRate || cita.temperature || cita.oxygenSaturation || cita.bmi || cita.measurements?.height || cita.measurements?.waist || cita.measurements?.hip) ? (
+                <>
+                  {/* Signos Vitales Principales */}
+                  {(cita.temperature || cita.heartRate || cita.bloodPressure || cita.oxygenSaturation) && (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Signos Vitales</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {cita.temperature && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Thermometer className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Temperatura</p>
+                              <p className="text-foreground font-semibold">{cita.temperature} °C</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.heartRate && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Activity className="h-5 w-5 text-red-500 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Frecuencia Cardíaca</p>
+                              <p className="text-foreground font-semibold">{cita.heartRate} lpm</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.bloodPressure && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Heart className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Presión Arterial</p>
+                              <p className="text-foreground font-semibold">{cita.bloodPressure} mmHg</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.oxygenSaturation && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Droplet className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Saturación de Oxígeno</p>
+                              <p className="text-foreground font-semibold">{cita.oxygenSaturation}% SpO₂</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
-                  {cita.bloodPressure && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      <Heart className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Presión Arterial</p>
-                        <p className="text-foreground font-semibold">{cita.bloodPressure}</p>
+
+                  {/* Medidas Antropométricas */}
+                  {(cita.weight || cita.measurements?.height || cita.measurements?.waist || cita.measurements?.hip) && (
+                    <div className="space-y-3 pt-4 border-t">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Medidas Antropométricas</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {cita.weight && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Weight className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Peso</p>
+                              <p className="text-foreground font-semibold">{cita.weight} kg</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.measurements?.height && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Ruler className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Altura</p>
+                              <p className="text-foreground font-semibold">{cita.measurements.height} cm</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.measurements?.waist && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cintura</p>
+                              <p className="text-foreground font-semibold">{cita.measurements.waist} cm</p>
+                            </div>
+                          </div>
+                        )}
+                        {cita.measurements?.hip && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <Ruler className="h-5 w-5 text-pink-600 dark:text-pink-400 mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cadera</p>
+                              <p className="text-foreground font-semibold">{cita.measurements.hip} cm</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
-                  {cita.measurements?.height && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      <Ruler className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Altura</p>
-                        <p className="text-foreground font-semibold">{cita.measurements.height} cm</p>
-                      </div>
+                </>
+              ) : null}
+              
+              {/* BMI Display */}
+              {cita.bmi && (
+                <div className="rounded-lg border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4 mt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-green-500/10">
+                      <Calculator className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
-                  )}
-                  {cita.measurements?.waist && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cintura</p>
-                        <p className="text-foreground font-semibold">{cita.measurements.waist} cm</p>
-                      </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                        Índice de Masa Corporal (IMC)
+                      </p>
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-0.5">
+                        Calculado automáticamente
+                      </p>
                     </div>
-                  )}
-                  {cita.measurements?.hip && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      <Ruler className="h-5 w-5 text-pink-600 dark:text-pink-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cadera</p>
-                        <p className="text-foreground font-semibold">{cita.measurements.hip} cm</p>
-                      </div>
+                    <div className="text-right">
+                      <p className={
+                        `text-2xl font-bold ${
+                          cita.bmi < 18.5 ? 'text-blue-600 dark:text-blue-400' :
+                          cita.bmi >= 18.5 && cita.bmi < 25 ? 'text-green-600 dark:text-green-400' :
+                          cita.bmi >= 25 && cita.bmi < 30 ? 'text-yellow-600 dark:text-yellow-400' :
+                          'text-red-600 dark:text-red-400'
+                        }`
+                      }>
+                        {cita.bmi.toFixed(2)}
+                      </p>
+                      <p className={
+                        `text-sm font-medium ${
+                          cita.bmi < 18.5 ? 'text-blue-600 dark:text-blue-400' :
+                          cita.bmi >= 18.5 && cita.bmi < 25 ? 'text-green-600 dark:text-green-400' :
+                          cita.bmi >= 25 && cita.bmi < 30 ? 'text-yellow-600 dark:text-yellow-400' :
+                          'text-red-600 dark:text-red-400'
+                        }`
+                      }>
+                        {
+                          cita.bmi < 18.5 ? 'Bajo peso' :
+                          cita.bmi >= 18.5 && cita.bmi < 25 ? 'Normal' :
+                          cita.bmi >= 25 && cita.bmi < 30 ? 'Sobrepeso' :
+                          'Obesidad'
+                        }
+                      </p>
                     </div>
-                  )}
+                  </div>
                 </div>
-              ) : (
+              )}
+              
+              {!(cita.weight || cita.bloodPressure || cita.heartRate || cita.temperature || cita.oxygenSaturation || cita.bmi || cita.measurements?.height || cita.measurements?.waist || cita.measurements?.hip) && (
                 <div className="text-center py-6 text-muted-foreground">
                   <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No se registraron signos vitales</p>

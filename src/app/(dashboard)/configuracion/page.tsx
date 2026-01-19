@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert, Calendar } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -113,6 +113,14 @@ export default function ConfiguracionPage() {
     allowReceptionistViewClinicalSummary: false,
   });
 
+  const [appointmentSectionsConfig, setAppointmentSectionsConfig] = useState({
+    signosVitales: true,
+    evaluacionMedica: true,
+    diagnosticoTratamiento: true,
+    medicamentos: true,
+    notasAdicionales: true,
+  });
+
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'doctor')) {
       router.push('/dashboard');
@@ -142,6 +150,12 @@ export default function ConfiguracionPage() {
   const { data: clinicalHistoryConfigData } = useQuery({
     queryKey: ['consultorio-config', consultorioId],
     queryFn: () => consultorioService.getClinicalHistoryConfig(consultorioId || ''),
+    enabled: !!consultorioId,
+  });
+
+  const { data: appointmentSectionsConfigData } = useQuery({
+    queryKey: ['consultorio-appointment-sections-config', consultorioId],
+    queryFn: () => consultorioService.getAppointmentSectionsConfig(consultorioId || ''),
     enabled: !!consultorioId,
   });
 
@@ -217,6 +231,12 @@ export default function ConfiguracionPage() {
       setClinicalHistoryConfig(clinicalHistoryConfigData.data);
     }
   }, [clinicalHistoryConfigData]);
+
+  useEffect(() => {
+    if (appointmentSectionsConfigData?.data) {
+      setAppointmentSectionsConfig(appointmentSectionsConfigData.data);
+    }
+  }, [appointmentSectionsConfigData]);
 
   useEffect(() => {
     if (consultorioData?.data?.recetaTemplate) {
@@ -337,6 +357,21 @@ export default function ConfiguracionPage() {
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Error al actualizar permisos');
+      setSuccess('');
+    },
+  });
+
+  const updateAppointmentSectionsConfigMutation = useMutation({
+    mutationFn: () => consultorioService.updateAppointmentSectionsConfig(consultorioId || '', appointmentSectionsConfig),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultorio-appointment-sections-config', consultorioId] });
+      queryClient.invalidateQueries({ queryKey: ['consultorio', consultorioId] });
+      setSuccess('Configuración de secciones de cita actualizada exitosamente');
+      setError('');
+      setTimeout(() => setSuccess(''), 3000);
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || 'Error al actualizar configuración de secciones');
       setSuccess('');
     },
   });
@@ -512,6 +547,13 @@ export default function ConfiguracionPage() {
     setError('');
     setSuccess('');
     updateClinicalHistoryConfigMutation.mutate();
+  };
+
+  const onSubmitAppointmentSectionsConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    updateAppointmentSectionsConfigMutation.mutate();
   };
 
   const handleTemplateSelect = (template: 'template1' | 'template2' | 'template3' | 'template4' | 'template5') => {
@@ -1054,7 +1096,142 @@ export default function ConfiguracionPage() {
               </CardContent>
             </Card>
 
+           
+
             <Card>
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg sm:text-xl">Secciones de Información de Citas</CardTitle>
+                    <CardDescription className="text-sm mt-1">
+                      Controla qué secciones se muestran al editar una cita
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={onSubmitAppointmentSectionsConfig} className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="signosVitales" className="text-sm font-medium cursor-pointer">
+                          Signos Vitales
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Peso, Presión Arterial, Altura, Cintura, Cadera
+                        </p>
+                      </div>
+                      <Switch
+                        id="signosVitales"
+                        checked={appointmentSectionsConfig.signosVitales}
+                        onCheckedChange={(checked) =>
+                          setAppointmentSectionsConfig((prev) => ({ ...prev, signosVitales: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="evaluacionMedica" className="text-sm font-medium cursor-pointer">
+                          Evaluación Médica
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Padecimiento Actual, Exploración Física
+                        </p>
+                      </div>
+                      <Switch
+                        id="evaluacionMedica"
+                        checked={appointmentSectionsConfig.evaluacionMedica}
+                        onCheckedChange={(checked) =>
+                          setAppointmentSectionsConfig((prev) => ({ ...prev, evaluacionMedica: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="diagnosticoTratamiento" className="text-sm font-medium cursor-pointer">
+                          Diagnóstico y Tratamiento
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Diagnóstico, Plan de Tratamiento
+                        </p>
+                      </div>
+                      <Switch
+                        id="diagnosticoTratamiento"
+                        checked={appointmentSectionsConfig.diagnosticoTratamiento}
+                        onCheckedChange={(checked) =>
+                          setAppointmentSectionsConfig((prev) => ({ ...prev, diagnosticoTratamiento: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="medicamentos" className="text-sm font-medium cursor-pointer">
+                          Medicamentos
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Lista de medicamentos recetados
+                        </p>
+                      </div>
+                      <Switch
+                        id="medicamentos"
+                        checked={appointmentSectionsConfig.medicamentos}
+                        onCheckedChange={(checked) =>
+                          setAppointmentSectionsConfig((prev) => ({ ...prev, medicamentos: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 hover:bg-accent/50 transition-colors">
+                      <div className="space-y-0.5 flex-1 min-w-0">
+                        <Label htmlFor="notasAdicionales" className="text-sm font-medium cursor-pointer">
+                          Notas Adicionales
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Observaciones y notas generales
+                        </p>
+                      </div>
+                      <Switch
+                        id="notasAdicionales"
+                        checked={appointmentSectionsConfig.notasAdicionales}
+                        onCheckedChange={(checked) =>
+                          setAppointmentSectionsConfig((prev) => ({ ...prev, notasAdicionales: checked }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Las secciones desactivadas no se mostrarán al editar citas
+                    </p>
+                    <Button
+                      type="submit"
+                      disabled={updateAppointmentSectionsConfigMutation.isPending}
+                      className="w-full sm:w-auto"
+                    >
+                      {updateAppointmentSectionsConfigMutation.isPending ? (
+                        <>
+                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Guardar Configuración
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+             <Card>
               <CardHeader>
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-amber-500/10">

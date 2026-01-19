@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle, Thermometer, Droplet, Calculator } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { MedicationAllergyAlert } from '@/components/MedicationAllergyAlert';
@@ -39,6 +39,10 @@ const citaSchema = z.object({
   motivo: z.string().optional(),
   weight: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Peso inválido' }),
   bloodPressure: z.string().optional(),
+  heartRate: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Frecuencia cardíaca inválida' }),
+  temperature: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Temperatura inválida' }),
+  oxygenSaturation: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Saturación de oxígeno inválida' }),
+  bmi: z.string().optional(),
   height: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Altura inválida' }),
   waist: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cintura inválida' }),
   hip: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cadera inválida' }),
@@ -151,6 +155,10 @@ export default function EditarCitaPage() {
         motivo: cita.motivo || '',
         weight: cita.weight ? String(cita.weight) : '',
         bloodPressure: cita.bloodPressure || '',
+        heartRate: cita.heartRate ? String(cita.heartRate) : '',
+        temperature: cita.temperature ? String(cita.temperature) : '',
+        oxygenSaturation: cita.oxygenSaturation ? String(cita.oxygenSaturation) : '',
+        bmi: cita.bmi ? String(cita.bmi) : '',
         height: cita.measurements?.height ? String(cita.measurements.height) : '',
         waist: cita.measurements?.waist ? String(cita.measurements.waist) : '',
         hip: cita.measurements?.hip ? String(cita.measurements.hip) : '',
@@ -191,6 +199,20 @@ export default function EditarCitaPage() {
     queryFn: () => consultorioService.getAllConsultorios(1, 1000),
     enabled: !!user,
   });
+
+  const { data: appointmentSectionsConfigData } = useQuery({
+    queryKey: ['consultorio-appointment-sections-config', consultorioId],
+    queryFn: () => consultorioService.getAppointmentSectionsConfig(consultorioId),
+    enabled: !!consultorioId,
+  });
+
+  const appointmentSectionsConfig = appointmentSectionsConfigData?.data || {
+    signosVitales: true,
+    evaluacionMedica: true,
+    diagnosticoTratamiento: true,
+    medicamentos: true,
+    notasAdicionales: true,
+  };
 
   const updateMutation = useMutation({
     mutationFn: (payload: UpdateCitaRequest) => citaService.updateCita(id, payload),
@@ -339,6 +361,16 @@ export default function EditarCitaPage() {
       }
     }
     
+    // Calculate BMI if weight and height are provided
+    let calculatedBmi: number | undefined;
+    if (data.weight && data.height) {
+      const weightKg = Number(data.weight);
+      const heightM = Number(data.height) / 100; // Convert cm to meters
+      if (weightKg > 0 && heightM > 0) {
+        calculatedBmi = Number((weightKg / (heightM * heightM)).toFixed(2));
+      }
+    }
+
     const payload: UpdateCitaRequest = {
       pacienteId: data.pacienteId,
       doctorId: data.doctorId,
@@ -348,6 +380,10 @@ export default function EditarCitaPage() {
       motivo: data.motivo || undefined,
       weight: data.weight ? Number(data.weight) : undefined,
       bloodPressure: data.bloodPressure || undefined,
+      heartRate: data.heartRate ? Number(data.heartRate) : undefined,
+      temperature: data.temperature ? Number(data.temperature) : undefined,
+      oxygenSaturation: data.oxygenSaturation ? Number(data.oxygenSaturation) : undefined,
+      bmi: calculatedBmi,
       measurements: (data.height || data.waist || data.hip) ? {
         height: data.height ? Number(data.height) : undefined,
         waist: data.waist ? Number(data.waist) : undefined,
@@ -564,6 +600,7 @@ export default function EditarCitaPage() {
               </div>
 
               {/* Sección: Signos Vitales */}
+              {appointmentSectionsConfig.signosVitales && (
               <div className="border rounded-lg overflow-hidden">
                 <button
                   type="button"
@@ -583,96 +620,226 @@ export default function EditarCitaPage() {
                 </button>
                 {openSections.vitalSigns && (
                   <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="weight" className="flex items-center gap-2">
-                          <Weight className="h-4 w-4 text-green-600" />
-                          Peso (kg)
-                        </Label>
-                        <Input
-                          id="weight"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('weight')}
-                          placeholder="70.5"
-                          className={errors.weight ? 'border-destructive' : ''}
-                        />
-                        {errors.weight && (
-                          <p className="text-sm text-destructive">{errors.weight.message}</p>
-                        )}
-                      </div>
+                    {/* Signos Vitales Principales */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Signos Vitales</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="temperature" className="flex items-center gap-2">
+                            <Thermometer className="h-4 w-4 text-orange-600" />
+                            Temperatura (°C)
+                          </Label>
+                          <Input
+                            id="temperature"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            {...register('temperature')}
+                            placeholder="36.5"
+                            className={errors.temperature ? 'border-destructive' : ''}
+                          />
+                          {errors.temperature && (
+                            <p className="text-sm text-destructive">{errors.temperature.message}</p>
+                          )}
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="bloodPressure" className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-red-600" />
-                          Presión Arterial
-                        </Label>
-                        <Input
-                          id="bloodPressure"
-                          type="text"
-                          {...register('bloodPressure')}
-                          placeholder="120/80"
-                        />
-                      </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="heartRate" className="flex items-center gap-2">
+                            <Activity className="h-4 w-4 text-red-500" />
+                            Frecuencia Cardíaca (lpm)
+                          </Label>
+                          <Input
+                            id="heartRate"
+                            type="number"
+                            step="1"
+                            min="0"
+                            {...register('heartRate')}
+                            placeholder="75"
+                            className={errors.heartRate ? 'border-destructive' : ''}
+                          />
+                          {errors.heartRate && (
+                            <p className="text-sm text-destructive">{errors.heartRate.message}</p>
+                          )}
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="height" className="flex items-center gap-2">
-                          <Ruler className="h-4 w-4 text-blue-600" />
-                          Altura (cm)
-                        </Label>
-                        <Input
-                          id="height"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('height')}
-                          placeholder="170"
-                          className={errors.height ? 'border-destructive' : ''}
-                        />
-                        {errors.height && (
-                          <p className="text-sm text-destructive">{errors.height.message}</p>
-                        )}
-                      </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="bloodPressure" className="flex items-center gap-2">
+                            <Heart className="h-4 w-4 text-red-600" />
+                            Presión Arterial (mmHg)
+                          </Label>
+                          <Input
+                            id="bloodPressure"
+                            type="text"
+                            {...register('bloodPressure')}
+                            placeholder="120/80"
+                          />
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="waist">Cintura (cm)</Label>
-                        <Input
-                          id="waist"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('waist')}
-                          placeholder="80"
-                          className={errors.waist ? 'border-destructive' : ''}
-                        />
-                        {errors.waist && (
-                          <p className="text-sm text-destructive">{errors.waist.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="hip">Cadera (cm)</Label>
-                        <Input
-                          id="hip"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('hip')}
-                          placeholder="95"
-                          className={errors.hip ? 'border-destructive' : ''}
-                        />
-                        {errors.hip && (
-                          <p className="text-sm text-destructive">{errors.hip.message}</p>
-                        )}
+                        <div className="space-y-2">
+                          <Label htmlFor="oxygenSaturation" className="flex items-center gap-2">
+                            <Droplet className="h-4 w-4 text-blue-600" />
+                            Saturación de Oxígeno (SpO₂ %)
+                          </Label>
+                          <Input
+                            id="oxygenSaturation"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            {...register('oxygenSaturation')}
+                            placeholder="98"
+                            className={errors.oxygenSaturation ? 'border-destructive' : ''}
+                          />
+                          {errors.oxygenSaturation && (
+                            <p className="text-sm text-destructive">{errors.oxygenSaturation.message}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* Medidas Antropométricas */}
+                    <div className="space-y-3 pt-4 border-t">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Medidas Antropométricas</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="weight" className="flex items-center gap-2">
+                            <Weight className="h-4 w-4 text-green-600" />
+                            Peso (kg)
+                          </Label>
+                          <Input
+                            id="weight"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            {...register('weight')}
+                            placeholder="70.5"
+                            className={errors.weight ? 'border-destructive' : ''}
+                          />
+                          {errors.weight && (
+                            <p className="text-sm text-destructive">{errors.weight.message}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="height" className="flex items-center gap-2">
+                            <Ruler className="h-4 w-4 text-blue-600" />
+                            Altura (cm)
+                          </Label>
+                          <Input
+                            id="height"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            {...register('height')}
+                            placeholder="170"
+                            className={errors.height ? 'border-destructive' : ''}
+                          />
+                          {errors.height && (
+                            <p className="text-sm text-destructive">{errors.height.message}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="waist">Cintura (cm)</Label>
+                          <Input
+                            id="waist"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            {...register('waist')}
+                            placeholder="80"
+                            className={errors.waist ? 'border-destructive' : ''}
+                          />
+                          {errors.waist && (
+                            <p className="text-sm text-destructive">{errors.waist.message}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="hip">Cadera (cm)</Label>
+                          <Input
+                            id="hip"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            {...register('hip')}
+                            placeholder="95"
+                            className={errors.hip ? 'border-destructive' : ''}
+                          />
+                          {errors.hip && (
+                            <p className="text-sm text-destructive">{errors.hip.message}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* BMI Calculation Display */}
+                    {(() => {
+                      const weightValue = watch('weight');
+                      const heightValue = watch('height');
+                      
+                      if (weightValue && heightValue) {
+                        const weight = Number(weightValue);
+                        const height = Number(heightValue) / 100; // Convert cm to meters
+                        
+                        if (weight > 0 && height > 0) {
+                          const bmi = weight / (height * height);
+                          const bmiRounded = bmi.toFixed(2);
+                          
+                          let bmiCategory = '';
+                          let bmiColor = '';
+                          
+                          if (bmi < 18.5) {
+                            bmiCategory = 'Bajo peso';
+                            bmiColor = 'text-blue-600 dark:text-blue-400';
+                          } else if (bmi >= 18.5 && bmi < 25) {
+                            bmiCategory = 'Normal';
+                            bmiColor = 'text-green-600 dark:text-green-400';
+                          } else if (bmi >= 25 && bmi < 30) {
+                            bmiCategory = 'Sobrepeso';
+                            bmiColor = 'text-yellow-600 dark:text-yellow-400';
+                          } else {
+                            bmiCategory = 'Obesidad';
+                            bmiColor = 'text-red-600 dark:text-red-400';
+                          }
+                          
+                          return (
+                            <div className="rounded-lg border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-full bg-green-500/10">
+                                  <Calculator className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                                    Índice de Masa Corporal (IMC)
+                                  </p>
+                                  <p className="text-xs text-green-700 dark:text-green-300 mt-0.5">
+                                    Calculado automáticamente: IMC = peso / (talla²)
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className={`text-2xl font-bold ${bmiColor}`}>
+                                    {bmiRounded}
+                                  </p>
+                                  <p className={`text-sm font-medium ${bmiColor}`}>
+                                    {bmiCategory}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
+                      
+                      return null;
+                    })()}
                   </div>
                 )}
               </div>
+              )}
 
               {/* Sección: Evaluación Médica - SOLO DOCTOR O CON PERMISO */}
-              {canViewClinicalInfo && (
+              {canViewClinicalInfo && appointmentSectionsConfig.evaluacionMedica && (
                 <div className="border rounded-lg overflow-hidden">
                   <button
                     type="button"
@@ -728,7 +895,7 @@ export default function EditarCitaPage() {
               )}
 
               {/* Sección: Diagnóstico y Tratamiento - SOLO DOCTOR O CON PERMISO */}
-              {canViewClinicalInfo && (
+              {canViewClinicalInfo && appointmentSectionsConfig.diagnosticoTratamiento && (
                 <div className="border rounded-lg overflow-hidden">
                   <button
                     type="button"
@@ -784,7 +951,7 @@ export default function EditarCitaPage() {
               )}
 
               {/* Sección: Medicamentos - SOLO DOCTOR O CON PERMISO */}
-              {canViewClinicalInfo && (
+              {canViewClinicalInfo && appointmentSectionsConfig.medicamentos && (
                 <div className="border rounded-lg overflow-hidden">
                   <button
                     type="button"
@@ -981,6 +1148,7 @@ export default function EditarCitaPage() {
               )}
 
               {/* Sección: Notas Adicionales */}
+              {appointmentSectionsConfig.notasAdicionales && (
               <div className="border rounded-lg overflow-hidden">
                 <button
                   type="button"
@@ -1013,6 +1181,7 @@ export default function EditarCitaPage() {
                   </div>
                 )}
               </div>
+              )}
               {error && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
                   {error}

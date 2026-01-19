@@ -48,6 +48,10 @@ export interface Cita {
   motivo?: string;
   weight?: number;
   bloodPressure?: string;
+  heartRate?: number;
+  temperature?: number;
+  oxygenSaturation?: number;
+  bmi?: number;
   measurements?: Measurements;
   currentCondition?: string;
   physicalExam?: string;
@@ -79,6 +83,10 @@ export interface CreateCitaRequest {
   motivo?: string;
   weight?: number;
   bloodPressure?: string;
+  heartRate?: number;
+  temperature?: number;
+  oxygenSaturation?: number;
+  bmi?: number;
   measurements?: Measurements;
   currentCondition?: string;
   physicalExam?: string;
@@ -99,6 +107,10 @@ export interface UpdateCitaRequest {
   motivo?: string;
   weight?: number;
   bloodPressure?: string;
+  heartRate?: number;
+  temperature?: number;
+  oxygenSaturation?: number;
+  bmi?: number;
   measurements?: Measurements;
   currentCondition?: string;
   physicalExam?: string;

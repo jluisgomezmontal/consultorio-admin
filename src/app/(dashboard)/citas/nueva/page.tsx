@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, Thermometer, Droplet, Calculator } from 'lucide-react';
 import { citaService, CreateCitaRequest, CitaEstado } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { userService, User } from '@/services/user.service';
@@ -31,6 +31,10 @@ const citaSchema = z.object({
   motivo: z.string().optional(),
   weight: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Peso inválido' }),
   bloodPressure: z.string().optional(),
+  heartRate: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Frecuencia cardíaca inválida' }),
+  temperature: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Temperatura inválida' }),
+  oxygenSaturation: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Saturación de oxígeno inválida' }),
+  bmi: z.string().optional(),
   height: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Altura inválida' }),
   waist: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cintura inválida' }),
   hip: z.string().optional().refine((value) => value === undefined || value === '' || !isNaN(Number(value)), { message: 'Cadera inválida' }),
@@ -199,6 +203,17 @@ function NuevaCitaContent() {
 
   const onSubmit = (data: CitaFormData) => {
     setError('');
+    
+    // Calculate BMI if weight and height are provided
+    let calculatedBmi: number | undefined;
+    if (data.weight && data.height) {
+      const weightKg = Number(data.weight);
+      const heightM = Number(data.height) / 100; // Convert cm to meters
+      if (weightKg > 0 && heightM > 0) {
+        calculatedBmi = Number((weightKg / (heightM * heightM)).toFixed(2));
+      }
+    }
+    
     const payload: CreateCitaRequest = {
       pacienteId: data.pacienteId,
       doctorId: data.doctorId,
@@ -208,6 +223,10 @@ function NuevaCitaContent() {
       motivo: data.motivo || undefined,
       weight: data.weight ? Number(data.weight) : undefined,
       bloodPressure: data.bloodPressure || undefined,
+      heartRate: data.heartRate ? Number(data.heartRate) : undefined,
+      temperature: data.temperature ? Number(data.temperature) : undefined,
+      oxygenSaturation: data.oxygenSaturation ? Number(data.oxygenSaturation) : undefined,
+      bmi: calculatedBmi,
       measurements: (data.height || data.waist || data.hip) ? {
         height: data.height ? Number(data.height) : undefined,
         waist: data.waist ? Number(data.waist) : undefined,
@@ -419,116 +438,8 @@ function NuevaCitaContent() {
                 )}
               </div>
 
-              {/* Sección: Signos Vitales */}
-              <div className="border rounded-lg overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('vitalSigns')}
-                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-950/30 dark:hover:to-emerald-950/30 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    <span className="font-semibold">Signos Vitales</span>
-                    <span className="text-xs text-muted-foreground">(Opcional)</span>
-                  </div>
-                  {openSections.vitalSigns ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-                {openSections.vitalSigns && (
-                  <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="weight" className="flex items-center gap-2">
-                          <Weight className="h-4 w-4 text-green-600" />
-                          Peso (kg)
-                        </Label>
-                        <Input
-                          id="weight"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('weight')}
-                          placeholder="70.5"
-                          className={errors.weight ? 'border-destructive' : ''}
-                        />
-                        {errors.weight && (
-                          <p className="text-sm text-destructive">{errors.weight.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="bloodPressure" className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-red-600" />
-                          Presión Arterial
-                        </Label>
-                        <Input
-                          id="bloodPressure"
-                          type="text"
-                          {...register('bloodPressure')}
-                          placeholder="120/80"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="height" className="flex items-center gap-2">
-                          <Ruler className="h-4 w-4 text-blue-600" />
-                          Altura (cm)
-                        </Label>
-                        <Input
-                          id="height"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('height')}
-                          placeholder="170"
-                          className={errors.height ? 'border-destructive' : ''}
-                        />
-                        {errors.height && (
-                          <p className="text-sm text-destructive">{errors.height.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="waist">Cintura (cm)</Label>
-                        <Input
-                          id="waist"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('waist')}
-                          placeholder="80"
-                          className={errors.waist ? 'border-destructive' : ''}
-                        />
-                        {errors.waist && (
-                          <p className="text-sm text-destructive">{errors.waist.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="hip">Cadera (cm)</Label>
-                        <Input
-                          id="hip"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          {...register('hip')}
-                          placeholder="95"
-                          className={errors.hip ? 'border-destructive' : ''}
-                        />
-                        {errors.hip && (
-                          <p className="text-sm text-destructive">{errors.hip.message}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Sección: Evaluación Médica - SOLO DOCTOR O CON PERMISO */}
-              {canViewClinicalInfo && (
+              {/* {canViewClinicalInfo && (
                 <div className="border rounded-lg overflow-hidden">
                   <button
                     type="button"
@@ -581,10 +492,10 @@ function NuevaCitaContent() {
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
 
               {/* Sección: Diagnóstico y Tratamiento - SOLO DOCTOR O CON PERMISO */}
-              {canViewClinicalInfo && (
+              {/* {canViewClinicalInfo && (
                 <div className="border rounded-lg overflow-hidden">
                   <button
                     type="button"
@@ -637,7 +548,7 @@ function NuevaCitaContent() {
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
 
               {/* Sección: Notas Adicionales */}
               <div className="border rounded-lg overflow-hidden">
