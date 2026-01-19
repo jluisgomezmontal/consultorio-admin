@@ -26,10 +26,14 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: string;
-  isActive?: boolean;
+  role: 'admin' | 'doctor' | 'recepcionista';
+  consultoriosIds: string[];
   cedulas?: string[];
-  consultoriosIds?: string[];
+  isActive: boolean;
+  photoUrl?: string;
+  photoS3Key?: string;
+  createdAt: string;
+  updatedAt: string;
   consultorios?: Consultorio[];
 }
 

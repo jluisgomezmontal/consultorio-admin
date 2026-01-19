@@ -63,32 +63,33 @@ export default function DashboardPage() {
     <div className="bg-background flex-1 flex flex-col">
       <main className="mx-auto max-w-7xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 flex-1">
         {/* Hero Section */}
-        <div className={`mb-4 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl ${GRADIENTS.hero} shadow-2xl`}>
+        <div className="mb-4 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl bg-card border shadow-lg">
+          <div className="h-1.5 bg-gradient-to-r from-cyan-500 via-teal-500 to-blue-500"></div>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-            <div className="flex flex-col justify-center p-4 sm:p-8 text-white">
-              <div className="inline-flex items-center gap-2 mb-2 sm:mb-4">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-                <span className="text-xs sm:text-sm font-medium opacity-90">Sistema Activo</span>
+            <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+              <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-xs sm:text-sm font-medium text-muted-foreground">Sistema Activo</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">
-                Bienvenido, {user.name}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 text-foreground">
+                Bienvenido, <span className="text-cyan-600 dark:text-cyan-400">{user.name}</span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl opacity-90 mb-2 sm:mb-4">
+              <p className="text-lg sm:text-xl text-muted-foreground mb-3 sm:mb-4">
                 Panel de Control
               </p>
-              <p className="text-xs sm:text-sm opacity-80 max-w-md">
+              <p className="text-sm sm:text-base text-muted-foreground/80 max-w-md">
                 Gestiona citas, pacientes y consultorios de manera eficiente desde un solo lugar
               </p>
             </div>
-            <div className="relative hidden md:block">
+            <div className="relative hidden md:block min-h-[200px] lg:min-h-[240px]">
               <Image
                 src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=1200&auto=format&fit=crop"
-                // src="https://images.unsplash.com/photo-1758691462858-f1286e5daf40?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Equipo médico"
                 fill
-                className="object-cover"
+                className="object-cover rounded-r-xl"
                 priority
               />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-card/80 rounded-r-xl"></div>
             </div>
           </div>
         </div>
@@ -201,10 +202,10 @@ export default function DashboardPage() {
                   </span>
                 </Link>
               </Button>
-              <Button variant="outline" className={`h-20 sm:h-24 flex-col ${COLORS.accent.bgHover} ${COLORS.accent.borderHover} transition-all hover:shadow-md`} asChild>
+              <Button variant="outline" className={`h-20 sm:h-24 flex-col ${COLORS.primary.bgHover} ${COLORS.primary.borderHover} transition-all hover:shadow-md`} asChild>
                 <Link href="/citas">
-                  <div className={`p-1.5 sm:p-2 ${COLORS.accent.bg} rounded-lg mb-1 sm:mb-2`}>
-                    <Calendar className={`h-5 w-5 sm:h-6 sm:w-6 ${COLORS.accent.icon}`} />
+                  <div className={`p-1.5 sm:p-2 ${COLORS.primary.bg} rounded-lg mb-1 sm:mb-2`}>
+                    <Calendar className={`h-5 w-5 sm:h-6 sm:w-6 ${COLORS.primary.icon}`} />
                   </div>
                   <span className="text-xs sm:text-sm font-semibold text-center">
                     Ver Calendario

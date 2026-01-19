@@ -14,6 +14,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { PatientAvatar } from '@/components/PatientAvatar';
+import { COLORS, GRADIENTS } from '@/lib/colors';
 
 export default function PacientesPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -129,18 +130,18 @@ export default function PacientesPage() {
     <div className="bg-background flex-1 flex flex-col">
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 w-full">
         {/* Header con gradiente */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-rose-950/20 p-4 sm:p-6 shadow-lg border border-purple-100 dark:border-purple-900">
+        <div className={`mb-8 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-cyan-950/20 p-4 sm:p-6 shadow-lg border ${COLORS.secondary.border}`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
+                <Users className={`h-5 w-5 sm:h-6 sm:w-6 ${COLORS.secondary.icon}`} />
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Pacientes</h1>
               </div>
               <p className="text-sm text-muted-foreground">
                 Administra los pacientes del consultorio
               </p>
             </div>
-            <Button onClick={() => router.push('/pacientes/nuevo')} size="lg" className="bg-purple-600 hover:bg-purple-700 shadow-md w-full sm:w-auto">
+            <Button onClick={() => router.push('/pacientes/nuevo')} size="lg" className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white shadow-md w-full sm:w-auto">
               <UserPlus className="mr-2 h-5 w-5" />
               Nuevo Paciente
             </Button>
@@ -148,7 +149,7 @@ export default function PacientesPage() {
         </div>
 
         <Card className="mb-6 shadow-md">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20">
+          <CardHeader className={GRADIENTS.card}>
             <CardTitle className="text-lg">Búsqueda de Pacientes</CardTitle>
             <CardDescription>Busca pacientes por nombre, teléfono o email</CardDescription>
           </CardHeader>
@@ -182,9 +183,9 @@ export default function PacientesPage() {
         </Card>
 
         <Card className="shadow-lg ">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
             <CardTitle className="flex items-center gap-2 text-xl">
-              <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <Users className={`h-6 w-6 ${COLORS.secondary.icon}`} />
               Lista de Pacientes
             </CardTitle>
             <CardDescription>

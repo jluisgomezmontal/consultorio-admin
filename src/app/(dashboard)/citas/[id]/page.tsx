@@ -254,7 +254,7 @@ export default function CitaDetailPage() {
                 </Button>
               )}
               {(cita.estado === 'completada') && (
-                <Button variant="default" size="sm" asChild className={`${COLORS.success.bg} hover:opacity-90`}>
+                <Button variant="default" size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white">
                   <Link href={`/pagos/nuevo?citaId=${id}`}>
                     <Coins className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Registrar pago</span>

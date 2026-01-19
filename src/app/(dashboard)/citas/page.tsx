@@ -18,6 +18,7 @@ import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { formatLocalDate } from '@/lib/dateUtils';
 import { PhoneDisplay } from '@/components/PhoneDisplay';
+import { COLORS, GRADIENTS } from '@/lib/colors';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -274,11 +275,11 @@ function CitasContent() {
     <div className="bg-background flex-1 flex flex-col">
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1">
         {/* Header con gradiente */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20 p-6 shadow-lg border border-green-100 dark:border-green-900">
+        <div className={`mb-8 rounded-2xl bg-gradient-to-r from-cyan-50 via-teal-50 to-blue-50 dark:from-cyan-950/20 dark:via-teal-950/20 dark:to-blue-950/20 p-6 shadow-lg border ${COLORS.primary.border}`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <CalendarDays className="h-5 w-5 md:h-6 md:w-6 text-green-600 dark:text-green-400" />
+                <CalendarDays className={`h-5 w-5 md:h-6 md:w-6 ${COLORS.primary.icon}`} />
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestión de Citas</h1>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -286,7 +287,7 @@ function CitasContent() {
               </p>
             </div>
             {(user.role === 'admin' || user.role === 'doctor' || user.role === 'recepcionista') && (
-              <Button onClick={() => router.push('/citas/nueva')} size="lg" className="bg-green-600 hover:bg-green-700 shadow-md">
+              <Button onClick={() => router.push('/citas/nueva')} size="lg" className="bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-white shadow-md">
                 <Plus className="mr-2 h-5 w-5" />
                 Nueva Cita
               </Button>
@@ -295,7 +296,7 @@ function CitasContent() {
         </div>
 
         <Card className="mb-6 shadow-md">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20">
+          <CardHeader className={GRADIENTS.card}>
             <CardTitle className="text-lg">Filtros de Búsqueda</CardTitle>
             <CardDescription>Filtra las citas por diferentes criterios</CardDescription>
           </CardHeader>

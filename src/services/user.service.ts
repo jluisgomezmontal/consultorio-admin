@@ -16,6 +16,8 @@ export interface User {
   consultoriosIds: string[];
   consultorios?: Consultorio[];
   cedulas?: string[];
+  photoUrl?: string;
+  photoS3Key?: string;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;

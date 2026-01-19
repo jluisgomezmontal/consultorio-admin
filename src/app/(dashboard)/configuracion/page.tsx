@@ -20,6 +20,7 @@ import { consultorioService } from '@/services/consultorio.service';
 import { userService } from '@/services/user.service';
 import { usePaquete } from '@/hooks/usePaquete';
 import Image from 'next/image';
+import { UserPhotoUpload } from '@/components/UserPhotoUpload';
 import {
   Dialog,
   DialogContent,
@@ -1292,6 +1293,27 @@ export default function ConfiguracionPage() {
           </TabsContent>
 
           <TabsContent value="perfil" className="space-y-4 sm:space-y-6">
+            <Card>
+              <CardHeader className="space-y-1 sm:space-y-1.5">
+                <CardTitle className="text-xl sm:text-2xl">Foto de Perfil</CardTitle>
+                <CardDescription className="text-sm">
+                  Agrega o actualiza tu foto de perfil
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center py-6">
+                {user && (
+                  <UserPhotoUpload
+                    currentPhotoUrl={user.photoUrl}
+                    currentS3Key={user.photoS3Key}
+                    userName={user.name}
+                    onPhotoChange={() => {
+                      queryClient.invalidateQueries({ queryKey: ['user'] });
+                    }}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader className="space-y-1 sm:space-y-1.5">
                 <CardTitle className="text-xl sm:text-2xl">Información Personal</CardTitle>

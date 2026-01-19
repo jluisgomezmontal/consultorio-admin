@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -143,8 +144,18 @@ const navLinks = [
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hidden lg:flex items-center gap-2 h-10">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-sm">
-                      {user.name.charAt(0).toUpperCase()}
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                      {user.photoUrl ? (
+                        <Image
+                          src={user.photoUrl}
+                          alt={user.name}
+                          width={32}
+                          height={32}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        user.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div className="hidden md:block">
                       <p className="text-sm font-medium text-foreground">{user.name}</p>
