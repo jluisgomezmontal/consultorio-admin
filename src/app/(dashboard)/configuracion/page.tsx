@@ -788,24 +788,29 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-green-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded bg-white mb-2 sm:mb-3 overflow-hidden border-l-4 border-l-[#3eb8c4] border border-gray-200">
                         <div className="p-1.5 sm:p-2 text-xs">
-                          <div className="text-center mb-1">
-                            <div className="font-bold text-green-600 text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] text-blue-600 italic">Dr. Nombre</div>
+                          <div className="flex items-center gap-1 mb-1 pb-1 border-b border-gray-200">
+                            <div className="w-3 h-3 rounded-full bg-[#3eb8c4] flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-[9px] text-gray-800">Consultorio</div>
+                              <div className="text-[8px] text-[#3eb8c4] font-medium">Dr. Nombre</div>
+                            </div>
                           </div>
-                          <div className="text-[8px] border-t border-b py-1 mb-1">
-                            <div>Paciente: Nombre</div>
+                          <div className="text-[7px] bg-gray-50 rounded px-1 py-0.5 mb-1">
+                            <span className="text-gray-500">Paciente:</span> <span className="font-medium">José García</span>
                           </div>
-                          <div className="text-[8px] space-y-1">
-                            <div className="font-semibold text-green-600">Diagnóstico</div>
-                            <div className="bg-gray-50 p-1">Medicamento 1</div>
+                          <div className="text-[7px] space-y-0.5">
+                            <div className="font-semibold text-gray-700 uppercase text-[6px] tracking-wide">Prescripción</div>
+                            <div className="border-l-2 border-[#3eb8c4] bg-gray-50 pl-1 py-0.5">
+                              <div className="font-medium text-gray-800">Amoxicilina</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-sm sm:text-base">Verde Profesional</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">Estilo clásico</div>
+                        <div className="font-semibold text-sm sm:text-base">Turquesa Lateral</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Moderno y limpio</div>
                       </div>
                     </button>
 
@@ -826,24 +831,31 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-blue-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded bg-white mb-2 sm:mb-3 overflow-hidden border-l-4 border-l-[#3eb8c4] border border-gray-200">
                         <div className="p-1.5 sm:p-2 text-xs">
-                          <div className="text-center mb-1">
-                            <div className="font-bold text-blue-600 text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] text-blue-500 italic">Dr. Nombre</div>
+                          <div className="flex items-center gap-1 mb-1 pb-1 border-b border-gray-200">
+                            <div className="w-4 h-4 rounded bg-[#3eb8c4] flex-shrink-0"></div>
+                            <div className="flex-1 text-center">
+                              <div className="font-semibold text-[9px] text-gray-800">Consultorio</div>
+                              <div className="text-[8px] text-[#3eb8c4] font-medium">Dr. Nombre</div>
+                            </div>
                           </div>
-                          <div className="text-[8px] border-t border-b py-1 mb-1">
-                            <div>Paciente: Nombre</div>
+                          <div className="grid grid-cols-3 gap-0.5 text-[6px] bg-gray-50 rounded p-1 mb-1">
+                            <div><span className="text-gray-500">Paciente</span></div>
+                            <div><span className="text-gray-500">Edad</span></div>
+                            <div><span className="text-gray-500">Fecha</span></div>
                           </div>
-                          <div className="text-[8px] space-y-1">
-                            <div className="font-semibold text-blue-600">Diagnóstico</div>
-                            <div className="bg-blue-50 p-1">Medicamento 1</div>
+                          <div className="text-[7px] space-y-0.5">
+                            <div className="font-semibold text-gray-700 uppercase text-[6px]">Prescripción</div>
+                            <div className="border-l-2 border-[#3eb8c4] bg-gray-50 pl-1 py-0.5 text-[6px]">
+                              <div className="font-medium">Ibuprofeno</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-sm sm:text-base">Azul Profesional</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">Formal y confiable</div>
+                        <div className="font-semibold text-sm sm:text-base">Turquesa Centrado</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Compacto y elegante</div>
                       </div>
                     </button>
 
@@ -864,24 +876,29 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-gray-800 bg-white mb-2 sm:mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded bg-white mb-2 sm:mb-3 overflow-hidden border-l-4 border-l-[#4dd4e0] border border-gray-200">
                         <div className="p-1.5 sm:p-2 text-xs">
-                          <div className="text-center mb-1">
-                            <div className="font-bold text-gray-800 text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] text-gray-600 italic">Dr. Nombre</div>
+                          <div className="flex items-center gap-1 mb-1 pb-1 border-b border-gray-200">
+                            <div className="w-3 h-3 rounded-full bg-[#4dd4e0] flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-[9px] text-gray-800">Consultorio</div>
+                              <div className="text-[8px] text-[#4dd4e0] font-medium">Dr. Nombre</div>
+                            </div>
                           </div>
-                          <div className="text-[8px] border-t border-b py-1 mb-1">
-                            <div>Paciente: Nombre</div>
+                          <div className="text-[7px] bg-gray-50 rounded px-1 py-0.5 mb-1">
+                            <span className="text-gray-500">Paciente:</span> <span className="font-medium">Ana López</span>
                           </div>
-                          <div className="text-[8px] space-y-1">
-                            <div className="font-semibold text-gray-800">Diagnóstico</div>
-                            <div className="bg-gray-100 p-1">Medicamento 1</div>
+                          <div className="text-[7px] space-y-0.5">
+                            <div className="font-semibold text-gray-700 uppercase text-[6px] tracking-wide">Prescripción</div>
+                            <div className="border-l-2 border-[#4dd4e0] bg-gray-50 pl-1 py-0.5">
+                              <div className="font-medium text-gray-800">Paracetamol</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-sm sm:text-base">Negro y Gris</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">Elegante profesional</div>
+                        <div className="font-semibold text-sm sm:text-base">Turquesa Brillante</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Dark mode style</div>
                       </div>
                     </button>
 
@@ -902,24 +919,32 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded border-2 border-red-600 bg-white mb-2 sm:mb-3 overflow-hidden">
+                      <div className="aspect-[3/2] rounded bg-white mb-2 sm:mb-3 overflow-hidden border-2 border-gray-200">
                         <div className="p-1.5 sm:p-2 text-xs">
-                          <div className="text-center mb-1">
-                            <div className="font-bold text-red-600 text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] text-red-500 italic">Dr. Nombre</div>
+                          <div className="flex items-center gap-1 mb-1 pb-0.5 border-b border-gray-200">
+                            <div className="w-3 h-3 rounded-full bg-gray-300 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-[9px] text-gray-800">Consultorio</div>
+                              <div className="text-[8px] text-gray-600 font-medium">Dr. Nombre</div>
+                            </div>
                           </div>
-                          <div className="text-[8px] border-t border-b py-1 mb-1">
-                            <div>Paciente: Nombre</div>
+                          <div className="grid grid-cols-4 gap-0.5 text-[6px] py-0.5 mb-0.5">
+                            <div className="text-gray-500">Paciente</div>
+                            <div className="text-gray-500">Edad</div>
+                            <div className="text-gray-500">Sexo</div>
+                            <div className="text-gray-500">Fecha</div>
                           </div>
-                          <div className="text-[8px] space-y-1">
-                            <div className="font-semibold text-red-600">Diagnóstico</div>
-                            <div className="bg-red-50 p-1">Medicamento 1</div>
+                          <div className="text-[7px] space-y-0.5">
+                            <div className="font-semibold text-gray-600 uppercase text-[6px]">Prescripción</div>
+                            <div className="text-[6px] text-gray-700">
+                              <div className="font-medium">Loratadina</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-sm sm:text-base">Rojo Profesional</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">Impactante</div>
+                        <div className="font-semibold text-sm sm:text-base">Bordes Sutiles</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Minimalista light</div>
                       </div>
                     </button>
 
@@ -940,24 +965,30 @@ export default function ConfiguracionPage() {
                           </svg>
                         </div>
                       )}
-                      <div className="aspect-[3/2] rounded bg-gradient-to-br from-indigo-500 to-purple-600 mb-2 sm:mb-3 overflow-hidden">
-                        <div className="p-1.5 sm:p-2 text-xs text-white">
-                          <div className="text-center mb-1">
-                            <div className="font-bold text-[11px]">CONSULTORIO</div>
-                            <div className="text-[9px] italic">Dr. Nombre</div>
+                      <div className="aspect-[3/2] rounded bg-white mb-2 sm:mb-3 overflow-hidden border border-gray-100">
+                        <div className="p-1.5 sm:p-2 text-xs">
+                          <div className="flex items-center gap-1 mb-1">
+                            <div className="w-3 h-3 rounded-full bg-gray-200 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="font-medium text-[9px] text-gray-900">Consultorio</div>
+                              <div className="text-[8px] text-gray-600">Dr. Nombre</div>
+                            </div>
                           </div>
-                          <div className="text-[8px] border-t border-white/30 py-1 mb-1">
-                            <div>Paciente: Nombre</div>
+                          <div className="flex gap-2 text-[6px] py-0.5 mb-0.5 border-b border-gray-100">
+                            <div className="text-gray-400 uppercase">Paciente</div>
+                            <div className="text-gray-400 uppercase">Edad</div>
                           </div>
-                          <div className="text-[8px] space-y-1">
-                            <div className="font-semibold">Diagnóstico</div>
-                            <div className="bg-white/90 text-purple-700 p-1 rounded">Medicamento 1</div>
+                          <div className="text-[7px] space-y-0.5">
+                            <div className="font-semibold text-gray-400 uppercase text-[6px] tracking-wider">Prescripción</div>
+                            <div className="text-[6px] text-gray-800">
+                              <div className="font-medium">Cetirizina</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-sm sm:text-base">Gradiente Moderno</div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">Contemporáneo</div>
+                        <div className="font-semibold text-sm sm:text-base">Ultra Minimalista</div>
+                        <div className="text-xs text-muted-foreground hidden sm:block">Máxima limpieza</div>
                       </div>
                     </button>
                   </div>
