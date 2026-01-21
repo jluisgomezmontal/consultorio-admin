@@ -43,6 +43,7 @@ import { DocumentList } from '@/components/DocumentList';
 import { GenerarRecetaDialog } from '@/components/GenerarRecetaDialog';
 import { documentoService } from '@/services/documento.service';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { PhoneDisplay } from '@/components/PhoneDisplay';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -349,14 +350,23 @@ export default function CitaDetailPage() {
               <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <UserRound className={`h-5 w-5 ${COLORS.secondary.icon} mt-0.5`} />
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Paciente</p>
-                  <p className="text-foreground font-semibold">{cita.paciente?.fullName || 'Sin paciente registrado'}</p>
-                  {cita.paciente?.phone && <p className="text-sm text-muted-foreground mt-1">{cita.paciente.phone}</p>}
-                  {cita.paciente?.id && (
-                    <Link href={`/pacientes/${cita.paciente.id}`} className={`text-xs ${COLORS.primary.text} hover:opacity-80 mt-1 inline-flex items-center gap-1`}>
-                      Ver perfil completo
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Paciente</p>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <p className="text-foreground font-semibold text-base">{cita.paciente?.fullName || 'Sin paciente registrado'}</p>
+                    {cita.paciente?.id && (
+                      <Link 
+                        href={`/pacientes/${cita.paciente.id}`} 
+                        className={`inline-flex items-center gap-1.5 text-sm ${COLORS.primary.text} hover:underline hover:opacity-80 transition-all px-2 py-1 rounded-md hover:bg-primary/5 whitespace-nowrap`}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Ver perfil
+                      </Link>
+                    )}
+                  </div>
+                  {cita.paciente?.phone && (
+                    <div className="pt-1">
+                      <PhoneDisplay phone={cita.paciente.phone} className="text-sm" />
+                    </div>
                   )}
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { pagoService, EstatusPago } from '@/services/pago.service';
@@ -20,9 +20,12 @@ import {
   Building2,
   Trash2,
   Clock,
+  Download,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { GenerarComprobanteDialog } from '@/components/GenerarComprobanteDialog';
+import { COLORS } from '@/lib/colors';
 
 const estatusLabels: Record<EstatusPago, string> = {
   pagado: 'Pagado',
@@ -47,6 +50,7 @@ export default function PagoDetailPage() {
   const id = params.id as string;
   const queryClient = useQueryClient();
   const { confirm } = useConfirmDialog();
+  const [comprobanteDialogOpen, setComprobanteDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -105,44 +109,69 @@ export default function PagoDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => {
-              router.back();
-              setTimeout(() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }, 80);
-            }}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Regresar
-            </Button>
-            {(user.role === 'admin' || user.role === 'doctor') && (
-              <Button variant="outline" size="sm" onClick={() => router.push(`/pagos/${id}/editar`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
-              </Button>
-            )}
-            {user.role === 'admin' && (
+        <div className={`mb-8 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-6 border ${COLORS.success.border}`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className={`h-5 w-5 md:h-6 md:w-6 ${COLORS.success.icon}`} />
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Detalle de Pago</h1>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {pago.cita?.paciente?.fullName || 'Pago registrado'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
               <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
+                onClick={() => setComprobanteDialogOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-md"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
+                <Download className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Generar Comprobante</span>
+                <span className="sm:hidden">Comprobante</span>
               </Button>
-            )}
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm uppercase text-muted-foreground">Estado</p>
-            <Badge variant={estatusVariants[pago.estatus]} className="mt-1">
+        </div>
+
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Estado:</span>
+            <Badge variant={estatusVariants[pago.estatus]} className="text-sm">
               {estatusLabels[pago.estatus]}
             </Badge>
           </div>
+        </div>
+
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => {
+            router.back();
+            setTimeout(() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }, 80);
+          }}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Regresar
+          </Button>
+          {(user.role === 'admin' || user.role === 'doctor') && (
+            <Button variant="outline" size="sm" onClick={() => router.push(`/pagos/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
+            </Button>
+          )}
+          {user.role === 'admin' && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Eliminar
+            </Button>
+          )}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -277,6 +306,12 @@ export default function PagoDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        <GenerarComprobanteDialog
+          open={comprobanteDialogOpen}
+          onOpenChange={setComprobanteDialogOpen}
+          pago={pago}
+        />
       </main>
     </div>
   );
