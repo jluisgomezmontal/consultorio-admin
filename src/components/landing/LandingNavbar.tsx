@@ -54,6 +54,12 @@ export function LandingNavbar() {
           >
             Testimonios
           </Link>
+          <Link 
+            href="#faq" 
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+          >
+            Preguntas frecuentes
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -105,6 +111,13 @@ export function LandingNavbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Testimonios
+            </Link>
+            <Link
+              href="#faq"
+              className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:translate-x-1"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Preguntas frecuentes
             </Link>
             <div className="pt-3 space-y-2">
               <Button asChild variant="outline" className="w-full transition-all duration-300 hover:scale-105">

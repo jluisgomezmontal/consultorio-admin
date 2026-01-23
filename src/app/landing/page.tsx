@@ -19,7 +19,6 @@ export default function LandingPage() {
       
       <main className="flex-1">
         <HeroSection />
-        
         <StatsSection />
         
         <div id="features">
@@ -39,8 +38,10 @@ export default function LandingPage() {
         <div id="testimonials">
           <TestimonialsSection />
         </div>
-        
+        <div id="faq">
         <FAQSection />
+        </div>
+        
         
         <CTASection />
       </main>

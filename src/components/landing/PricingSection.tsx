@@ -8,47 +8,48 @@ import Link from 'next/link';
 
 const plans = [
   {
-    name: 'Gratis',
+    name: 'Básico',
     description: 'Perfecto para comenzar',
-    price: '$0',
-    period: 'por 30 días',
-    priceMonthly: 0,
-    priceYearly: 0,
+    price: '$349',
+    period: 'al mes',
+    priceMonthly: 349,
+    priceYearly: 3490,
     features: [
       '1 doctor',
       '1 recepcionista',
       'Pacientes ilimitados',
-      'Gestión de citas básica',
-      'Expedientes básicos',
-      'Control de pagos'
-    ],
-    cta: 'Comenzar gratis',
-    popular: false,
-    badge: null
-  },
-  {
-    name: 'Básico',
-    description: 'Para consultorios pequeños',
-    price: '$499',
-    period: 'al mes',
-    priceMonthly: 499,
-    priceYearly: 4990,
-    features: [
-      '2 doctores',
-      '2 recepcionistas',
-      'Pacientes ilimitados',
-      'Agenda avanzada',
+      'Gestión de citas',
       'Expedientes clínicos',
-      'Reportes básicos',
-      'Subida de documentos',
+      'Control de pagos',
       'Soporte por email'
     ],
-    cta: 'Comenzar ahora',
+    cta: 'Probar 30 días gratis',
     popular: false,
     badge: null
   },
   {
     name: 'Profesional',
+    description: 'Para consultorios pequeños',
+    price: '$599',
+    period: 'al mes',
+    priceMonthly: 599,
+    priceYearly: 5990,
+    features: [
+      '2 doctores',
+      '2 recepcionistas',
+      'Pacientes ilimitados',
+      'Agenda avanzada',
+      'Expedientes completos',
+      'Subida de documentos',
+      'Reportes básicos',
+      'Soporte prioritario'
+    ],
+    cta: 'Probar 30 días gratis',
+    popular: true,
+    badge: 'Recomendado'
+  },
+  {
+    name: 'Clínica',
     description: 'Para consultorios en crecimiento',
     price: '$999',
     period: 'al mes',
@@ -59,20 +60,20 @@ const plans = [
       '5 recepcionistas',
       'Pacientes ilimitados',
       'Agenda inteligente',
-      'Expedientes completos',
-      'Reportes avanzados',
+      'Expedientes avanzados',
       'Subida de documentos e imágenes',
+      'Reportes avanzados',
       'Multi-consultorio',
-      'Soporte prioritario'
+      'Soporte dedicado'
     ],
-    cta: 'Iniciar prueba',
-    popular: true,
-    badge: 'Más popular'
+    cta: 'Probar 30 días gratis',
+    popular: false,
+    badge: null
   },
   {
     name: 'Licencia',
     description: 'Pago único con mantenimiento anual',
-    price: '$15,000',
+    price: '$24,999',
     period: 'pago único',
     priceMonthly: null,
     priceYearly: 2000,
@@ -84,7 +85,7 @@ const plans = [
       'Capacitación incluida',
       'Soporte técnico dedicado',
       'Actualizaciones incluidas',
-      'Mantenimiento: $2,000/año'
+      'Mantenimiento: $799/año'
     ],
     cta: 'Contactar ventas',
     popular: false,
@@ -101,9 +102,12 @@ export function PricingSection() {
             Planes diseñados para ti
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Elige el plan que mejor se adapte a las necesidades de tu consultorio. 
-            Todos incluyen prueba gratuita sin necesidad de tarjeta de crédito.
+            Elige el plan que mejor se adapte a las necesidades de tu consultorio.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-100 dark:bg-green-900/30 px-6 py-2 text-sm font-medium text-green-700 dark:text-green-300">
+            <Check className="h-4 w-4" />
+            30 días de prueba gratis • Sin tarjeta de crédito • Sin compromiso
+          </div>
         </div>
         
         <div className="grid gap-8 lg:grid-cols-4 lg:gap-6 max-w-7xl mx-auto">
