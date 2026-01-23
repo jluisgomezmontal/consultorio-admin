@@ -14,13 +14,13 @@ export default function Home() {
       if (user) {
         router.push('/dashboard');
       } else {
-        router.push('/login');
+        router.push('/landing');
       }
     }
   }, [user, loading, router]);
 
   if (loading) {
-    return <LoadingSpinner message = 'Cargando dashboard...'/>;
+    return <LoadingSpinner message = 'Cargando...'/>;
   }
 
   return null;
