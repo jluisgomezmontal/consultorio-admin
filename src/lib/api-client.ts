@@ -46,6 +46,11 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // Don't intercept login/register errors - let them bubble up
+    if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')) {
+      return Promise.reject(error);
+    }
+
     // Check if account is deactivated
     if (error.response?.status === 401) {
       const errorMessage = (error.response?.data as any)?.message || '';

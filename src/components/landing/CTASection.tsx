@@ -38,7 +38,7 @@ export function CTASection() {
                 asChild 
                 size="lg" 
                 variant="outline"
-                className="text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-xl"
+                className="text-base border-primary-foreground/30 text-primary hover:bg-primary-foreground/10 hover:text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-xl"
               >
                 <Link href="/login">
                   Iniciar sesión

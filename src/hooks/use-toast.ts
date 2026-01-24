@@ -5,11 +5,11 @@ type ToasterToast = {
   title?: string
   description?: string
   action?: React.ReactNode
-  variant?: 'default' | 'destructive'
+  variant?: 'default' | 'destructive' | 'success'
 }
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 6000
 
 type ToastActionElement = React.ReactElement<any>
 
@@ -18,7 +18,7 @@ type Toast = {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  variant?: 'default' | 'destructive'
+  variant?: 'default' | 'destructive' | 'success'
 }
 
 const actionTypes = {

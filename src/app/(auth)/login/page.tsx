@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useToast } from '@/hooks/use-toast';
+import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -23,8 +25,8 @@ function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const {
     register,
@@ -32,22 +34,43 @@ function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onSubmit',
   });
 
   useEffect(() => {
     if (searchParams.get('deactivated') === 'true') {
-      setError('Tu cuenta ha sido desactivada. Por favor, contacta al administrador.');
+      toast({
+        variant: 'destructive',
+        title: 'Cuenta desactivada',
+        description: 'Tu cuenta ha sido desactivada. Por favor, contacta al administrador.',
+      });
     }
-  }, [searchParams]);
+  }, [searchParams, toast]);
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    setError('');
     try {
       await login(data.email, data.password);
-      router.push('/dashboard');
+      
+      toast({
+        variant: 'success',
+        title: '¡Bienvenido!',
+        description: 'Has iniciado sesión correctamente.',
+      });
+      
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      const errorMessage = err.response?.data?.message || 'Error al iniciar sesión';
+      
+      toast({
+        variant: 'destructive',
+        title: 'Error de autenticación',
+        description: errorMessage.includes('Invalid credentials') || errorMessage.includes('credenciales')
+          ? 'Email o contraseña incorrectos. Por favor, verifica tus datos.'
+          : errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -68,12 +91,6 @@ function LoginForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
