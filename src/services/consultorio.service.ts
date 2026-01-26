@@ -195,6 +195,39 @@ class ConsultorioService {
     const response = await apiClient.put<ConsultorioResponse>(`/consultorios/${id}/appointment-sections-config`, config);
     return response.data;
   }
+
+  async exportDataAsJSON(id: string): Promise<void> {
+    const response = await apiClient.get(`/consultorios/${id}/export?format=json`);
+    
+    const jsonString = JSON.stringify(response.data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `consultorio-export-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  async exportDataAsExcel(id: string): Promise<void> {
+    const response = await apiClient.get(`/consultorios/${id}/export?format=excel`, {
+      responseType: 'blob',
+    });
+    
+    const blob = new Blob([response.data], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `consultorio-export-${Date.now()}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
 }
 
 export const consultorioService = new ConsultorioService();

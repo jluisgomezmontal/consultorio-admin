@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert, Calendar } from 'lucide-react';
+import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert, Calendar, Download, FileJson, FileSpreadsheet } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -103,6 +103,7 @@ export default function ConfiguracionPage() {
   const [equipoSubTab, setEquipoSubTab] = useState<'doctores' | 'recepcionistas'>('doctores');
   const [isCreateDoctorDialogOpen, setIsCreateDoctorDialogOpen] = useState(false);
   const [deleteDoctorId, setDeleteDoctorId] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [clinicalHistoryConfig, setClinicalHistoryConfig] = useState({
     antecedentesHeredofamiliares: true,
@@ -508,6 +509,36 @@ export default function ConfiguracionPage() {
     }
   };
 
+  const handleExportJSON = async () => {
+    if (!consultorioId) return;
+    try {
+      setIsExporting(true);
+      setError('');
+      await consultorioService.exportDataAsJSON(consultorioId);
+      setSuccess('Datos exportados exitosamente en formato JSON');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al exportar datos');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    if (!consultorioId) return;
+    try {
+      setIsExporting(true);
+      setError('');
+      await consultorioService.exportDataAsExcel(consultorioId);
+      setSuccess('Datos exportados exitosamente en formato Excel');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al exportar datos');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleReceptionistSubmit = (receptionist: any) => {
     return (data: ReceptionistFormData) => {
       const cleanData: any = {};
@@ -756,6 +787,71 @@ export default function ConfiguracionPage() {
                     {updateConsultorioMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Exportar Datos del Consultorio</CardTitle>
+                <CardDescription>
+                  Descarga todos los datos asociados al consultorio para migración o respaldo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="rounded-lg border p-4">
+                    <div className="mb-4">
+                      <h3 className="font-medium mb-1">Formato JSON</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Exporta todos los datos en formato JSON para migración o integración con otros sistemas
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleExportJSON}
+                      disabled={isExporting}
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
+                      <FileJson className="mr-2 h-4 w-4" />
+                      {isExporting ? 'Exportando...' : 'Exportar como JSON'}
+                    </Button>
+                  </div>
+
+                  {/* <div className="rounded-lg border p-4">
+                    <div className="mb-4">
+                      <h3 className="font-medium mb-1">Formato Excel</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Exporta todos los datos en formato Excel (.xlsx) para análisis y visualización
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleExportExcel}
+                      disabled={isExporting}
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
+                      <FileSpreadsheet className="mr-2 h-4 w-4" />
+                      {isExporting ? 'Exportando...' : 'Exportar como Excel'}
+                    </Button>
+                  </div> */}
+
+                  <div className="rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-4">
+                    <div className="flex gap-2">
+                      <Download className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Datos incluidos en la exportación</h4>
+                        <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                          <li>• Información del consultorio</li>
+                          <li>• Pacientes y sus historias clínicas</li>
+                          <li>• Citas y consultas médicas</li>
+                          <li>• Usuarios y personal médico</li>
+                          <li>• Alergias a medicamentos</li>
+                          <li>• Pagos y transacciones</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
