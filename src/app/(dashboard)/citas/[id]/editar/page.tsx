@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle, Thermometer, Droplet, Calculator } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle, Thermometer, Droplet, Calculator, Sparkles, CheckCircle2 } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { MedicationAllergyAlert } from '@/components/MedicationAllergyAlert';
@@ -19,6 +19,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
+import { aiService } from '@/services/ai.service';
+import { AILoadingOverlay } from '@/components/AILoadingOverlay';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -89,6 +91,9 @@ export default function EditarCitaPage() {
     medications: false,
     additionalNotes: false,
   });
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [aiSuccess, setAiSuccess] = useState(false);
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -445,8 +450,10 @@ export default function EditarCitaPage() {
     : allDoctores;
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <AILoadingOverlay isVisible={isAILoading} />
+      <div className="min-h-screen bg-background">
+        <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <Button
           variant="ghost"
           onClick={() => router.push(`/citas/${id}`)}
@@ -923,7 +930,74 @@ export default function EditarCitaPage() {
                         </div>
                       )}
                       <div className="space-y-2">
-                        <Label htmlFor="diagnostico">Diagnóstico</Label>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="diagnostico">Diagnóstico</Label>
+                          {canEditClinicalInfo && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={async () => {
+                                const diagnostico = watch('diagnostico');
+                                if (!diagnostico || diagnostico.trim() === '') {
+                                  setAiError('Por favor ingresa un diagnóstico primero');
+                                  setTimeout(() => setAiError(''), 3000);
+                                  return;
+                                }
+                                
+                                setIsAILoading(true);
+                                setAiError('');
+                                setAiSuccess(false);
+                                
+                                try {
+                                  const suggestions = await aiService.suggestTreatment({
+                                    diagnostico,
+                                    pacienteId: watch('pacienteId'),
+                                  });
+                                  
+                                  setValue('tratamiento', suggestions.tratamiento);
+                                  
+                                  if (suggestions.medicamentos && suggestions.medicamentos.length > 0) {
+                                    const currentMeds = watch('medicamentos') || [];
+                                    suggestions.medicamentos.forEach((med) => {
+                                      append({
+                                        nombre: med.nombre,
+                                        dosis: med.dosis || '',
+                                        frecuencia: med.frecuencia || '',
+                                        duracion: med.duracion || '',
+                                        indicaciones: med.indicaciones || '',
+                                      });
+                                    });
+                                  }
+                                  
+                                  setOpenSections(prev => ({
+                                    ...prev,
+                                    diagnosisTreatment: true,
+                                    medications: true,
+                                  }));
+                                  
+                                  setAiSuccess(true);
+                                  setTimeout(() => setAiSuccess(false), 5000);
+                                  
+                                  if (suggestions.advertencias && suggestions.advertencias.length > 0) {
+                                    const warningMsg = '⚠️ Advertencias de IA: ' + suggestions.advertencias.join('; ');
+                                    setAiError(warningMsg);
+                                  }
+                                } catch (err: any) {
+                                  setAiError(err.response?.data?.message || 'Error al generar sugerencias con IA');
+                                  setTimeout(() => setAiError(''), 5000);
+                                } finally {
+                                  setIsAILoading(false);
+                                }
+                              }}
+                              disabled={isAILoading || !watch('diagnostico')}
+                              className={`gap-2 transition-all duration-300 ${isAILoading ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white animate-pulse border-0' : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:scale-105 border-0 shadow-lg hover:shadow-xl'}`}
+                            >
+                              <Sparkles className={`h-4 w-4 ${isAILoading ? 'animate-spin' : ''}`} />
+                              {isAILoading ? 'Generando...' : 'Sugerir con IA'}
+                            </Button>
+                          )}
+                        </div>
                         <textarea
                           id="diagnostico"
                           {...register('diagnostico')}
@@ -932,6 +1006,17 @@ export default function EditarCitaPage() {
                           className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!canEditClinicalInfo ? 'opacity-60 cursor-not-allowed' : ''}`}
                           placeholder={canEditClinicalInfo ? "Diagnóstico médico del paciente..." : "Solo el doctor puede ingresar el diagnóstico"}
                         />
+                        {aiSuccess && (
+                          <div className="text-sm p-3 rounded-lg bg-green-50 dark:bg-green-950/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800 animate-in slide-in-from-top duration-300 flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                            <span>✨ Sugerencias generadas exitosamente. Revisa el tratamiento y medicamentos sugeridos.</span>
+                          </div>
+                        )}
+                        {aiError && (
+                          <div className={`text-sm p-3 rounded-lg animate-in slide-in-from-top duration-300 ${aiError.includes('Advertencias') ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800' : 'bg-red-50 dark:bg-red-950/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'}`}>
+                            {aiError}
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -1201,5 +1286,6 @@ export default function EditarCitaPage() {
         </Card>
       </main>
     </div>
+    </>
   );
 }

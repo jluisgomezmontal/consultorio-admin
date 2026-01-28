@@ -78,7 +78,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center space-x-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>joseluisgomezmontalvan@gmail.com</span>
+                <span>soporte@miconsultorioapp.com</span>
               </li>
               <li className="flex items-center space-x-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
@@ -104,7 +104,7 @@ export function Footer() {
                 <X className="h-4 w-4" />
               </a>
               <a 
-                href="https://www.facebook.com/profile.php?id=61584075058727" 
+                href="https://www.facebook.com/miconsultorioapp/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
@@ -112,7 +112,7 @@ export function Footer() {
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href="https://www.instagram.com/jluismontalvan/" 
+                href="https://www.instagram.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"

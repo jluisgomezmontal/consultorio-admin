@@ -213,7 +213,7 @@ export default function ConfiguracionPage() {
       });
       
       // Always set image preview, use default if not available
-      const imageUrl = consultorioData.data.imageUrl || 'https://miconsultorio.vercel.app/miconsultorio.svg';
+      const imageUrl = consultorioData.data.imageUrl || 'https://miconsultorioapp.com/miconsultorio.svg';
       console.log('🖼️ Setting image preview to:', imageUrl);
       setImagePreview(imageUrl);
     }
