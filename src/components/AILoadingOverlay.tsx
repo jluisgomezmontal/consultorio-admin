@@ -23,7 +23,7 @@ export function AILoadingOverlay({ isVisible }: AILoadingOverlayProps) {
 
     const interval = setInterval(() => {
       setCurrentStep((prev) => (prev + 1) % steps.length);
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [isVisible, steps.length]);

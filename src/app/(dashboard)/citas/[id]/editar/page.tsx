@@ -977,7 +977,7 @@ export default function EditarCitaPage() {
                                   }));
                                   
                                   setAiSuccess(true);
-                                  setTimeout(() => setAiSuccess(false), 5000);
+                                  setTimeout(() => setAiSuccess(false), 15000);
                                   
                                   if (suggestions.advertencias && suggestions.advertencias.length > 0) {
                                     const warningMsg = '⚠️ Advertencias de IA: ' + suggestions.advertencias.join('; ');
