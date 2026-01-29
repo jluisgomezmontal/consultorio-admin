@@ -1,5 +1,6 @@
 import { Sparkles, Brain, Pill, FileText, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Logo } from './Logo';
 
 interface AILoadingOverlayProps {
   isVisible: boolean;
@@ -39,6 +40,11 @@ export function AILoadingOverlay({ isVisible }: AILoadingOverlayProps) {
         <div className="relative space-y-6">
           {/* Header with sparkle animation */}
           <div className="flex items-center justify-center gap-3">
+          <Logo size="sm" className="md:hidden" />
+          <Logo size="lg" className="hidden md:flex" />
+          </div>
+          <div className="flex items-center justify-center gap-3">
+            
             <div className="relative">
               <Sparkles className="h-8 w-8 text-purple-600 animate-pulse" />
               <div className="absolute inset-0 h-8 w-8 text-purple-600 animate-ping opacity-20">
@@ -49,7 +55,6 @@ export function AILoadingOverlay({ isVisible }: AILoadingOverlayProps) {
               IA Generando Sugerencias
             </h3>
           </div>
-
           {/* Progress steps */}
           <div className="space-y-3">
             {steps.map((step, index) => {
