@@ -56,42 +56,42 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 md:py-32 bg-muted/30">
+    <section className="py-12 md:py-20 lg:py-32 bg-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-4">
+        <div className="text-center mb-10 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 md:mb-4 leading-tight">
             Profesionales que confían en nosotros
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
             Únete a cientos de médicos que ya optimizaron la gestión de sus consultorios
           </p>
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <Card 
               key={index} 
-              className="hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 animate-fade-in"
+              className="hover:shadow-xl transition-all duration-500 md:hover:-translate-y-2 hover:border-primary/30 animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold shadow-md transition-transform duration-300 hover:scale-110">
+              <CardContent className="pt-5 md:pt-6">
+                <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                  <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm md:text-base font-semibold shadow-md transition-transform duration-300 md:hover:scale-110">
                     {testimonial.avatar}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    <p className="text-sm md:text-base font-semibold text-foreground">{testimonial.name}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
                 
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-0.5 md:gap-1 mb-3 md:mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    <Star key={i} className="h-3 w-3 md:h-4 md:w-4 fill-primary text-primary" />
                   ))}
                 </div>
                 
-                <p className="text-muted-foreground mb-4">
+                <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
                   "{testimonial.content}"
                 </p>
                 

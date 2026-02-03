@@ -12,3 +12,4 @@ export { CTASection } from './CTASection';
 export { LandingNavbar } from './LandingNavbar';
 export { LandingFooter } from './LandingFooter';
 export { ScrollToTop } from './ScrollToTop';
+export { FloatingContactButton } from './FloatingContactButton';
