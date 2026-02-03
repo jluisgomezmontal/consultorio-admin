@@ -35,14 +35,14 @@ const plans = [
     priceMonthly: 599,
     priceYearly: 5990,
     features: [
-      '2 doctores',
-      '2 recepcionistas',
+      '1 doctor',
+      '1 recepcionista',
       'Pacientes ilimitados',
       'Agenda avanzada',
       'Expedientes completos',
       'Subida de documentos',
       'Reportes básicos',
-      'Soporte prioritario'
+      'Inteligencia artificial'
     ],
     cta: 'Probar 30 días gratis',
     popular: true,
@@ -56,15 +56,15 @@ const plans = [
     priceMonthly: 999,
     priceYearly: 9990,
     features: [
-      '5 doctores',
-      '5 recepcionistas',
+      '2 doctores',
+      '3 recepcionistas',
       'Pacientes ilimitados',
       'Agenda inteligente',
       'Expedientes avanzados',
       'Subida de documentos e imágenes',
       'Reportes avanzados',
       'Multi-consultorio',
-      'Soporte dedicado'
+      'Inteligencia artificial'
     ],
     cta: 'Probar 30 días gratis',
     popular: false,

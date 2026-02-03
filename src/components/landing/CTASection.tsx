@@ -38,7 +38,7 @@ export function CTASection() {
                 asChild 
                 size="lg" 
                 variant="outline"
-                className="text-sm md:text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 transition-all duration-300 md:hover:scale-110 hover:shadow-xl"
+                className="text-sm md:text-base border-primary-foreground/30  hover:bg-primary-foreground/10 transition-all duration-300 md:hover:scale-110 hover:shadow-xl"
               >
                 <Link href="#pricing">
                   Ver planes
