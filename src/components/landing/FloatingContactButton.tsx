@@ -1,11 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { Phone, MessageCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Phone, MessageCircle, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function FloatingContactButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', toggleVisibility);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   const phoneNumber = '7444292283';
   const whatsappMessage = encodeURIComponent(
@@ -30,13 +54,19 @@ export function FloatingContactButton() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 md:hidden bg-black/20"
+          className="fixed inset-0 z-40 md:hidden bg-black/20 animate-fade-in"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* FAB contenedor */}
-      <div className="fixed bottom-8 left-8 z-50 md:hidden">
+      {/* FAB contenedor - Botón principal de contacto */}
+      <div 
+        className={`fixed bottom-8 left-8 z-50 md:hidden transition-all duration-500 ease-out ${
+          isVisible 
+            ? 'opacity-100 translate-y-0 scale-100' 
+            : 'opacity-0 translate-y-8 scale-75 pointer-events-none'
+        }`}
+      >
         <div className="relative">
 
           {/* WhatsApp (más arriba, ligero a la derecha) */}
@@ -86,12 +116,25 @@ export function FloatingContactButton() {
               transition-all duration-300 hover:scale-110
               ${isOpen ? 'rotate-90 scale-110' : ''}
             `}
+            
           >
             <Phone className="h-5 w-5" />
           </Button>
-
         </div>
       </div>
+          {/* Botón ScrollToTop */}
+          <Button
+            onClick={scrollToTop}
+            size="icon"
+            className={`fixed bottom-8 right-8 z-50 h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-110 ${
+              isVisible 
+                ? 'opacity-100 translate-y-0 scale-100' 
+                : 'opacity-0 translate-y-8 scale-75 pointer-events-none'
+            }`}
+            aria-label="Volver arriba"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </Button>
     </>
   );
 }

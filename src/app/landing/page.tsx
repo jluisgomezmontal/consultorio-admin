@@ -10,7 +10,6 @@ import { FAQSection } from '@/components/landing/FAQSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { LandingFooter } from '@/components/landing/LandingFooter';
-import { ScrollToTop } from '@/components/landing/ScrollToTop';
 import { FloatingContactButton } from '@/components/landing/FloatingContactButton';
 
 export default function LandingPage() {
@@ -49,7 +48,6 @@ export default function LandingPage() {
       
       <LandingFooter />
       
-      <ScrollToTop />
       <FloatingContactButton />
     </div>
   );
