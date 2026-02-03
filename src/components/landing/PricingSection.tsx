@@ -18,10 +18,9 @@ const plans = [
       '1 doctor',
       '1 recepcionista',
       'Pacientes ilimitados',
-      'Gestión de citas',
-      'Expedientes clínicos',
-      'Control de pagos',
-      'Soporte por email'
+      'Agenda avanzada',
+      'Expedientes completos',
+      'Reportes básicos',
     ],
     cta: 'Probar 30 días gratis',
     popular: false,
@@ -40,8 +39,8 @@ const plans = [
       'Pacientes ilimitados',
       'Agenda avanzada',
       'Expedientes completos',
-      'Subida de documentos',
       'Reportes básicos',
+      'Subida de documentos e imágenes',
       'Inteligencia artificial'
     ],
     cta: 'Probar 30 días gratis',
@@ -59,11 +58,10 @@ const plans = [
       '2 doctores',
       '3 recepcionistas',
       'Pacientes ilimitados',
-      'Agenda inteligente',
-      'Expedientes avanzados',
-      'Subida de documentos e imágenes',
+      'Agenda avanzada',
+      'Expedientes completos',
       'Reportes avanzados',
-      'Multi-consultorio',
+      'Subida de documentos e imágenes',
       'Inteligencia artificial'
     ],
     cta: 'Probar 30 días gratis',
@@ -72,20 +70,20 @@ const plans = [
   },
   {
     name: 'Licencia',
-    description: 'Pago único con mantenimiento anual',
+    description: 'Pago único con mantenimiento anual de $799',
     price: '$24,999',
     period: 'pago único',
     priceMonthly: null,
     priceYearly: 2000,
     features: [
-      'Usuarios ilimitados',
-      'Consultorios ilimitados',
-      'Todas las funcionalidades',
-      'Instalación personalizada',
-      'Capacitación incluida',
-      'Soporte técnico dedicado',
-      'Actualizaciones incluidas',
-      'Mantenimiento: $799/año'
+      '1 doctor',
+      '1 recepcionista',
+      'Pacientes ilimitados',
+      'Agenda avanzada',
+      'Expedientes completos',
+      'Reportes básicos',
+      'Subida de documentos e imágenes',
+      'Inteligencia artificial'
     ],
     cta: 'Contactar ventas',
     popular: false,
@@ -110,30 +108,28 @@ export function PricingSection() {
             <span className="sm:hidden">Prueba gratis 30 días</span>
           </div>
         </div>
-        
+
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
-            <Card 
+            <Card
               key={index}
-              className={`relative flex flex-col transition-all duration-500 hover:shadow-2xl ${
-                plan.popular 
-                  ? 'border-primary shadow-xl md:scale-105 lg:scale-110 animate-pulse-subtle' 
+              className={`relative flex flex-col transition-all duration-500 hover:shadow-2xl ${plan.popular
+                  ? 'border-primary shadow-xl md:scale-105 lg:scale-110 animate-pulse-subtle'
                   : 'border-border hover:border-primary/50 md:hover:scale-105'
-              }`}
+                }`}
             >
               {plan.badge && (
                 <div className="absolute -top-3 md:-top-4 left-0 right-0 mx-auto w-fit">
-                  <div className={`flex items-center gap-1 rounded-full px-3 md:px-4 py-1 text-xs md:text-sm font-medium shadow-lg transition-all duration-300 md:hover:scale-110 ${
-                    plan.popular 
+                  <div className={`flex items-center gap-1 rounded-full px-3 md:px-4 py-1 text-xs md:text-sm font-medium shadow-lg transition-all duration-300 md:hover:scale-110 ${plan.popular
                       ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
                       : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                  }`}>
+                    }`}>
                     <Sparkles className="h-3 w-3 md:h-4 md:w-4" />
                     {plan.badge}
                   </div>
                 </div>
               )}
-              
+
               <CardHeader className="pb-6 md:pb-8 pt-6 md:pt-8">
                 <CardTitle className="text-xl md:text-2xl">{plan.name}</CardTitle>
                 <CardDescription className="text-sm md:text-base mt-2">
@@ -160,7 +156,7 @@ export function PricingSection() {
                   )}
                 </div>
               </CardHeader>
-              
+
               <CardContent className="flex-1">
                 <ul className="space-y-2 md:space-y-3">
                   {plan.features.map((feature, featureIndex) => (
@@ -171,13 +167,12 @@ export function PricingSection() {
                   ))}
                 </ul>
               </CardContent>
-              
+
               <CardFooter className="pt-4 md:pt-6">
-                <Button 
-                  asChild 
-                  className={`w-full transition-all duration-300 md:hover:scale-105 text-sm md:text-base ${
-                    plan.popular ? 'shadow-lg hover:shadow-xl' : ''
-                  }`}
+                <Button
+                  asChild
+                  className={`w-full transition-all duration-300 md:hover:scale-105 text-sm md:text-base ${plan.popular ? 'shadow-lg hover:shadow-xl' : ''
+                    }`}
                   size="lg"
                   variant={plan.popular ? 'default' : 'outline'}
                 >
@@ -189,7 +184,7 @@ export function PricingSection() {
             </Card>
           ))}
         </div>
-        
+
         <div className="mt-8 md:mt-12 text-center">
           <p className="text-sm md:text-base text-muted-foreground">
             ¿Necesitas ayuda para elegir? {' '}
