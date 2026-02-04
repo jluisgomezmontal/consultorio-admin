@@ -30,21 +30,21 @@ export function HeroSection() {
             {/* 🔸 Badge */}
             <div className="relative z-30 inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-white dark:bg-gray-900 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-primary dark:text-primary border-2 border-primary/40 dark:border-primary/60 shadow-lg transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 md:hover:scale-105 hover:border-primary/60 dark:hover:border-primary">
               <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
-              Plataforma Médica Integral
+              Potenciado con Inteligencia Artificial
             </div>
 
             {/* 🔸 Title */}
             <h1 className="animate-slide-up text-3xl font-bold tracking-tight text-white drop-shadow-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
-              Transforma la gestión de tu{' '}
+              Tu asistente médico inteligente para{' '}
               <span className="bg-gradient-to-r from-primary to-cyan-300 bg-clip-text text-transparent drop-shadow-lg">
-                consultorio médico
+                tratamientos precisos
               </span>
             </h1>
 
             {/* 🔸 Description */}
             <p className="animate-slide-up animation-delay-100 text-sm sm:text-base md:text-lg lg:text-xl text-white/95 drop-shadow-lg font-medium leading-relaxed">
-              Optimiza tu práctica médica con una plataforma diseñada para profesionales de la salud.
-              Gestiona pacientes, agenda citas y mantén expedientes clínicos organizados.
+              Inteligencia Artificial que te asiste en tiempo real con sugerencias de tratamientos, 
+              alertas de alergias y recomendaciones de medicamentos. Cumpliendo con la NOM-004 y con almacenamiento ilimitado de documentos e imágenes.
             </p>
 
             {/* 🔸 CTA Buttons */}

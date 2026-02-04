@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Logo } from '@/components/Logo';
 import { Menu, X } from 'lucide-react';
-import Image from 'next/image';
 
 export function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,24 +14,8 @@ export function LandingNavbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image 
-              src="/iconwhite.jpg" 
-              alt="Logo" 
-              width={32} 
-              height={32} 
-              className="rounded-lg dark:hidden"
-            />
-            <Image 
-              src="/icondark.jpg" 
-              alt="Logo" 
-              width={32} 
-              height={32} 
-              className="rounded-lg hidden dark:block"
-            />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              MiConsultorio
-            </span>
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Logo size="md" />
           </Link>
         </div>
 

@@ -1,37 +1,37 @@
 'use client';
 
-import { CheckCircle2, Clock, Shield, Zap, HeartPulse, LineChart } from 'lucide-react';
+import { CheckCircle2, Clock, Shield, Zap, HeartPulse, LineChart, Brain, CloudUpload } from 'lucide-react';
 
 const benefits = [
   {
-    icon: Clock,
-    title: 'Ahorra hasta 10 horas semanales',
-    description: 'Automatiza tareas administrativas y dedica más tiempo a tus pacientes'
+    icon: Brain,
+    title: 'IA que te asiste en cada consulta',
+    description: 'Pregunta en lenguaje natural sobre tratamientos, alergias y medicamentos. Recibe sugerencias inteligentes basadas en el historial del paciente'
   },
   {
     icon: Shield,
-    title: 'Cumple con normativas de salud',
-    description: 'Sistema seguro que protege la información médica de tus pacientes'
+    title: 'Cumple con NOM-004-SSA3-2012',
+    description: 'Sistema certificado para expedientes clínicos electrónicos. Garantía legal y profesional para tu consultorio'
   },
   {
-    icon: Zap,
-    title: 'Implementación inmediata',
-    description: 'Comienza a usar el sistema en menos de 5 minutos, sin instalaciones complejas'
+    icon: CloudUpload,
+    title: 'Almacenamiento ilimitado',
+    description: 'Sube todos los documentos, estudios, radiografías e imágenes que necesites sin límites de espacio'
+  },
+  {
+    icon: Clock,
+    title: 'Ahorra hasta 10 horas semanales',
+    description: 'Automatiza tareas administrativas, alertas de alergias y sugerencias de tratamientos con IA'
   },
   {
     icon: HeartPulse,
-    title: 'Mejora la atención al paciente',
-    description: 'Acceso rápido a historiales completos para mejores diagnósticos'
+    title: 'Decisiones médicas más precisas',
+    description: 'Acceso instantáneo a historiales completos, alergias y medicamentos actuales con alertas inteligentes'
   },
   {
     icon: LineChart,
     title: 'Incrementa tus ingresos',
-    description: 'Reduce ausencias con recordatorios y optimiza tu agenda'
-  },
-  {
-    icon: CheckCircle2,
-    title: 'Sin contratos largos',
-    description: 'Cancela cuando quieras, sin penalizaciones ni compromisos'
+    description: 'Agenda inteligente que optimiza tu tiempo, reduce ausencias con recordatorios automáticos'
   }
 ];
 
@@ -43,10 +43,14 @@ export function BenefitsSection() {
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 md:mb-16 animate-fade-in">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 md:mb-4 leading-tight">
-            ¿Por qué elegir MiConsultorio?
+            El único sistema con{' '}
+            <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">
+              IA Médica Integrada
+            </span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
-            Más que un software, es tu aliado para hacer crecer tu práctica médica
+            Asistente inteligente que revoluciona tu práctica médica con sugerencias de tratamientos, 
+            alertas de alergias y cumplimiento total con la NOM-004. Todo con almacenamiento ilimitado.
           </p>
         </div>
         
