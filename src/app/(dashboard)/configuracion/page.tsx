@@ -97,6 +97,7 @@ export default function ConfiguracionPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<'template1' | 'template2' | 'template3' | 'template4' | 'template5'>('template1');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteReceptionistId, setDeleteReceptionistId] = useState<string | null>(null);
@@ -1611,12 +1612,27 @@ export default function ConfiguracionPage() {
                     <Label htmlFor="confirmPassword">
                       Confirmar Nueva Contraseña <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      {...registerPassword('confirmPassword')}
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...registerPassword('confirmPassword')}
+                        id="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                     {errorsPassword.confirmPassword && (
                       <p className="text-sm text-destructive">{errorsPassword.confirmPassword.message}</p>
                     )}
@@ -1854,6 +1870,7 @@ function TeamMemberForm({
   onDelete: () => void;
   isLoading: boolean;
 }) {
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const queryClient = useQueryClient();
   const {
     register,
@@ -1931,12 +1948,28 @@ function TeamMemberForm({
 
       <div className="space-y-2">
         <Label htmlFor={`password-${member.id}`}>Nueva Contraseña</Label>
-        <Input
-          {...register('password')}
-          id={`password-${member.id}`}
-          type="password"
-          placeholder="Dejar en blanco para no cambiar"
-        />
+        <div className="relative">
+          <Input
+            {...register('password')}
+            id={`password-${member.id}`}
+            type={showEditPassword ? 'text' : 'password'}
+            placeholder="Dejar en blanco para no cambiar"
+            className="pr-10"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-full px-3"
+            onClick={() => setShowEditPassword(!showEditPassword)}
+          >
+            {showEditPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
         {errors.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
@@ -1962,6 +1995,7 @@ function CreateReceptionistForm({
   onCancel: () => void;
   isLoading: boolean;
 }) {
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -2005,12 +2039,28 @@ function CreateReceptionistForm({
         <Label htmlFor="create-password">
           Contraseña <span className="text-destructive">*</span>
         </Label>
-        <Input
-          {...register('password')}
-          id="create-password"
-          type="password"
-          placeholder="Mínimo 6 caracteres"
-        />
+        <div className="relative">
+          <Input
+            {...register('password')}
+            id="create-password"
+            type={showCreatePassword ? 'text' : 'password'}
+            placeholder="Mínimo 6 caracteres"
+            className="pr-10"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-full px-3"
+            onClick={() => setShowCreatePassword(!showCreatePassword)}
+          >
+            {showCreatePassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
         {errors.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}

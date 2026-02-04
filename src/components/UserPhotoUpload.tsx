@@ -6,6 +6,7 @@ import { Camera, X, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { userPhotoService } from '@/services/user-photo.service';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserPhotoUploadProps {
   currentPhotoUrl?: string;
@@ -28,6 +29,7 @@ export function UserPhotoUpload({
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentPhotoUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { refetchUser } = useAuth();
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -74,6 +76,9 @@ export function UserPhotoUpload({
         // Actualizar en el backend
         await userPhotoService.updateMyPhoto(newPhotoUrl, newS3Key);
 
+        // Actualizar el contexto de autenticación para reflejar cambios en el navbar
+        await refetchUser();
+
         // Notificar al componente padre
         onPhotoChange?.(newPhotoUrl, newS3Key);
 
@@ -113,6 +118,9 @@ export function UserPhotoUpload({
       setPhotoUrl(undefined);
       setS3Key(undefined);
       setPreviewUrl(undefined);
+
+      // Actualizar el contexto de autenticación para reflejar cambios en el navbar
+      await refetchUser();
 
       // Notificar al componente padre
       onPhotoChange?.(undefined, undefined);

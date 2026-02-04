@@ -59,7 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authService.login({ email, password });
     localStorage.setItem('token', response.data.accessToken);
     localStorage.setItem('refreshToken', response.data.refreshToken);
-    setUser(response.data.user);
+    
+    // Fetch complete user data including photo from /auth/me endpoint
+    await fetchUser();
   };
 
   const logout = async () => {
