@@ -4,10 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { FlowHeader } from '@/components/FlowHeader';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { pagoService, UpdatePagoRequest, MetodoPago, EstatusPago } from '@/services/pago.service';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -134,15 +136,17 @@ export default function EditarPagoPage() {
 
   const pago = pagoData.data;
 
+  const pagoInfo = pago.cita?.paciente?.fullName 
+    ? `${pago.cita.paciente.fullName} - $${pago.monto}` 
+    : `$${pago.monto}`;
+
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Button variant="ghost" size="sm" onClick={() => router.push(`/pagos/${id}`)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Regresar
-          </Button>
-        </div>
+        <FlowHeader
+          pathname={`/pagos/${id}/editar`}
+          params={{ id, pagoInfo }}
+        />
 
         <Card>
           <CardHeader>

@@ -17,6 +17,7 @@ import {
 import { stripeService } from '@/services/stripe.service';
 import { useToast } from '@/hooks/use-toast';
 import { formatLocalDate } from '@/lib/dateUtils';
+import { FlowHeader } from '@/components/FlowHeader';
 
 function PaquetesPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -122,10 +123,12 @@ function PaquetesPageContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <FlowHeader pathname="/configuracion/paquetes" />
+
       <div className="mb-12 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
           <Sparkles className="h-4 w-4" />
-          Planes flexibles para tu consultorio
+          Planes y Suscripciones
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl">
           Planes y Precios

@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { COLORS } from '@/lib/colors';
 import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
 import {
-  ArrowLeft,
   Edit,
   CalendarDays,
   Clock,
@@ -44,6 +43,7 @@ import { GenerarRecetaDialog } from '@/components/GenerarRecetaDialog';
 import { documentoService } from '@/services/documento.service';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { PhoneDisplay } from '@/components/PhoneDisplay';
+import { FlowHeader } from '@/components/FlowHeader';
 
 const estadoLabels: Record<CitaEstado, string> = {
   pendiente: 'Pendiente',
@@ -200,36 +200,34 @@ export default function CitaDetailPage() {
 
   const cita = data.data;
 
+  const citaInfo = cita.paciente?.fullName ? `${cita.paciente.fullName} - ${formatLocalDate(cita.date)}` : formatLocalDate(cita.date);
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <FlowHeader
+          pathname={`/citas/${id}`}
+          params={{ id, citaInfo }}
+          actions={
+            <>
+              {cita.paciente?.id && (
+                <Link href={`/pacientes/${cita.paciente.id}`}>
+                  <Button variant="outline" size="sm">
+                    <UserRound className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Ver Paciente</span>
+                    <span className="sm:hidden">Paciente</span>
+                    <ExternalLink className="ml-2 h-3 w-3" />
+                  </Button>
+                </Link>
+              )}
+            </>
+          }
+        />
+
         {/* Header con gradiente */}
         <div className={`mb-8 rounded-lg bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20 p-6 border ${COLORS.primary.border} overflow-hidden`}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50" onClick={() => {
-                  router.back();
-                  setTimeout(() => {
-                    window.scrollTo({
-                      top: 0,
-                      behavior: "smooth",
-                    });
-                  }, 80);
-                }}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Citas
-                </Button>
-                {cita.paciente?.id && (
-                  <Link href={`/pacientes/${cita.paciente.id}`}>
-                    <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50">
-                      <UserRound className="mr-2 h-4 w-4" />
-                      Ver Paciente
-                      <ExternalLink className="ml-2 h-3 w-3" />
-                    </Button>
-                  </Link>
-                )}
-              </div>
               <h1 className="text-2xl font-bold text-foreground break-words">Detalle de Cita</h1>
               <p className="text-sm text-muted-foreground mt-1 break-words">
                 {cita.paciente?.fullName} • {formatLocalDate(cita.date)}

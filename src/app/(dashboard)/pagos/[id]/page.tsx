@@ -9,21 +9,24 @@ import { pagoService, EstatusPago } from '@/services/pago.service';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
-  ArrowLeft,
   Edit,
   DollarSign,
   CreditCard,
   Calendar,
+  User,
   FileText,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Trash2,
+  Download,
   UserRound,
   Stethoscope,
   Building2,
-  Trash2,
-  Clock,
-  Download,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { FlowHeader } from '@/components/FlowHeader';
 import { GenerarComprobanteDialog } from '@/components/GenerarComprobanteDialog';
 import { COLORS } from '@/lib/colors';
 
@@ -142,37 +145,36 @@ export default function PagoDetailPage() {
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => {
-            router.back();
-            setTimeout(() => {
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              });
-            }, 80);
-          }}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Regresar
-          </Button>
-          {(user.role === 'admin' || user.role === 'doctor') && (
-            <Button variant="outline" size="sm" onClick={() => router.push(`/pagos/${id}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </Button>
-          )}
-          {user.role === 'admin' && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </Button>
-          )}
-        </div>
+        <FlowHeader
+          pathname={`/pagos/${id}`}
+          params={{ 
+            id, 
+            pagoInfo: pago.cita?.paciente?.fullName 
+              ? `${pago.cita.paciente.fullName} - $${pago.monto}` 
+              : `$${pago.monto}` 
+          }}
+          actions={
+            <>
+              {(user.role === 'admin' || user.role === 'doctor') && (
+                <Button variant="outline" size="sm" onClick={() => router.push(`/pagos/${id}/editar`)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </Button>
+              )}
+              {user.role === 'admin' && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Eliminar
+                </Button>
+              )}
+            </>
+          }
+        />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>

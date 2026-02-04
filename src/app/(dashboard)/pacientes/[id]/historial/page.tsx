@@ -6,11 +6,12 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Calendar, DollarSign, User, MapPin, Clock, Stethoscope, FileText, TrendingUp, Activity, CheckCircle2, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { Calendar, DollarSign, User, MapPin, Clock, Stethoscope, FileText, TrendingUp, Activity, CheckCircle2, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { useQuery } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatLocalDate } from '@/lib/dateUtils';
+import { FlowHeader } from '@/components/FlowHeader';
 
 const estadoLabels = {
   pendiente: 'Pendiente',
@@ -75,17 +76,13 @@ export default function PacienteHistorialPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <FlowHeader
+          pathname={`/pacientes/${id}/historial`}
+          params={{ id, patientName: paciente?.fullName }}
+        />
+
         {/* Header profesional */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8 border shadow-sm">
-          <Button
-            variant="ghost"
-            onClick={() => router.push(`/pacientes/${id}`)}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Paciente
-          </Button>
-          
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">

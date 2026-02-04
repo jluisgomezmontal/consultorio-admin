@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, User, Phone, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, User, Phone, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { pacienteService, CreatePacienteRequest, ClinicalHistory } from '@/services/paciente.service';
 import { consultorioService } from '@/services/consultorio.service';
 import { useForm, Controller } from 'react-hook-form';
@@ -19,6 +19,7 @@ import { ClinicalHistoryForm } from '@/components/ClinicalHistoryForm';
 import { PatientPhotoUpload } from '@/components/PatientPhotoUpload';
 import { MedicationAllergySelector } from '@/components/MedicationAllergySelector';
 import { PhoneInput } from '@/components/PhoneInput';
+import { FlowHeader } from '@/components/FlowHeader';
 
 const pacienteSchema = z.object({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -182,14 +183,7 @@ export default function NuevoPacientePage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/pacientes')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a Pacientes
-        </Button>
+        <FlowHeader pathname="/pacientes/nuevo" />
 
         <Card>
           <CardHeader>

@@ -32,6 +32,7 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { FlowHeader } from '@/components/FlowHeader';
 
 export default function ReportesPage() {
   const { user, loading: authLoading } = useAuth();
@@ -217,13 +218,15 @@ export default function ReportesPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <FlowHeader pathname="/reportes" />
+
         <div className="mb-8">
           <h2 className="text-3xl font-bold flex items-center gap-3">
             <BarChart3 className="h-8 w-8 text-primary" />
             Reportes y Estadísticas
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Visualiza el desempeño del consultorio en tiempo real
+            Análisis detallado de citas, ingresos y pacientes
           </p>
         </div>
 

@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PatientAvatar } from '@/components/PatientAvatar';
+import { FlowHeader } from '@/components/FlowHeader';
 import { Switch } from '@/components/ui/switch';
 import { Building2, User as UserIcon, Users, Save, Upload, Eye, EyeOff, Stethoscope, FileText, Plus, Trash2, AlertCircle, ShieldAlert, Calendar, Download, FileJson, FileSpreadsheet } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -615,6 +617,8 @@ export default function ConfiguracionPage() {
   return (
     <div className="bg-background flex-1 flex flex-col min-h-screen overflow-x-hidden">
       <main className="mx-auto max-w-6xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8 flex-1 w-full overflow-x-hidden">
+        <FlowHeader pathname="/configuracion" />
+
         <div className="mb-4 sm:mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold">Configuración</h1>
           <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">

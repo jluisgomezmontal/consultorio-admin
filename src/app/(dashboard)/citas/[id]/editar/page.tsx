@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle, Thermometer, Droplet, Calculator, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Save, Plus, Trash2, User as UserIcon, Calendar, Stethoscope, FileText, Activity, Weight, Ruler, Heart, ChevronDown, ChevronUp, AlertCircle, Thermometer, Droplet, Calculator, Sparkles, CheckCircle2 } from 'lucide-react';
 import { citaService, UpdateCitaRequest, CitaEstado, CitaResponse, Medicamento } from '@/services/cita.service';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { MedicationAllergyAlert } from '@/components/MedicationAllergyAlert';
@@ -19,8 +19,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useConsultorioPermissions } from '@/hooks/useConsultorioPermissions';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatLocalDate } from '@/lib/dateUtils';
 import { aiService } from '@/services/ai.service';
 import { AILoadingOverlay } from '@/components/AILoadingOverlay';
+import { FlowHeader } from '@/components/FlowHeader';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -449,19 +452,19 @@ export default function EditarCitaPage() {
       )
     : allDoctores;
 
+  const citaInfo = citaData?.data?.paciente?.fullName 
+    ? `${citaData.data.paciente.fullName} - ${formatLocalDate(citaData.data.date)}` 
+    : citaData?.data?.date ? formatLocalDate(citaData.data.date) : 'Cita';
+
   return (
     <>
       <AILoadingOverlay isVisible={isAILoading} />
       <div className="min-h-screen bg-background">
         <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.push(`/citas/${id}`)}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a la Cita
-        </Button>
+        <FlowHeader
+          pathname={`/citas/${id}/editar`}
+          params={{ id, citaInfo }}
+        />
 
         <Card>
           <CardHeader>

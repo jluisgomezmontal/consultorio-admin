@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatLocalDate, parseLocalDate } from '@/lib/dateUtils';
-import { ArrowLeft, Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check, User, Phone, Mail, MapPin, Cake, Users, Droplet, Shield, AlertCircle, ClipboardList } from 'lucide-react';
+import { Edit, Calendar, FileText, Download, Activity, Heart, Syringe, Baby, X, Check, User, Phone, Mail, MapPin, Cake, Users, Droplet, Shield, AlertCircle, ClipboardList, History } from 'lucide-react';
 import { pacienteService } from '@/services/paciente.service';
 import { documentoService } from '@/services/documento.service';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import { DocumentList } from '@/components/DocumentList';
 import { PatientAvatar } from '@/components/PatientAvatar';
 import { MedicationAllergyDisplay } from '@/components/MedicationAllergyDisplay';
 import { PhoneDisplay } from '@/components/PhoneDisplay';
+import { FlowHeader } from '@/components/FlowHeader';
 
 export default function PacienteDetailPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -728,35 +729,30 @@ export default function PacienteDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              router.back();
-              setTimeout(() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }, 80)
-            }}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-          <div className="flex gap-2">
-            {user.role !== 'recepcionista' && (
-              <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">
-                <Download className="mr-2 h-4 w-4" />
-                Exportar Expediente
+        <FlowHeader
+          pathname={`/pacientes/${id}`}
+          params={{ id, patientName: paciente?.fullName }}
+          actions={
+            <>
+              <Button variant="outline" onClick={() => router.push(`/pacientes/${id}/historial`)}>
+                <History className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Historial Completo</span>
+                <span className="sm:hidden">Historial</span>
               </Button>
-            )}
-            <Button onClick={() => router.push(`/pacientes/${id}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </Button>
-          </div>
-        </div>
+              {user.role !== 'recepcionista' && (
+                <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">
+                  <Download className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Exportar Expediente</span>
+                  <span className="sm:hidden">Exportar</span>
+                </Button>
+              )}
+              <Button onClick={() => router.push(`/pacientes/${id}/editar`)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+            </>
+          }
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
