@@ -735,20 +735,19 @@ export default function PacienteDetailPage() {
           actions={
             <>
               <Button variant="outline" onClick={() => router.push(`/pacientes/${id}/historial`)}>
-                <History className="mr-2 h-4 w-4" />
+                <History className="h-4 w-4" />
                 <span className="hidden sm:inline">Historial Completo</span>
-                <span className="sm:hidden">Historial</span>
               </Button>
               {user.role !== 'recepcionista' && (
                 <Button variant="outline" onClick={handleExportExpediente} className="print:hidden">
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   <span className="hidden sm:inline">Exportar Expediente</span>
-                  <span className="sm:hidden">Exportar</span>
                 </Button>
               )}
               <Button onClick={() => router.push(`/pacientes/${id}/editar`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
+                <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline">Editar</span>
+                
               </Button>
             </>
           }

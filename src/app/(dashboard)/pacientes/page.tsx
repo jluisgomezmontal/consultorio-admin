@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Phone, Mail, User } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Phone, Mail, User, History } from 'lucide-react';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -336,6 +336,14 @@ export default function PacientesPage() {
                                 title="Editar paciente"
                               >
                                 <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/pacientes/${paciente.id}/historial`)}
+                                title="Historial completo"
+                              >
+                                <History className="h-4 w-4" />
                               </Button>
                               {/* <Button
                                 variant="ghost"
