@@ -7,13 +7,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Phone, Mail, User, History } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, UserPlus, Users, X, CalendarPlus, Mail, User, History } from 'lucide-react';
 import { pacienteService, Paciente } from '@/services/paciente.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { PatientAvatar } from '@/components/PatientAvatar';
+import { PhoneDisplay } from '@/components/PhoneDisplay';
 import { COLORS, GRADIENTS } from '@/lib/colors';
 
 export default function PacientesPage() {
@@ -231,9 +232,8 @@ export default function PacientesPage() {
 
                       <div className="space-y-2 text-sm">
                         {paciente.phone && (
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Phone className="h-4 w-4" />
-                            <span>{paciente.phone}</span>
+                          <div className="flex items-center gap-2">
+                            <PhoneDisplay phone={paciente.phone} className="text-sm" />
                           </div>
                         )}
                         {paciente.email && (
@@ -282,6 +282,15 @@ export default function PacientesPage() {
                           <Trash2 className="mr-2 h-4 w-4" />
                           Eliminar
                         </Button> */}
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => router.push(`/pacientes/${paciente.id}/historial`)}
+                        >
+                          <History className="mr-2 h-4 w-4" />
+                          Historial
+                        </Button>
                       </div>
                       </CardContent>
                     </Card>
@@ -305,8 +314,12 @@ export default function PacientesPage() {
                           <td className="py-3 px-4 text-muted-foreground">
                             {calculateAge(paciente.birthDate) !== null ? calculateAge(paciente.birthDate) : '-'}
                           </td>
-                          <td className="py-3 px-4 text-muted-foreground">
-                            {paciente.phone || '-'}
+                          <td className="py-3 px-4">
+                            {paciente.phone ? (
+                              <PhoneDisplay phone={paciente.phone} className="text-sm" />
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-muted-foreground truncate" title={paciente.email || '-'}>
                             {paciente.email || '-'}
