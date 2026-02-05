@@ -11,8 +11,7 @@ import { citaService, Cita, CitaEstado, CitasFilters } from '@/services/cita.ser
 import { userService } from '@/services/user.service';
 import { consultorioService } from '@/services/consultorio.service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Clock, Eye, Pencil, Plus, Search, Stethoscope, Trash2, UserRound, Building2, DollarSign, Phone } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { CalendarDays, Clock, Eye, Plus, Search, Stethoscope, Trash2, UserRound, Building2, DollarSign, Phone } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ResponsiveTable } from '@/components/ResponsiveTable';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
@@ -303,64 +302,60 @@ function CitasContent() {
           <CardContent className="pt-6">
             <form onSubmit={handleFiltersSubmit} className="flex flex-col gap-4">
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Búsqueda
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Buscar por paciente, doctor, consultorio o motivo..."
+                      value={searchValue}
+                      onChange={(event) => setSearchValue(event.target.value)}
+                      className="pl-10 h-10"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Estado
+                  </label>
+                  <select
+                    value={estadoFilter}
+                    onChange={(event) => setEstadoFilter(event.target.value as CitaEstado | 'todos')}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="todos">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmada">Confirmada</option>
+                    <option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Desde
+                  </label>
                   <Input
-                    type="text"
-                    placeholder="Buscar por paciente, doctor, consultorio o motivo..."
-                    value={searchValue}
-                    onChange={(event) => setSearchValue(event.target.value)}
-                    className="pl-10"
+                    type="date"
+                    value={dateFrom}
+                    onChange={(event) => setDateFrom(event.target.value)}
+                    className="h-10"
                   />
                 </div>
-                <select
-                  value={estadoFilter}
-                  onChange={(event) => setEstadoFilter(event.target.value as CitaEstado | 'todos')}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="todos">Todos los estados</option>
-                  <option value="pendiente">Pendiente</option>
-                  <option value="confirmada">Confirmada</option>
-                  <option value="completada">Completada</option>
-                  <option value="cancelada">Cancelada</option>
-                </select>
-                <select
-                  value={doctorFilter}
-                  onChange={(event) => setDoctorFilter(event.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="">Todos los doctores</option>
-                  {doctors.map((doctor) => (
-                    <option key={doctor.id} value={doctor.id}>
-                      {doctor.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={consultorioFilter}
-                  onChange={(event) => setConsultorioFilter(event.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="">Todos los consultorios</option>
-                  {consultorios.map((consultorio) => (
-                    <option key={consultorio.id} value={consultorio.id}>
-                      {consultorio.name}
-                    </option>
-                  ))}
-                </select>
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(event) => setDateFrom(event.target.value)}
-                  className="h-10"
-                />
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={(event) => setDateTo(event.target.value)}
-                  className="h-10"
-                  min={dateFrom || undefined}
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Hasta
+                  </label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(event) => setDateTo(event.target.value)}
+                    className="h-10"
+                    min={dateFrom || undefined}
+                  />
+                </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button type="submit">Aplicar filtros</Button>
