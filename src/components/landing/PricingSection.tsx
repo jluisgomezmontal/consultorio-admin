@@ -10,7 +10,7 @@ const plans = [
   {
     name: 'Básico',
     description: 'Perfecto para comenzar',
-    price: '$349',
+    price: '$349 mxn',
     period: 'al mes',
     priceMonthly: 349,
     priceYearly: 3490,
@@ -29,13 +29,13 @@ const plans = [
   {
     name: 'Profesional',
     description: 'Para consultorios pequeños',
-    price: '$599',
+    price: '$599 mxn',
     period: 'al mes',
     priceMonthly: 599,
     priceYearly: 5990,
     features: [
       '1 doctor',
-      '1 recepcionista',
+      '2 recepcionista',
       'Pacientes ilimitados',
       'Agenda avanzada',
       'Expedientes completos',
@@ -50,7 +50,7 @@ const plans = [
   {
     name: 'Clínica',
     description: 'Para consultorios en crecimiento',
-    price: '$999',
+    price: '$999 mxn',
     period: 'al mes',
     priceMonthly: 999,
     priceYearly: 9990,
@@ -71,7 +71,7 @@ const plans = [
   {
     name: 'Licencia',
     description: 'Pago único con mantenimiento anual de $799',
-    price: '$24,999',
+    price: '$24,999 mxn',
     period: 'pago único',
     priceMonthly: null,
     priceYearly: 2000,
